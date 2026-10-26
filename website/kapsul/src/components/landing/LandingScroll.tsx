@@ -92,17 +92,18 @@ export function LandingScroll() {
         dots.forEach((d, i) => {
           const angle = (i / dots.length) * Math.PI * 2 + (i % 3) * 0.35;
           const dist = m.dist * (0.55 + ((i * 37) % 45) / 100);
-          tl.fromTo(
+          // Эхэндээ нуугдмал (буцааж гүйлгэхэд ч), нээгдэх агшинд гарч ирээд тарна
+          tl.fromTo(d, { x: 0, y: 0, scale: 1, autoAlpha: 0 }, { autoAlpha: 1, duration: 0.01 }, s2 + 0.15).to(
             d,
-            { x: 0, y: 0, scale: 1, autoAlpha: 1 },
             { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist, scale: 0.3, autoAlpha: 0, duration: 0.7, ease: "power2.out" },
-            s2 + 0.15,
+            s2 + 0.16,
           );
         });
 
         // 3. Байрлах: капсул алга болж, эмүүд байрандаа, нэр, тайлбар нь гарна
         const s3 = 2.3;
         tl.to(q("[data-cap-half]"), { autoAlpha: 0, duration: 0.4 }, s3)
+          .to(q("[data-scroll-hint]"), { autoAlpha: 0, duration: 0.3 }, s3)
           .to(q('[data-caption="2"]'), { autoAlpha: 0, y: -24, duration: 0.4 }, s3)
           .to(q('[data-caption="0"]'), { autoAlpha: 1, y: 0, duration: 0.4 }, s3 + 0.3)
           .to(pills, { x: 0, y: 0, scale: 1, duration: 1, stagger: 0.04 }, s3)
@@ -117,6 +118,10 @@ export function LandingScroll() {
       const mm = gsap.matchMedia();
       mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () =>
         build({ end: "+=300%", fan: 64, dots: 25, dist: 170, jitter: 1 }),
+      );
+      // Утас: богино гүйлгээ (нийт ~250vh), цөөн тоосонцор, сул чичиргээ, нарийн тархалт
+      mm.add("(max-width: 767px) and (prefers-reduced-motion: no-preference)", () =>
+        build({ end: "+=150%", fan: 30, dots: 10, dist: 110, jitter: 0.6 }),
       );
     },
     { scope: root },
@@ -133,7 +138,7 @@ export function LandingScroll() {
   return (
     // -mt-14: sticky цэсний доогуур орж, эхний дэлгэцийг бүтэн эзэлнэ
     <section ref={root} data-landing aria-labelledby="landing-title" className="relative -mt-14">
-      <div className="mx-auto flex min-h-svh max-w-6xl flex-col px-5 pt-24 pb-6">
+      <div className="mx-auto flex min-h-svh max-w-6xl flex-col px-5 pt-20 pb-4 md:pt-24 md:pb-6">
         {/* Үе шат бүрийн бичвэр нэг нүдэнд давхцаж байрлана */}
         <div className="mx-auto grid max-w-2xl text-center [&>*]:[grid-area:1/1]">
           <div data-caption="0">
@@ -152,7 +157,7 @@ export function LandingScroll() {
           </div>
         </div>
 
-        <div data-area className="relative flex flex-1 items-center justify-center py-6">
+        <div data-area className="relative flex flex-1 items-center justify-center py-3 md:py-6">
           <div data-capsule className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <div data-cap-scale>
               <div className="cap-jitter">
@@ -174,7 +179,7 @@ export function LandingScroll() {
             </div>
           </div>
 
-          <ul id="sections" className="relative flex w-full flex-col gap-2 md:grid md:grid-cols-5 md:items-end md:gap-4">
+          <ul id="sections" className="relative flex w-full flex-col gap-1 md:grid md:grid-cols-5 md:items-end md:gap-4">
             {SECTIONS.map((s) => (
               <li key={s.id} data-slot className={DESKTOP_ORDER[s.id]}>
                 <Pill s={s} big={s.id === "extension"} />

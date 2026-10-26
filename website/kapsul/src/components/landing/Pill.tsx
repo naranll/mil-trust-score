@@ -22,19 +22,19 @@ export function Pill({ s, big = false }: { s: Section; big?: boolean }) {
       {...(s.external ? { target: "_blank", rel: "noreferrer" } : {})}
       data-pill={s.id}
       style={{ "--c": s.color } as CSSProperties}
-      className="group flex items-center gap-4 rounded-2xl p-3 text-left transition-colors duration-[var(--dur-fast)] hover:bg-[color-mix(in_srgb,var(--c)_14%,transparent)] focus-visible:outline-[var(--c)] md:flex-col md:gap-3 md:p-4 md:text-center"
+      className="group flex items-center gap-3 rounded-2xl px-2.5 py-2 text-left transition-colors duration-[var(--dur-fast)] hover:bg-[color-mix(in_srgb,var(--c)_14%,transparent)] focus-visible:outline-[var(--c)] md:flex-col md:gap-3 md:p-4 md:text-center"
     >
       <span data-pill-art className="shrink-0">
         <PillArt
           color={s.color}
           className={`block transition-transform duration-[var(--dur-base)] ease-out group-hover:-translate-y-1 group-hover:-rotate-6 group-focus-visible:-rotate-6 ${
-            big ? "w-24 md:w-36" : "w-20 md:w-24"
+            big ? "w-20 md:w-36" : "w-16 md:w-24"
           }`}
         />
       </span>
       <span data-pill-text className="flex flex-col gap-0.5">
-        <span className={`font-semibold text-ink ${big ? "text-[20px] md:text-[25px]" : "text-[18px] md:text-[20px]"}`}>{s.label}</span>
-        <span className="text-[15px] leading-snug text-ink-2 md:max-w-[14rem]">{s.line}</span>
+        <span className={`font-semibold text-ink ${big ? "text-[19px] md:text-[25px]" : "text-[17px] md:text-[20px]"}`}>{s.label}</span>
+        <span className="text-[14px] leading-snug text-ink-2 md:max-w-[14rem] md:text-[15px]">{s.line}</span>
       </span>
     </Link>
   );
