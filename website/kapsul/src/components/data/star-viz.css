@@ -45,7 +45,7 @@
   outline-offset: 3px;
 }
 #mv-viz .wrap {
-  max-width: 980px;
+  max-width: none; /* бүтэн өргөн: хуудас бүр хоёр талдаа хоосон зайгүй */
   margin: 0 auto;
   padding: 28px 20px 32px;
 }

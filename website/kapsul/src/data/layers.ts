@@ -62,3 +62,6 @@ export const LAYERS: Layer[] = [
     status: "Хэмжинэ",
   },
 ];
+
+// Блогийн нийтлэлийн давхаргын нэрээс өнгө
+export const layerColor = (name: string) => LAYERS.find((l) => l.name === name)?.particle ?? "var(--color-accent)";

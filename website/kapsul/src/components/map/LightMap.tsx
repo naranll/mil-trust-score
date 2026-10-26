@@ -5,7 +5,8 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { AIMAG_BY_ID } from "@/data/aimags";
-import { KIND_COLOR, fetchLights, isLive, subscribeLights, timeAgo, type Light } from "@/lib/lights";
+import { DEMO_AIMAGS, KIND_COLOR, fetchLights, isLive, subscribeLights, timeAgo, type Light } from "@/lib/lights";
+import { SyntheticTag } from "@/components/ui/Pill";
 import { ShareButton } from "./ShareButton";
 
 const MapScene = dynamic(() => import("./MapScene"), { ssr: false });
@@ -93,8 +94,13 @@ export function LightMap() {
           </li>
           <li className="mt-1 flex items-center gap-2 text-[12.8px] text-ink-3">
             <span aria-hidden className={`size-2 rounded-full ${live ? "bg-cat-3" : "bg-ink-3"}`} />
-            {live ? "Шууд" : "Зөвхөн энэ төхөөрөмж"}
+            {live ? "Шууд" : "Энэ төхөөрөмж"}
           </li>
+          {!live && (
+            <li>
+              <SyntheticTag>Жишээ өгөгдөл: {DEMO_AIMAGS} аймгийн гэрэл</SyntheticTag>
+            </li>
+          )}
         </ul>
 
         <div className="pointer-events-auto rounded-2xl bg-surface p-5 shadow-1 md:max-w-sm">

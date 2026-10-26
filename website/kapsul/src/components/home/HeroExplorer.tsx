@@ -1,14 +1,12 @@
 "use client";
 
-// Нүүрний гол хэсэг: шилэн капсулыг дарж нээгээд, давхарга бүрийг сонгож тоглоно.
-import dynamic from "next/dynamic";
+// Нүүрний гол хэсэг: худал постыг дарж давхаргаар нь задлаад, давхарга бүрийг сонгож тоглоно.
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { LAYERS } from "@/data/layers";
 import { ClaimDemo, CognitionDemo, ProductionDemo, SpreadDemo } from "./LayerDemos";
-
-const GlassCapsule = dynamic(() => import("@/components/three/GlassCapsule"), { ssr: false });
+import { PostStack } from "./PostStack";
 
 export function HeroExplorer({ loss, lossUrl }: { loss: number; lossUrl: string }) {
   const [open, setOpen] = useState(false);
@@ -42,10 +40,12 @@ export function HeroExplorer({ loss, lossUrl }: { loss: number; lossUrl: string 
               <h1 id="hero-title" className="text-[clamp(2.6rem,6vw,4.75rem)] leading-[1.02] font-bold tracking-[-0.025em] text-ink">
                 Cure from the Core
               </h1>
-              <p className="mt-5 max-w-md text-xl leading-relaxed text-ink-2">Худал пост бол зөвхөн бүрхүүл. Дотор нь юу байгааг хараарай.</p>
-              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <p className="mt-4 max-w-md text-lg leading-relaxed text-ink-2 md:mt-5 md:text-xl">
+                Худал пост бол зөвхөн дээд давхарга. Доор нь түүнийг тараасан алгоритм, хийсэн хүмүүс, итгүүлсэн дадал бий.
+              </p>
+              <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 md:mt-8">
                 <button type="button" onClick={openIt} className="btn btn-primary text-base">
-                  Капсулыг нээх
+                  Постыг задлах
                 </button>
                 <Link href="/game" className="btn-quiet inline-flex items-center">
                   Шууд тоглох
@@ -59,7 +59,7 @@ export function HeroExplorer({ loss, lossUrl }: { loss: number; lossUrl: string 
                   <span aria-hidden className="size-4 rounded-full" style={{ background: active.particle }} />
                   {active.name}
                 </h2>
-                <button type="button" onClick={close} aria-label="Капсулыг хаах" className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-2 hover:bg-subtle hover:text-ink">
+                <button type="button" onClick={close} aria-label="Давхаргуудыг хаах" className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-2 hover:bg-subtle hover:text-ink">
                   <X aria-hidden className="size-5" />
                 </button>
               </div>
@@ -74,39 +74,24 @@ export function HeroExplorer({ loss, lossUrl }: { loss: number; lossUrl: string 
           )}
         </div>
 
-        {/* Баруун тал: шилэн капсул */}
+        {/* Баруун тал (утсан дээр дээр): давхаргатай пост. Утсанд өндрийг багасгаж гарчиг эхний дэлгэцэд багтана */}
         <div className="relative order-1 md:order-2">
-          <div className="h-[46svh] min-h-[18rem] md:h-[64svh]">
-            <GlassCapsule
+          <div className="h-[34svh] min-h-60 md:h-[60svh]">
+            <PostStack
               open={open}
               selected={selected}
+              hover={hover}
               onOpen={openIt}
               onSelect={setSelected}
               onHover={setHover}
               still={still}
-              label="Тунгалаг шилэн капсул. Дотор нь мэдэгдэл, тархалт, үйлдвэрлэл, танин мэдэхүй гэсэн 4 давхарга үүрлэсэн."
             />
           </div>
 
-          {/* Гараар зурсан тэмдэглэл: зөвхөн хаалттай үед */}
-          {!open && (
-            <button
-              type="button"
-              onClick={openIt}
-              className="absolute right-2 bottom-2 flex items-end gap-1 text-left text-[15px] font-semibold text-ink-2 md:right-6 md:bottom-10"
-            >
-              <svg aria-hidden viewBox="0 0 60 50" className="h-10 w-12 -scale-x-100 text-ink-3">
-                <path d="M4 44c10-2 22-8 30-18S46 8 52 4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <path d="M44 4h9v9" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <span className="mb-[-4px] -rotate-3">дараад нээ</span>
-            </button>
-          )}
-
-          {/* Давхарга сонгох товчлуурууд (капсул нээгдсэн үед) */}
+          {/* Давхарга сонгох товчлуурууд (задарсан үед) */}
           <div
             role="tablist"
-            aria-label="Капсулын давхарга"
+            aria-label="Постын давхарга"
             className={`seg grid w-full grid-cols-4 transition-opacity duration-[var(--dur-slow)] ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
           >
             {LAYERS.map((l, i) => (

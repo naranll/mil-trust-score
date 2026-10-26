@@ -6,9 +6,11 @@ export const metadata: Metadata = {
   description: "12 пост гүйлгээд алгоритм таныг хэрхэн харсныг олж мэдээрэй.",
 };
 
+// Апп маягийн хуудас: header-ийн доорх дэлгэцийг бүтэн эзэлж, хуудас өөрөө гүйлгэгдэхгүй (data-app, globals.css).
+// Урт агуулга зүүн баганын дотор гүйлгэгдэнэ.
 export default function GamePage() {
   return (
-    <div className="mx-auto max-w-6xl px-5 pt-14 md:pt-20">
+    <div data-app className="flex h-[calc(100svh-4rem)] w-full flex-col overflow-hidden px-5 pt-4 pb-4 md:px-10 md:pt-8 md:pb-8 xl:px-16">
       <FeedGame />
     </div>
   );
