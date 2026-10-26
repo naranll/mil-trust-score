@@ -8,7 +8,7 @@ Repo layout (see docs/ARCHITECTURE.md):
 import os
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]  # extension/backend/app/config.py -> repo root
 MODEL_DIR = REPO_ROOT / "model"
 EXTENSION_DIR = REPO_ROOT / "extension"
 

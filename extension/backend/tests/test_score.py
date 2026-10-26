@@ -4,7 +4,7 @@ os.environ["WHOIS_ENABLED"] = "0"  # no network in tests
 
 from fastapi.testclient import TestClient
 
-from app.main import app
+from extension.backend.app.main import app
 
 client = TestClient(app)
 

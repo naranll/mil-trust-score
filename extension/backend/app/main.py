@@ -6,7 +6,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from . import model_adapter, posts
+from . import posts
+from . import model_adapter
 from .config import EXTENSION_DIR, feedback_dir
 from .schemas import FeedbackRequest, ScoreRequest, ScoreResponse
 from .scorecard import score_page

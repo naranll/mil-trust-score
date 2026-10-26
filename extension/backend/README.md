@@ -20,12 +20,11 @@ backend/
 
 ## Run
 
-From the **repo root**:
+From `extension/backend/`:
 
 ```bash
 python -m venv .venv && source .venv/bin/activate       # Windows: .venv\Scripts\activate
-pip install -r backend/requirements.txt
-cd backend
+pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 pytest -q
 ```

@@ -11,7 +11,7 @@ pytest.importorskip("lightgbm")
 
 from fastapi.testclient import TestClient  # noqa: E402
 
-from app.main import app  # noqa: E402
+from extension.backend.app.main import app  # noqa: E402
 
 client = TestClient(app)
 
