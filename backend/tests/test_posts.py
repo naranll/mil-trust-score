@@ -57,6 +57,42 @@ def test_manipulative_post_is_red():
     assert r["status"] == "ok" and r["zone"] == "red" and r["risks"]
 
 
+PERSONAL = "Өнөөдөр гэрийнхэнтэйгээ хамт Тэрэлж явлаа, агаар нь үнэхээр цэвэр байна 😍"
+PLAIN_SALE = "Шинэ ирэлт! Ноосон цамц хар, саарал өнгөтэй. Размер S-XL. Үнэ 89,000₮"
+SCAM_AD = ("Шэйрлээд бэлэг ав! Хонжвор 5 сая төгрөг, урьдчилгаа 20,000₮-ийг данс руу шилжүүлээд inbox-д бичээрэй, "
+           "сүүлийн цөөн ширхэг, өнөөдөр л!")
+
+
+def test_personal_post_is_skipped_with_type():
+    r = client.post("/score/posts", json={"items": [{"id": "p", "text": PERSONAL}]}).json()["results"][0]
+    assert r["status"] == "skip" and r["post_type"] == "personal"
+
+
+def test_ads_get_ad_scoring_not_a_news_score():
+    r = client.post("/score/posts", json={"items": [
+        {"id": "sale", "text": PLAIN_SALE, "sponsored": True},
+        {"id": "scam", "text": SCAM_AD, "sponsored": True, "has_cta": True},
+    ]}).json()["results"]
+    by_id = {x["id"]: x for x in r}
+    for x in by_id.values():
+        assert x["status"] == "ok" and x["post_type"] in ("ad", "commerce")
+        assert x["zone"] in ("ad_ok", "ad_check", "ad_scam") and "trust" not in x
+    assert by_id["scam"]["zone"] == "ad_scam" and by_id["scam"]["scam"]
+    assert by_id["sale"]["zone"] != "ad_scam"  # an ordinary shop post must not be flagged as a scam
+
+
+def test_cors_blocks_foreign_web_pages():
+    ext = client.options("/feedback/posts", headers={"Origin": "chrome-extension://abc", "Access-Control-Request-Method": "POST"})
+    evil = client.options("/feedback/posts", headers={"Origin": "https://evil.example", "Access-Control-Request-Method": "POST"})
+    assert ext.headers.get("access-control-allow-origin") == "chrome-extension://abc"
+    assert "access-control-allow-origin" not in evil.headers
+
+
+def test_demo_pages_are_served():
+    assert client.get("/demo").status_code == 200
+    assert client.get("/demo/fb").status_code == 200
+
+
 def test_feedback_posts_does_not_store_author(tmp_path, monkeypatch):
     monkeypatch.setenv("HM_FEEDBACK_DIR", str(tmp_path))
     r = client.post("/feedback/posts", json={
