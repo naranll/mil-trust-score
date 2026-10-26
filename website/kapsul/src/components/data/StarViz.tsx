@@ -24,7 +24,8 @@ function Key({ items }: { items: [4 | 6, string, string][] }) {
   );
 }
 
-export function StarViz() {
+// children: эхэнд нэмэгдэх plate-ууд (жишээ нь FeedStars). #mv-viz дотор тул ижил хэв маягтай.
+export function StarViz({ children }: { children?: React.ReactNode }) {
   const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export function StarViz() {
   return (
     <section id="mv-viz" ref={ref} aria-label="Хэвлэлийн хүрээлэнгийн өгөгдөл">
       <div className="wrap">
+        {children}
         <section className="plate" aria-labelledby="mv-t1">
           <h2 id="mv-t1">Хамгийн түгээмэл зочилдог 10 мэдээллийн сайт</h2>
           <Key items={[[4, "#FFB547", "Улаанбаатар"], [6, "#6F86FF", "Орон нутаг"]]} />
