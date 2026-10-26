@@ -3,7 +3,7 @@
 The extension calls this ONLY after the user presses the button in the side panel. Nothing is scanned or sent
 in the background. The response is signals, never a score (see signals.py for the three states).
 
-Flow: when an Anthropic key is configured, Claude reads the posts in one request (llm_score.py: text + image ->
+Flow: when an LLM key is configured (Claude or Gemini), it reads the posts in one request (llm_score.py: text + image ->
 quoted signals). Posts it could not read fall back to the trained pipeline: classify the post type (claim / ad /
 commerce / personal), then run the matching rules. Both raw results are mapped by signals.to_signals().
 Privacy: page names are used only to match the registered-pages list and are never stored or logged.

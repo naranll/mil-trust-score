@@ -41,20 +41,37 @@ API contract: [`docs/API.md`](../../docs/API.md) · auto docs: http://localhost:
 | `HM_EXTENSION_IDS` | empty | comma-separated extension ids allowed by CORS (default: any `chrome-extension://` id) |
 | `HM_CORS_ORIGINS` | empty | website origins allowed by CORS |
 | `HM_FEEDBACK` | `0` | `1` enables `/feedback/posts` (team labelling sessions only) |
-| `ANTHROPIC_API_KEY` | empty | enables the Claude reader for `/api/check` |
-| `HM_LLM` | `1` | `0` turns the Claude reader off even with a key |
-| `HM_LLM_MODEL` / `HM_LLM_EFFORT` | `claude-opus-5-5` / `low` | Claude model and effort |
+| `ANTHROPIC_API_KEY` | empty | enables the LLM reader with Claude for `/api/check` |
+| `GEMINI_API_KEY` | empty | enables the LLM reader with Gemini (free key: aistudio.google.com → Get API key) |
+| `HM_LLM_PROVIDER` | auto | `claude` or `gemini` when both keys are set; otherwise the provider whose key is set |
+| `HM_LLM` | `1` | `0` turns the LLM reader off even when a key is set |
+| `HM_LLM_MODEL` | `claude-opus-5-5` / `gemini-3.5-flash-lite` | model used by the reader |
+| `HM_LLM_EFFORT` | `low` | Claude only: `low` / `medium` / `high`, more effort = slower, more careful |
 | `WHOIS_ENABLED` | `1` | `0` disables WHOIS in page checks |
 | `HM_ARTIFACTS_DIR`, `HM_REFERENCE_DIR`, `HM_FEEDBACK_DIR` | repo paths | overrides |
 
-## The Claude reader
+## The LLM reader
 
-With `ANTHROPIC_API_KEY` set, `/api/check` sends the posts the user asked about to Claude in one request: text,
-image text, the first image (by URL), link domain and title, plus two facts from the trained model (registered-page
-list match; match against MFCC / factcheck.mn checks). Claude returns the post kind and up to 3 signals with exact
-quotes; quotes not found in the post are dropped. It gives **no score** and may return no signals. Output carries
-`notes: ["llm_unvalidated"]`: it has not been measured on Mongolian posts. On any failure the trained rules answer.
-Author names are not sent to Anthropic; post text and image are.
+With a key set, `/api/check` sends the posts the user asked about to the LLM in one request
+([`app/llm_score.py`](app/llm_score.py)): text, image text, the first image, link domain and title, plus two facts
+from the trained model (registered-page list match; match against MFCC / factcheck.mn checks). The LLM returns the
+post kind and up to 3 signals with exact quotes; quotes not found in the post are dropped. It gives **no score** and
+may return no signals. Output carries `notes: ["llm_unvalidated"]`: it has not been measured on Mongolian posts.
+If the key is missing or a request fails (network, rate limit, refusal, bad JSON), the trained rules answer;
+`/health` → `llm.error` shows the last failure. Results are cached in memory by content.
+Gemini's free tier is often busy (503 / 504 / 429); the reader then retries once on `gemini-3.8-flash`.
+A 4-post batch took about 30 s on flash-lite during testing, so "Send for deeper check" can take a while.
+
+Privacy: author names are not sent, only the source kind; post text and image do go to the LLM provider. On the
+Gemini free tier Google may use submitted content to improve its products: say so wherever the extension is shown.
+
+Put the key in `extension/backend/.env` (git-ignored; copy [`.env.example`](.env.example)) so it works from any
+shell, then start the server as usual:
+
+```powershell
+cd extensionackend
+uvicorn app.main:app --port 8000
+```
 
 ## Measurement
 
