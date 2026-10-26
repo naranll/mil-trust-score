@@ -52,23 +52,37 @@ API docs (auto-generated): http://localhost:8000/docs · full contract: [`docs/A
 | `HM_ARTIFACTS_DIR` | `model/artifacts` | where `.joblib` files are loaded from |
 | `HM_REFERENCE_DIR` | `data/reference` | outlet lists |
 | `HM_FEEDBACK_DIR` | `data/feedback` | where feedback is appended (git-ignored) |
-| `ANTHROPIC_API_KEY` | empty | turns on LLM scoring for `/score/posts` (Claude reads the text and image, see below) |
+| `ANTHROPIC_API_KEY` | empty | turns on LLM scoring with Claude for `/score/posts` (see below) |
+| `GEMINI_API_KEY` | empty | turns on LLM scoring with Gemini (free key: aistudio.google.com → Get API key) |
+| `HM_LLM_PROVIDER` | auto | `claude` or `gemini` when both keys are set; otherwise the provider whose key is set |
 | `HM_LLM` | `1` | `0` turns LLM scoring off even when a key is set |
-| `HM_LLM_MODEL` | `claude-opus-5-5` | Claude model used for scoring |
-| `HM_LLM_EFFORT` | `low` | `low` / `medium` / `high`: more effort = slower, more careful |
+| `HM_LLM_MODEL` | `claude-opus-5-5` / `gemini-3.5-flash-lite` | model used for scoring |
+| `HM_LLM_EFFORT` | `low` | Claude only: `low` / `medium` / `high`, more effort = slower, more careful |
 
 ## LLM scoring
 
-With `ANTHROPIC_API_KEY` set, `/score/posts` sends each batch to Claude in one request ([`app/llm_score.py`](app/llm_score.py)):
-post text, image text, the post's first image (by URL), link domain and title. The trained model adds two facts
-Claude cannot know: the source kind (registered-outlets list) and a match against already-refuted claims. Claude
+With a key set, `/score/posts` sends each batch to the LLM in one request ([`app/llm_score.py`](app/llm_score.py)):
+post text, image text, the post's first image, link domain and title. The trained model adds two facts the LLM
+cannot know: the source kind (registered-outlets list) and a match against already-refuted claims. The LLM
 returns kind (claim / ad / personal), a 0–100 trust score, a one-sentence summary and up to 3 reasons with exact
 quotes; quotes not found in the post are dropped. Product rules still apply after Claude: green needs a registered
 source (else capped at 69), a strongly matched refuted claim stays below 40. Results have `"scorer": "llm"`.
 
 If the key is missing or a request fails (network, rate limit, refusal, bad JSON), those posts are scored by the
 trained scorecard as before; `/health` → `llm.error` shows the last failure. Results are cached in memory by content.
-Privacy: author names are not sent, only the source kind; post text and image do go to the Anthropic API.
+Gemini's free tier is often busy (503 / 504 / 429); the scorer then retries once on `gemini-3.8-flash`.
+A 4-post batch took about 30 s on flash-lite during testing, so badges appear later than with the scorecard alone.
+
+Privacy: author names are not sent, only the source kind; post text and image do go to the LLM provider. On the
+Gemini free tier Google may use submitted content to improve its products: say so wherever the extension is shown.
+
+Put the key in `extension/backend/.env` (git-ignored; copy [`.env.example`](.env.example)) so it works from any
+shell, then start the server as usual:
+
+```powershell
+cd extension\backend
+.venv\Scripts\python -m uvicorn app.main:app --port 8000
+```
 
 ## Notes
 

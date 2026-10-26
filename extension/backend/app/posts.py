@@ -3,11 +3,12 @@
 This is the contract the extension already speaks (extension/content.js, background.js).
 Page-level scoring for news sites lives in scorecard.py and POST /score.
 
-Flow: when an Anthropic key is configured, Claude scores the whole batch in one request
-(llm_score.py: text + image -> 0-100 trust, zone, reasons). Posts it could not score fall back to
-the trained pipeline: classify the post type (claim / ad / commerce / personal), then run the
-matching scorer. Claims go through the trained scorecard; ads get a scam-signal check;
-personal posts are skipped.
+Two passes, so the feed stays fast:
+1. POST /score/posts — the trained pipeline: classify the post type (claim / ad / commerce /
+   personal), then run the matching scorer. Claims go through the trained scorecard; ads get a
+   scam-signal check; personal posts are skipped. About a second per batch.
+2. POST /score/posts/llm — when an LLM key is configured, the LLM reads text + image
+   (llm_score.py) and the extension replaces the badges it gets back. Seconds per batch.
 """
 import csv
 from datetime import datetime
@@ -23,6 +24,7 @@ from .config import feedback_dir
 router = APIRouter(tags=["posts"])
 
 MAX_BATCH = 50
+MAX_LLM_BATCH = 8      # small LLM batches: the first upgraded badges arrive sooner
 
 
 class Item(BaseModel):
@@ -66,29 +68,47 @@ def _llm_input(m, it: Item) -> dict:
             "has_cta": it.has_cta, "source_kind": kind, "factcheck": fc}
 
 
+def _full_text(it: Item) -> str:
+    return " ".join(x for x in (it.text, it.image_text) if x)
+
+
 @router.post("/score/posts")
 def score_posts(batch: Batch):
+    """Fast path (about a second): the trained scorecard, so badges appear while the user scrolls.
+    The extension then sends the same posts to /score/posts/llm and upgrades the badges."""
     m = model_adapter.get_model()
-    items = batch.items[:MAX_BATCH]
-    # 1) Claude reads every post in one request; 2) whatever it could not score goes to the trained scorecard
-    llm_in = {it.id: _llm_input(m, it) for it in items} if llm_score.enabled() else {}
+    out = []
+    for it in batch.items[:MAX_BATCH]:
+        if m is None:
+            r = {"status": "error", "why": "model unavailable"}
+        else:
+            try:
+                r = score_one(m, it)
+                r = m.kb.enrich(r, _full_text(it), r.get("post_type"))
+            except Exception as e:  # one bad post must not break the batch
+                r = {"status": "error", "why": str(e)}
+        out.append({"id": it.id, **r})
+    return {"results": out}
+
+
+@router.post("/score/posts/llm")
+def score_posts_llm(batch: Batch):
+    """Slow path (seconds to tens of seconds): the LLM reads text and image (llm_score.py). Returns only the
+    posts it scored; any other post keeps its scorecard badge. "llm": false means no key is configured."""
+    if not llm_score.enabled():
+        return {"results": [], "llm": False}
+    m = model_adapter.get_model()
+    items = batch.items[:MAX_LLM_BATCH]
+    llm_in = {it.id: _llm_input(m, it) for it in items}
     llm_out = llm_score.score_batch(list(llm_in.values()))
     out = []
     for it in items:
         if it.id in llm_out:
             r = llm_score.to_result(llm_out[it.id], llm_in[it.id])
             if m is not None:
-                r = m.kb.enrich(r, " ".join(x for x in (it.text, it.image_text) if x), r.get("post_type"))
-        elif m is None:
-            r = {"status": "error", "why": "model unavailable"}
-        else:
-            try:
-                r = score_one(m, it)
-                r = m.kb.enrich(r, " ".join(x for x in (it.text, it.image_text) if x), r.get("post_type"))
-            except Exception as e:  # one bad post must not break the batch
-                r = {"status": "error", "why": str(e)}
-        out.append({"id": it.id, **r})
-    return {"results": out}
+                r = m.kb.enrich(r, _full_text(it), r.get("post_type"))
+            out.append({"id": it.id, **r})
+    return {"results": out, "llm": True}
 
 
 AD_SUMMARY = {

@@ -1,10 +1,11 @@
-"""LLM scoring for Facebook posts: Claude reads the post text (and its image) and returns a 0-100 trust
+"""LLM scoring for Facebook posts: an LLM reads the post text (and its image) and returns a 0-100 trust
 score with reasons quoted from the post.
 
-Enabled when an Anthropic credential is configured (ANTHROPIC_API_KEY) and HM_LLM is not "0".
+Providers: Claude (ANTHROPIC_API_KEY) or Gemini (GEMINI_API_KEY). HM_LLM_PROVIDER picks one when both
+keys are set; HM_LLM=0 turns LLM scoring off. Same prompt, schema and fallbacks for both.
 The trained model still supplies what an LLM cannot know on its own: whether the page is on the
 registered-outlets list (source kind) and whether the claim matches one already refuted by MFCC or
-factcheck.mn. Those facts go into the prompt; Claude writes the score and the reasons.
+factcheck.mn. Those facts go into the prompt; the LLM writes the score and the reasons.
 
 score_batch() never raises: on any failure (no key, API error, refusal, bad JSON) it returns the posts
 it could not score as missing, and posts.py falls back to the trained scorecard for them.
@@ -22,9 +23,29 @@ from pydantic import BaseModel, ValidationError
 
 log = logging.getLogger(__name__)
 
-MODEL = os.getenv("HM_LLM_MODEL", "claude-opus-5-5")
-EFFORT = os.getenv("HM_LLM_EFFORT", "low")          # a short classification task: low is enough
+# Gemini: flash-lite answers a 20-post batch in seconds; 3.8-flash often hit the 90 s deadline (504) on the free tier
+DEFAULT_MODEL = {"claude": "claude-opus-5-5", "gemini": "gemini-3.5-flash-lite"}
+GEMINI_FALLBACKS = ["gemini-3.8-flash"]
+EFFORT = os.getenv("HM_LLM_EFFORT", "low")          # Claude only; a short classification task: low is enough
 CACHE_SIZE = 2000
+IMAGE_MAX_BYTES = 5 * 1024 * 1024
+
+
+def _gemini_key() -> Optional[str]:
+    return os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+
+
+def provider() -> str:
+    p = os.getenv("HM_LLM_PROVIDER", "").lower()
+    if p in DEFAULT_MODEL:
+        return p
+    if os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN"):
+        return "claude"
+    return "gemini" if _gemini_key() else "claude"
+
+
+def model() -> str:
+    return os.getenv("HM_LLM_MODEL") or DEFAULT_MODEL[provider()]
 
 # Reason categories. Same ids as data/reference/knowledge.json "signals", so kb.enrich() can attach
 # the vetted "why" text, laws and further reading to each reason.
@@ -128,33 +149,43 @@ SCHEMA = {
     "additionalProperties": False,
 }
 
-_client = None
+_clients: dict = {}
 _import_error: Optional[str] = None
 _last_error: Optional[str] = None
+_used_model: Optional[str] = None      # the model that answered the last request (after any fallback)
 _cache: "OrderedDict[str, dict]" = OrderedDict()
 
 
 def enabled() -> bool:
     if os.getenv("HM_LLM", "1") == "0":
         return False
+    if provider() == "gemini":
+        return bool(_gemini_key())
     return bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN"))
 
 
 def status() -> dict:
-    return {"enabled": enabled() and _get_client() is not None, "model": MODEL,
+    return {"enabled": enabled() and _get_client() is not None, "provider": provider(), "model": model(),
             "error": _import_error or _last_error}
 
 
 def _get_client():
-    global _client, _import_error
-    if _client is None and _import_error is None:
+    global _import_error
+    p = provider()
+    if p not in _clients and _import_error is None:
         try:
-            import anthropic  # noqa: WPS433 (optional dependency)
+            if p == "gemini":
+                from google import genai  # noqa: WPS433 (optional dependency)
+                from google.genai import types
 
-            _client = anthropic.Anthropic(timeout=90.0)
+                _clients[p] = genai.Client(api_key=_gemini_key(), http_options=types.HttpOptions(timeout=90_000))
+            else:
+                import anthropic  # noqa: WPS433 (optional dependency)
+
+                _clients[p] = anthropic.Anthropic(timeout=90.0)
         except Exception as e:
             _import_error = f"{type(e).__name__}: {e}"
-    return _client
+    return _clients.get(p)
 
 
 def _key(p: dict) -> str:
@@ -164,26 +195,111 @@ def _key(p: dict) -> str:
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
+def _post_text(p: dict) -> str:
+    fields = {k: p[k] for k in ("id", "text", "image_text", "link_domain", "link_title", "sponsored",
+                                "has_cta", "source_kind", "factcheck") if p.get(k) not in (None, "", False)}
+    return "<post>\n" + json.dumps(fields, ensure_ascii=False) + "\n</post>"
+
+
 def _content(posts: List[dict], with_images: bool) -> list:
     blocks = [{"type": "text", "text": f"Score these {len(posts)} posts."}]
     for p in posts:
-        fields = {k: p[k] for k in ("id", "text", "image_text", "link_domain", "link_title", "sponsored",
-                                    "has_cta", "source_kind", "factcheck") if p.get(k) not in (None, "", False)}
-        blocks.append({"type": "text", "text": "<post>\n" + json.dumps(fields, ensure_ascii=False) + "\n</post>"})
+        blocks.append({"type": "text", "text": _post_text(p)})
         if with_images and p.get("image_url"):
             blocks.append({"type": "text", "text": f"Image attached to post {p['id']}:"})
             blocks.append({"type": "image", "source": {"type": "url", "url": p["image_url"]}})
     return blocks
 
 
-def _call(posts: List[dict], with_images: bool) -> Optional[BatchScore]:
+def _parse(text: str) -> Optional[BatchScore]:
     global _last_error
+    try:
+        out = BatchScore.model_validate_json(text)
+    except ValidationError as e:
+        _last_error = f"bad JSON from model: {e.error_count()} errors"
+        return None
+    _last_error = None
+    return out
+
+
+def _call(posts: List[dict], with_images: bool) -> Optional[BatchScore]:
+    return _call_gemini(posts, with_images) if provider() == "gemini" else _call_claude(posts, with_images)
+
+
+def _fetch_image(url: str):
+    """Gemini takes image bytes, not URLs: download it here (Facebook CDN links are public but expire)."""
+    import httpx  # noqa: WPS433
+
+    try:
+        r = httpx.get(url, timeout=5.0, follow_redirects=True)
+        ctype = r.headers.get("content-type", "").split(";")[0]
+        if r.status_code == 200 and ctype.startswith("image/") and len(r.content) <= IMAGE_MAX_BYTES:
+            return r.content, ctype
+    except httpx.HTTPError:
+        pass
+    return None
+
+
+def _call_gemini(posts: List[dict], with_images: bool) -> Optional[BatchScore]:
+    global _last_error, _used_model
+    from google.genai import errors, types  # noqa: WPS433
+
+    parts = [f"Score these {len(posts)} posts."]
+    for p in posts:
+        parts.append(_post_text(p))
+        img = with_images and p.get("image_url") and _fetch_image(p["image_url"])
+        if img:
+            parts.append(f"Image attached to post {p['id']}:")
+            parts.append(types.Part.from_bytes(data=img[0], mime_type=img[1]))
+    # A short classification: LOW thinking keeps a 20-post batch well under the request deadline
+    config = types.GenerateContentConfig(system_instruction=SYSTEM, response_mime_type="application/json",
+                                         response_json_schema=SCHEMA,
+                                         thinking_config=types.ThinkingConfig(thinking_level=types.ThinkingLevel.LOW))
+    # Free-tier Gemini often answers 503 "high demand", 504 "deadline" or 429 "quota": try the lighter model
+    models = [model()] + [m for m in GEMINI_FALLBACKS if m != model()]
+    try:
+        for i, m in enumerate(models):
+            try:
+                resp = _get_client().models.generate_content(model=m, contents=parts, config=config)
+                _used_model = m
+                break
+            except errors.APIError as e:
+                if e.code in (429, 503, 504) and i < len(models) - 1:
+                    log.warning("Gemini %s busy (%s), trying %s", m, e.code, models[i + 1])
+                    continue
+                raise
+    except errors.ClientError as e:   # 4xx: bad key, quota, bad request
+        if e.code == 429:
+            _last_error = "RateLimitError: Gemini free-tier quota reached"
+        elif e.code in (401, 403):
+            _last_error = f"AuthenticationError: GEMINI_API_KEY rejected ({e.code})"
+        elif with_images and e.code == 400:
+            log.warning("Gemini request rejected, retrying without images: %s", e.message)
+            return _call_gemini(posts, with_images=False)
+        else:
+            _last_error = f"ClientError {e.code}: {e.message}"
+        return None
+    except errors.APIError as e:      # 5xx
+        _last_error = f"APIError {e.code}: {e.message}"
+        return None
+    except Exception as e:            # network errors from the HTTP layer
+        _last_error = f"{type(e).__name__}: {e}"
+        return None
+    if not resp.text:
+        reason = resp.candidates[0].finish_reason if resp.candidates else "no candidates"
+        _last_error = f"empty response ({reason})"
+        return None
+    return _parse(resp.text)
+
+
+def _call_claude(posts: List[dict], with_images: bool) -> Optional[BatchScore]:
+    global _last_error, _used_model
     import anthropic  # noqa: WPS433
 
     client = _get_client()
     try:
         resp = client.beta.messages.create(
-            model=MODEL,
+            model=model(),
             max_tokens=16000,
             betas=["server-side-fallback-2026-07-01"],
             fallbacks="default",               # a policy decline is retried on Anthropic's recommended model
@@ -195,7 +311,7 @@ def _call(posts: List[dict], with_images: bool) -> Optional[BatchScore]:
         # Facebook image links expire; an image the API cannot fetch fails the whole request
         if with_images:
             log.warning("LLM request rejected, retrying without images: %s", e.message)
-            return _call(posts, with_images=False)
+            return _call_claude(posts, with_images=False)
         _last_error = f"BadRequestError: {e.message}"
         return None
     except anthropic.AuthenticationError:
@@ -216,14 +332,8 @@ def _call(posts: List[dict], with_images: bool) -> Optional[BatchScore]:
     if resp.stop_reason == "max_tokens":
         _last_error = "max_tokens: batch too large"
         return None
-    text = next((b.text for b in resp.content if b.type == "text"), "")
-    try:
-        out = BatchScore.model_validate_json(text)
-    except ValidationError as e:
-        _last_error = f"bad JSON from model: {e.error_count()} errors"
-        return None
-    _last_error = None
-    return out
+    _used_model = resp.model              # differs from model() when a server-side fallback answered
+    return _parse(next((b.text for b in resp.content if b.type == "text"), ""))
 
 
 def score_batch(posts: List[dict]) -> Dict[str, dict]:
@@ -244,7 +354,7 @@ def score_batch(posts: List[dict]) -> Dict[str, dict]:
         by_id = {p["id"]: p for p in todo}
         for r in (batch.results if batch else []):
             if r.id in by_id:
-                d = r.model_dump()
+                d = {**r.model_dump(), "model": _used_model or model()}
                 out[r.id] = d
                 _cache[_key(by_id[r.id])] = d
                 while len(_cache) > CACHE_SIZE:
@@ -272,7 +382,7 @@ def to_result(raw: dict, p: dict) -> dict:
     trust = max(0, min(100, int(raw["trust"])))
     kind, fc = p.get("source_kind") or "unknown", p.get("factcheck")
     base = {"status": "ok", "trust": trust, "summary": raw["summary"], "source": kind,
-            "factcheck": fc, "scorer": "llm", "model": MODEL}
+            "factcheck": fc, "scorer": "llm", "model": raw.get("model") or model()}
 
     if raw["kind"] == "ad":
         if kind == "lookalike" or (fc and fc.get("strong")):
