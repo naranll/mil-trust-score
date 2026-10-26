@@ -123,16 +123,23 @@ void main() {
   float world = (0.2 + flash * 0.6) * twinkle; // sprite-ийн хуучин хэмжээ (дэлхийн нэгж)
   gl_PointSize = world * projectionMatrix[1][1] * uViewH * 0.5 / -mv.z;
   vColor = aColor;
-  vAlpha = 0.55 + flash * 0.45;
+  vAlpha = 0.75 + flash * 0.25;
 }`;
 const lightFragment = /* glsl */ `
 varying vec3 vColor;
 varying float vAlpha;
 void main() {
-  float d = length(gl_PointCoord - 0.5) * 2.0;
-  // useGlow-той ижил зөөлөн туяа
-  float g = d < 0.18 ? mix(1.0, 0.85, d / 0.18) : d < 0.45 ? mix(0.85, 0.22, (d - 0.18) / 0.27) : mix(0.22, 0.0, clamp((d - 0.45) / 0.55, 0.0, 1.0));
-  gl_FragColor = vec4(vColor * g * vAlpha, 1.0);
+  vec2 c = gl_PointCoord - 0.5;
+  float d = length(c) * 2.0;
+  // Хурц цөм + нарийн туяа + жижиг одны туяа. Alpha нь гэрэлтэлтээс хамаарна:
+  // 1.0 бичвэл тунгалаг canvas дээр цэг бүрийн дөрвөлжин хар хүрээ болж харагддаг.
+  float core = smoothstep(0.26, 0.08, d);
+  float halo = exp(-d * d * 9.0) * 0.45;
+  vec2 a = abs(c) * 2.0;
+  float rays = (exp(-a.x * 26.0) * exp(-a.y * 3.2) + exp(-a.y * 26.0) * exp(-a.x * 3.2)) * 0.5;
+  float g = clamp(core + halo + rays, 0.0, 1.0) * vAlpha;
+  if (g < 0.01) discard;
+  gl_FragColor = vec4(mix(vColor, vec3(1.0), core * 0.55), g);
 }`;
 
 function Lights({ lights }: { lights: Light[] }) {
@@ -309,7 +316,7 @@ export default function MapScene({ lights, counts }: { lights: Light[]; counts: 
 
   return (
     <div ref={wrap} className="relative h-full w-full">
-    <Canvas dpr={[1, 1.5]} frameloop={visible ? "always" : "never"} camera={{ position: [0, 3.5, 3.4], fov: 42 }} gl={{ antialias: true, alpha: true }}>
+    <Canvas dpr={[1, 2]} frameloop={visible ? "always" : "never"} camera={{ position: [0, 3.5, 3.4], fov: 42 }} gl={{ antialias: true, alpha: true }}>
       <Stars />
       <FitCamera />
       <LabelProjector items={items} refs={refs} />
