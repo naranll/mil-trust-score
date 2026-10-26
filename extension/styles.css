@@ -1,0 +1,40 @@
+/* Итгэлцлийн оноо — постын дээрх тэмдэг. hm- угтвартай тул Facebook-ийн CSS-тэй мөргөлдөхгүй */
+.hm-badge { margin: 6px 0 8px; font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.hm-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+  border-radius: 999px; border: 1px solid transparent; cursor: pointer; font: inherit;
+}
+.hm-pill b { font-size: 14px; }
+.hm-of { opacity: .6; font-size: 11px; margin-left: -4px; }
+.hm-label { font-weight: 600; }
+.hm-caret { opacity: .6; }
+.hm-green  .hm-pill { background: #e7f6ec; color: #11602f; border-color: #b9e3c6; }
+.hm-yellow .hm-pill { background: #fff6dc; color: #7a5600; border-color: #f1dc9b; }
+.hm-red    .hm-pill { background: #fde8e8; color: #9b1c1c; border-color: #f5b5b5; }
+.hm-detail {
+  margin-top: 6px; padding: 10px 12px; border-radius: 10px;
+  background: #f7f8fa; color: #1c1e21; border: 1px solid #e4e6eb; max-width: 520px;
+}
+.hm-sec { margin-bottom: 6px; }
+.hm-h { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; opacity: .7; }
+.hm-detail ul { margin: 2px 0 0 18px; padding: 0; }
+.hm-note, .hm-card, .hm-foot { margin: 6px 0 0; }
+.hm-foot { font-size: 11px; opacity: .65; }
+@media (prefers-color-scheme: dark) {
+  .hm-detail { background: #242526; color: #e4e6eb; border-color: #3a3b3c; }
+}
+/* Медиа (зураг/видео) хэсэг */
+.hm-gray .hm-pill { background: #eef0f3; color: #3a3f47; border-color: #d5d9e0; }
+.hm-sum { margin: 0 0 8px; font-weight: 600; }
+.hm-btn {
+  display: inline-block; margin: 4px 0 6px; padding: 5px 10px; border-radius: 8px;
+  background: #1b74e4; color: #fff !important; text-decoration: none; font-weight: 600;
+}
+.hm-ai { margin: 4px 0; padding: 6px 8px; border-radius: 8px; background: #fff6dc; color: #7a5600; }
+.hm-tip { margin: 4px 0; }
+/* Баримт шалгалт ба санал хүсэлт */
+.hm-fc { margin: 6px 0; padding: 6px 8px; border-radius: 8px; background: #fde8e8; color: #7f1d1d; }
+.hm-fb { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #d5d9e0; font-size: 12px; }
+.hm-fb button { margin: 4px 4px 0 0; padding: 3px 8px; border-radius: 999px; border: 1px solid #d5d9e0; background: #fff; cursor: pointer; font: inherit; }
+.hm-fb button:hover { background: #eef0f3; }
+@media (prefers-color-scheme: dark) { .hm-fb button { background: #3a3b3c; color: #e4e6eb; border-color: #4e4f50; } .hm-fc { background: #4a1f1f; color: #fecaca; } }
