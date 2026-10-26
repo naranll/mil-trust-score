@@ -70,6 +70,25 @@
   color-scheme: dark;
 }
 
+/* Үсгийн хэмжээний нэгдсэн шатлал: бүх хуудас ижил хэмжээ хэрэглэнэ (text-caption … text-h1).
+   @theme (inline биш) тул CSS хувьсагч болж гарна: star-viz.css гэх мэт энгийн CSS-д var(--text-h2) ашиглаж болно. */
+@theme {
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.45;
+  --text-small: 0.9375rem;
+  --text-small--line-height: 1.55;
+  --text-body: 1rem;
+  --text-body--line-height: 1.65;
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.6;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.35;
+  --text-h2: clamp(1.5rem, 1.25rem + 0.9vw, 1.875rem);
+  --text-h2--line-height: 1.2;
+  --text-h1: clamp(2rem, 1.5rem + 2vw, 3rem);
+  --text-h1--line-height: 1.1;
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
@@ -195,7 +214,7 @@ a.link-accent:hover {
 .prose-capsule h2 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.5625rem;
+  font-size: var(--text-h2);
   line-height: 1.25;
   margin: 2.75rem 0 0.75rem;
 }
@@ -268,10 +287,10 @@ a.link-accent:hover {
 @keyframes dotTwinkle {
   0%,
   100% {
-    fill-opacity: 1;
+    opacity: 1;
   }
   50% {
-    fill-opacity: 0.45;
+    opacity: 0.45;
   }
 }
 

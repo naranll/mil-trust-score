@@ -13,7 +13,7 @@ export function TodruuliiMark({ className = "h-4 w-7" }: { className?: string })
 
 export function Wordmark({ size = "sm" }: { size?: "sm" | "lg" }) {
   return (
-    <span className={`inline-flex select-none items-center gap-2 font-bold tracking-[-0.01em] text-ink ${size === "lg" ? "text-xl" : "text-[17px]"}`}>
+    <span className={`inline-flex select-none items-center gap-2 font-bold tracking-[-0.01em] text-ink ${size === "lg" ? "text-h3" : "text-lead"}`}>
       <TodruuliiMark className={`text-accent ${size === "lg" ? "h-5 w-9" : "h-4 w-7"}`} />
       Todruulii
     </span>

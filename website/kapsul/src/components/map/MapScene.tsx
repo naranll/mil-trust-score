@@ -6,6 +6,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Line, OrbitControls } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import "@/lib/three-console";
 import { MONGOLIA_OUTLINE } from "@/data/mongolia-outline";
 import { AIMAGS, AIMAG_BY_ID } from "@/data/aimags";
 import { KIND_COLOR, type Light } from "@/lib/lights";
@@ -245,8 +246,11 @@ function LabelProjector({ items, refs }: { items: LabelItem[]; refs: React.RefOb
       // Газрын зураг -90° эргэсэн: (x, y, z) → (x, z, -y)
       v.set(it.x, 0.05, -(it.y - 0.2)).project(camera);
       const visible = v.z < 1;
-      el.style.transform = `translate(-50%, -50%) translate(${((v.x + 1) / 2) * size.width}px, ${((1 - v.y) / 2) * size.height}px)`;
-      el.style.opacity = visible ? "1" : "0";
+      // Камер хөдлөөгүй үед DOM-д бичихгүй (кадр бүрт style дахин тооцоолохгүй)
+      const t = `translate(-50%, -50%) translate(${(((v.x + 1) / 2) * size.width).toFixed(1)}px, ${(((1 - v.y) / 2) * size.height).toFixed(1)}px)`;
+      if (el.style.transform !== t) el.style.transform = t;
+      const o = visible ? "1" : "0";
+      if (el.style.opacity !== o) el.style.opacity = o;
     }
   });
   return null;
@@ -341,7 +345,7 @@ export default function MapScene({ lights, counts }: { lights: Light[]; counts: 
             ref={(el) => {
               refs.current[a.id] = el;
             }}
-            className="absolute top-0 left-0 rounded-md bg-[#111a36]/90 px-1.5 py-0.5 text-[12px] font-semibold whitespace-nowrap text-[#e9edf7] opacity-0 ring-1 ring-[#6b7596]/50"
+            className="absolute top-0 left-0 rounded-md bg-[#111a36]/90 px-1.5 py-0.5 text-caption font-semibold whitespace-nowrap text-[#e9edf7] opacity-0 ring-1 ring-[#6b7596]/50"
           >
             {a.name} <span className="text-[#6f86ff] tnum">{a.n}</span>
           </span>

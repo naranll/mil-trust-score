@@ -59,20 +59,20 @@ export function LightMap() {
       {/* Зүүн дээд: гол тоо */}
       <div className="p-4 pb-0 md:pointer-events-none md:absolute md:top-4 md:left-4 md:w-80 md:p-0">
         <div className="pointer-events-auto rounded-2xl bg-surface p-5 shadow-1">
-          <p className="text-[15px] text-ink-2">Асаасан гэрэл</p>
-          <p className="text-[39px] leading-[1.15] font-bold tnum" aria-live="polite">
+          <p className="text-small text-ink-2">Асаасан гэрэл</p>
+          <p className="text-h1 leading-[1.15] font-bold tnum" aria-live="polite">
             {ready ? lights.length.toLocaleString("mn-MN") : "…"}
           </p>
           {stats.top ? (
-            <p className="mt-2 text-[15px] text-ink-2">
+            <p className="mt-2 text-small text-ink-2">
               Хамгийн гэрэлтэй нь <span className="font-semibold text-ink">{AIMAG_BY_ID[stats.top[0]]?.name}</span> (
               <span className="tnum">{stats.top[1]}</span>)
             </p>
           ) : (
-            ready && <p className="mt-2 text-[15px] text-ink-2">Эхний гэрлийг та асаагаарай.</p>
+            ready && <p className="mt-2 text-small text-ink-2">Эхний гэрлийг та асаагаарай.</p>
           )}
           {last && AIMAG_BY_ID[last.aimag] && (
-            <p className="mt-1 text-[12.8px] text-ink-3">
+            <p className="mt-1 text-caption text-ink-3">
               Сүүлийнх: {AIMAG_BY_ID[last.aimag].name}, {last.kind === "game" ? "тоглоом" : "хуваалцсан"}, {timeAgo(last.created_at)}
             </p>
           )}
@@ -81,7 +81,7 @@ export function LightMap() {
 
       {/* Доод хэсэг: тайлбар ба үйлдэл */}
       <div className="flex flex-col gap-3 p-4 md:pointer-events-none md:absolute md:inset-x-4 md:bottom-4 md:flex-row md:items-end md:justify-between md:p-0">
-        <ul className="pointer-events-auto flex flex-col gap-2 rounded-2xl bg-surface p-4 text-[15px] shadow-1 md:min-w-64">
+        <ul className="pointer-events-auto flex flex-col gap-2 rounded-2xl bg-surface p-4 text-small shadow-1 md:min-w-64">
           <li className="flex items-center gap-2.5">
             <span aria-hidden className="size-3 rounded-full" style={{ background: KIND_COLOR.game }} />
             Тоглоом тоглосон
@@ -92,7 +92,7 @@ export function LightMap() {
             Мэдлэг хуваалцсан
             <span className="ml-auto pl-4 text-ink-2 tnum">{stats.share}</span>
           </li>
-          <li className="mt-1 flex items-center gap-2 text-[12.8px] text-ink-3">
+          <li className="mt-1 flex items-center gap-2 text-caption text-ink-3">
             <span aria-hidden className={`size-2 rounded-full ${live ? "bg-cat-3" : "bg-ink-3"}`} />
             {live ? "Шууд" : "Энэ төхөөрөмж"}
           </li>
@@ -104,7 +104,7 @@ export function LightMap() {
         </ul>
 
         <div className="pointer-events-auto rounded-2xl bg-surface p-5 shadow-1 md:max-w-sm">
-          <p className="text-[20px] leading-snug font-semibold">Тоглох, хуваалцах бүрт +1 гэрэл</p>
+          <p className="text-h3 leading-snug font-semibold">Тоглох, хуваалцах бүрт +1 гэрэл</p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <Link href="/game" className="btn btn-primary">
               Тоглоом тоглох

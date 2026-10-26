@@ -18,7 +18,7 @@ function mnDate(d: string) {
 
 function Meta({ p }: { p: PostMeta }) {
   return (
-    <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[15px] text-ink-2">
+    <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-small text-ink-2">
       <span className="inline-flex items-center gap-2 font-semibold text-ink">
         <span aria-hidden className="size-2.5 rounded-full" style={{ background: layerColor(p.layer) }} />
         {p.layer}
@@ -49,7 +49,7 @@ export function BlogList({ posts }: { posts: PostMeta[] }) {
         type="button"
         aria-pressed={on}
         onClick={() => setLayer(name)}
-        className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-[15px] transition-colors duration-[var(--dur-base)] ${
+        className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-small transition-colors duration-[var(--dur-base)] ${
           on ? "border-transparent bg-ink text-bg" : "border-line text-ink-2 hover:border-ink-3 hover:text-ink"
         }`}
       >
@@ -77,7 +77,7 @@ export function BlogList({ posts }: { posts: PostMeta[] }) {
           >
             {mode === "anim" ? <BlogCloud layer={focus} reduced={false} /> : mode === "static" && <DotGlyph layer={focus} className="size-36 md:size-56" />}
             {/* Дүрс юуг илэрхийлж байгааг хэлнэ */}
-            <p className="pointer-events-none absolute bottom-4 left-5 text-[14px] text-ink-2 md:bottom-6 md:left-7">
+            <p className="pointer-events-none absolute bottom-4 left-5 text-small text-ink-2 md:bottom-6 md:left-7">
               <span className="font-semibold" style={{ color: focusLayer.particle }}>
                 {focusLayer.name}
               </span>
@@ -86,10 +86,10 @@ export function BlogList({ posts }: { posts: PostMeta[] }) {
           </div>
           <div className="flex flex-col justify-center gap-4 p-6 md:p-12">
             <Meta p={lead} />
-            <h2 className="max-w-[20ch] text-[clamp(1.75rem,3.4vw,2.75rem)] leading-[1.1] font-bold text-ink transition-colors duration-[var(--dur-base)] group-hover:text-accent">
+            <h2 className="max-w-[20ch] text-h2 leading-[1.1] font-bold text-ink transition-colors duration-[var(--dur-base)] group-hover:text-accent">
               {lead.title}
             </h2>
-            <p className="max-w-[56ch] text-lg leading-relaxed text-ink-2">{lead.excerpt}</p>
+            <p className="max-w-[56ch] text-lead leading-relaxed text-ink-2">{lead.excerpt}</p>
             <span className="mt-2 font-semibold text-accent">Унших</span>
           </div>
         </Link>
@@ -103,7 +103,7 @@ export function BlogList({ posts }: { posts: PostMeta[] }) {
                 <DotGlyph layer={p.layer} className="size-10 md:size-14" />
                 <div className="min-w-0">
                   <Meta p={p} />
-                  <h2 className="mt-2 text-[22px] leading-snug font-bold text-ink transition-colors duration-[var(--dur-base)] group-hover:text-accent md:text-[25px]">
+                  <h2 className="mt-2 text-h3 leading-snug font-bold text-ink transition-colors duration-[var(--dur-base)] group-hover:text-accent md:text-h2">
                     {p.title}
                   </h2>
                   <p className="mt-2 max-w-[56ch] leading-relaxed text-ink-2">{p.excerpt}</p>

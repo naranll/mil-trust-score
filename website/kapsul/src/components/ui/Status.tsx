@@ -58,7 +58,7 @@ export function StatusIcon({ status, className = "size-4" }: { status: Status; c
 // Дүгнэлтийн chip: tint + icon + үг. Өнгө дангаараа ажиллахгүй.
 export function StatusChip({ status, label }: { status: Status; label?: string }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[15px] font-semibold text-ink ${TINT[status]}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-small font-semibold text-ink ${TINT[status]}`}>
       <StatusIcon status={status} />
       {label ?? STATUS_LABEL[status]}
     </span>

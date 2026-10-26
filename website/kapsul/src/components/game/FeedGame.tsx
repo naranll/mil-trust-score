@@ -37,7 +37,6 @@ export function FeedGame() {
   const [state, setState] = useState<GameState>(() => initState());
   const [seed, setSeed] = useState(1);
   const shownAt = useRef(0);
-  const [dwellLive, setDwellLive] = useState(0);
   const reduced = useReducedMotion();
   const driveRef = useRef<PortraitDrive>({
     shares: [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6],
@@ -55,11 +54,6 @@ export function FeedGame() {
     shownAt.current = performance.now();
   }, [current?.post.id, phase]);
 
-  useEffect(() => {
-    if (phase !== "play") return;
-    const id = setInterval(() => setDwellLive(Math.max(0, (performance.now() - shownAt.current) / 1000)), 200);
-    return () => clearInterval(id);
-  }, [phase]);
 
   const summary = useMemo(() => summarize(state), [state]);
   const shares = useMemo(
@@ -115,7 +109,7 @@ export function FeedGame() {
       {/* Утасны дэлгэц */}
       <div className="mx-auto w-full max-w-[26rem] rounded-[2rem] bg-subtle p-1.5 shadow-1 md:p-2.5">
         <div className="rounded-[1.6rem] bg-bg px-3 pt-3 pb-3 md:px-4 md:pt-4 md:pb-5">
-          <div className="flex items-center justify-between px-1 pb-3 text-sm">
+          <div className="flex items-center justify-between px-1 pb-3 text-small">
             <span className="font-semibold text-ink">Feed</span>
             <span className="tnum text-ink-2" aria-live="polite">
               {round} / {ROUNDS}
@@ -127,8 +121,8 @@ export function FeedGame() {
 
           <SwipeCard key={current.post.id} post={current.post} onAction={onAction} reduced={reduced} last={round >= ROUNDS} />
 
-          <p className="mt-3 text-center text-[12.8px] text-ink-3" aria-hidden>
-            Баруун тийш чирвэл Like, зүүн тийш Алгасах, дээш Хуваалцах · <span className="tnum">{dwellLive.toFixed(1)} сек</span>
+          <p className="mt-3 text-center text-caption text-ink-3" aria-hidden>
+            Баруун тийш чирвэл Like, зүүн тийш Алгасах, дээш Хуваалцах · <DwellTimer since={shownAt} />
           </p>
         </div>
       </div>
@@ -157,6 +151,16 @@ function Layout({ children, panel, phase }: { children: React.ReactNode; panel: 
       <aside className="order-first min-h-0 md:order-none">{panel}</aside>
     </div>
   );
+}
+
+// Пост дээр зарцуулсан хугацаа: зөвхөн энэ жижиг хэсэг өөрийгөө шинэчилнэ (бүх тоглоом секундэд 5 удаа дахин зурагдахгүй)
+function DwellTimer({ since }: { since: React.RefObject<number> }) {
+  const [sec, setSec] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setSec(Math.max(0, (performance.now() - since.current) / 1000)), 200);
+    return () => clearInterval(id);
+  }, [since]);
+  return <span className="tnum">{sec.toFixed(1)} сек</span>;
 }
 
 // --- Swipe карт -----------------------------------------------------------------
@@ -256,16 +260,16 @@ function SwipeCard({ post, onAction, reduced, last }: { post: Post; onAction: (a
             <span aria-hidden className="size-10 shrink-0 rounded-full" style={{ background: CATEGORIES[post.category].color }} />
             <div className="min-w-0">
               <p className="truncate font-semibold text-ink">{post.author}</p>
-              <p className="text-[12.8px] text-ink-2">Зохиомол хуудас</p>
+              <p className="text-caption text-ink-2">Зохиомол хуудас</p>
             </div>
           </header>
-          <p className="mt-3 min-h-[4.5rem] text-[15px] leading-relaxed text-ink md:mt-4 md:min-h-[6.5rem] md:text-[1.05rem]">{post.text}</p>
-          <p className="mt-3 text-[12.8px] text-ink-2 tnum">{post.reactions.toLocaleString("mn-MN")} хариу үйлдэл</p>
+          <p className="mt-3 min-h-[4.5rem] text-small leading-relaxed text-ink md:mt-4 md:min-h-[6.5rem] md:text-body">{post.text}</p>
+          <p className="mt-3 text-caption text-ink-2 tnum">{post.reactions.toLocaleString("mn-MN")} хариу үйлдэл</p>
           {/* Чирэх чиглэлийн тэмдэг (Like / Алгасах / Хуваалцах) */}
           <span
             ref={stamp}
             aria-hidden
-            className="pointer-events-none absolute top-4 right-4 rounded-full border-2 border-accent px-3 py-1 text-sm font-semibold text-accent opacity-0"
+            className="pointer-events-none absolute top-4 right-4 rounded-full border-2 border-accent px-3 py-1 text-small font-semibold text-accent opacity-0"
           />
         </article>
       </div>
@@ -365,8 +369,8 @@ function Panel({
       )}
 
       <div className="relative px-4 pt-3 md:p-7" aria-live="polite">
-        <h2 className="text-[17px] leading-tight font-semibold text-ink md:text-[25px]">{title}</h2>
-        {note && <p className="mt-0.5 line-clamp-2 max-w-md text-[13px] leading-snug text-ink-2 md:mt-1 md:line-clamp-none md:text-base">{note}</p>}
+        <h2 className="text-lead leading-tight font-semibold text-ink md:text-h2">{title}</h2>
+        {note && <p className="mt-0.5 line-clamp-2 max-w-md text-caption leading-snug text-ink-2 md:mt-1 md:line-clamp-none md:text-body">{note}</p>}
       </div>
 
       <div ref={mid} className="relative min-h-0 flex-1">
@@ -377,12 +381,12 @@ function Panel({
       <ul className="relative grid grid-cols-6 gap-x-1 px-2 pb-2.5 md:gap-x-2 md:px-6 md:pb-6" aria-label="Ангилал">
         {CATS.map((c, i) => (
           <li key={c} data-cat={i} className="flex flex-col items-center text-center">
-            <span className="inline-flex items-center gap-1 text-[10.5px] whitespace-nowrap text-ink-2 md:gap-1.5 md:text-[12.8px]">
+            <span className="inline-flex items-center gap-1 text-caption whitespace-nowrap text-ink-2 md:gap-1.5">
               <span aria-hidden className="size-2.5 shrink-0 rounded-full" style={{ background: CATEGORIES[c].color }} />
               {/* Утсан дээр нэр нь багтахгүй: өнгөт цэг + тоо, нэрийг дэлгэц уншигч уншина */}
               <span className="sr-only md:not-sr-only">{CATEGORIES[c].label}</span>
             </span>
-            <span className="text-[13px] font-semibold text-ink tnum md:text-[15px]">
+            <span className="text-caption font-semibold text-ink tnum md:text-small">
               {phase === "intro" ? "?" : phase === "reveal" ? summary.counts[c] : `${Math.round(shares[i] * 100)}%`}
               {phase === "reveal" && <span className="hidden md:inline"> пост</span>}
             </span>
@@ -441,7 +445,7 @@ function Intro({ guess, setGuess, onStart }: { guess: number; setGuess: (n: numb
         <h1 className={H1}>Таны feed хэрхэн бүтдэг вэ?</h1>
         <ol className="mt-8 space-y-3">
           {steps.map((st) => (
-            <li key={st.text} className="flex items-center gap-4 text-lg text-ink">
+            <li key={st.text} className="flex items-center gap-4 text-lead text-ink">
               <IconDot>{st.icon}</IconDot>
               {st.text}
             </li>
@@ -453,7 +457,7 @@ function Intro({ guess, setGuess, onStart }: { guess: number; setGuess: (n: numb
       </div>
 
       <div className="glass p-7 md:p-9">
-        <label htmlFor="guess" className="block text-[20px] leading-snug font-semibold text-ink">
+        <label htmlFor="guess" className="block text-h3 leading-snug font-semibold text-ink">
           Таны feed-ийн хэдэн хувь нь сэтгэл хөдлөлд тулгуурласан пост вэ?
         </label>
         <div className="mt-6 flex items-center gap-5">
@@ -467,11 +471,11 @@ function Intro({ guess, setGuess, onStart }: { guess: number; setGuess: (n: numb
             onChange={(e) => setGuess(Number(e.target.value))}
             className="h-3 w-full cursor-pointer appearance-none rounded-full bg-subtle accent-[var(--accent)]"
           />
-          <output htmlFor="guess" className="w-20 text-right text-[31.25px] font-bold text-ink tnum">
+          <output htmlFor="guess" className="w-20 text-right text-h2 font-bold text-ink tnum">
             {guess}%
           </output>
         </div>
-        <button type="button" onClick={onStart} className="btn btn-primary mt-8 w-full text-base">
+        <button type="button" onClick={onStart} className="btn btn-primary mt-8 w-full text-body">
           Эхлэх
         </button>
       </div>
@@ -493,7 +497,7 @@ function Reveal({
   const diff = s.actual - guess;
   return (
     <div>
-      <h1 className="max-w-3xl text-[clamp(2.2rem,5.4vw,3.9rem)] leading-[1.04] font-bold tracking-tight text-ink">
+      <h1 className="max-w-3xl text-h1 leading-[1.04] font-bold tracking-tight text-ink">
         Таны feed-ийн {s.actual}% нь сэтгэл хөдлөлд тулгуурласан пост байлаа
       </h1>
 
@@ -505,12 +509,12 @@ function Reveal({
             ["Бодит", s.actual, "bg-cat-1"],
           ] as const
         ).map(([l, v, c]) => (
-          <div key={l} className="grid grid-cols-[8.5rem_1fr_3.5rem] items-center gap-3 text-[15px]">
+          <div key={l} className="grid grid-cols-[8.5rem_1fr_3.5rem] items-center gap-3 text-small">
             <span className="text-ink-2">{l}</span>
             <span className="h-6 overflow-hidden rounded-full bg-subtle">
               <span className={`grow block h-full rounded-full ${c}`} style={{ width: `${v}%` }} />
             </span>
-            <span className="text-right text-lg font-bold text-ink tnum">{v}%</span>
+            <span className="text-right text-lead font-bold text-ink tnum">{v}%</span>
           </div>
         ))}
         <figcaption className="pt-1 text-ink-2">
@@ -523,7 +527,7 @@ function Reveal({
       </figure>
 
       {s.push > 0 && (
-        <p className="mt-8 max-w-2xl rounded-2xl bg-accent-tint px-6 py-4 text-lg text-ink">
+        <p className="mt-8 max-w-2xl rounded-2xl bg-accent-tint px-6 py-4 text-lead text-ink">
           Үүний <strong className="tnum">{s.push} пунктийг</strong> таны сонирхол биш, платформ өөрөө нэмсэн.
         </p>
       )}
@@ -533,13 +537,13 @@ function Reveal({
       </div>
 
       <section aria-labelledby="forensics" className="mt-14">
-        <h2 id="forensics" className="text-[25px] font-bold text-ink">
+        <h2 id="forensics" className="text-h2 font-bold text-ink">
           Пост бүр яагаад танд хүрсэн бэ
         </h2>
         <ol className="mt-5 space-y-2">
           {state.feed.map((f, i) => (
             <li key={f.post.id} className="grid gap-1 rounded-2xl bg-surface px-5 py-3.5 shadow-1 md:grid-cols-[2rem_12rem_1fr] md:items-baseline md:gap-4">
-              <span className="text-sm text-ink-3 tnum">{i + 1}</span>
+              <span className="text-small text-ink-3 tnum">{i + 1}</span>
               <span className="inline-flex items-center gap-2 font-semibold text-ink">
                 <span aria-hidden className="size-3 shrink-0 rounded-full" style={{ background: CATEGORIES[f.post.category].color }} />
                 {f.post.author}
@@ -554,7 +558,7 @@ function Reveal({
       </section>
 
       <section aria-labelledby="next-time" className="mt-14">
-        <h2 id="next-time" className="text-[25px] font-bold text-ink">
+        <h2 id="next-time" className="text-h2 font-bold text-ink">
           Дараагийн удаа
         </h2>
         <ul className="mt-5 grid gap-3 lg:grid-cols-3">
@@ -563,7 +567,7 @@ function Reveal({
             { icon: <Eye className="size-5" />, t: "Удаан харах нь өөрөө like" },
             { icon: <Search className="size-5" />, t: "Хуваалцахаасаа өмнө эх сурвалжийг шалгаарай" },
           ].map((h) => (
-            <li key={h.t} className="glass flex items-center gap-4 p-5 text-lg text-ink">
+            <li key={h.t} className="glass flex items-center gap-4 p-5 text-lead text-ink">
               <IconDot>{h.icon}</IconDot>
               {h.t}
             </li>

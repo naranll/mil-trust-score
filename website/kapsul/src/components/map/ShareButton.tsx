@@ -72,7 +72,7 @@ export function ShareButton({ title, path, quiet }: { title: string; path: strin
       </button>
       {st.kind === "pick" && <AimagPicker onPick={(id) => light(id, copied)} />}
       {/* Хоосон үед sr-only: зай эзлэхгүй тул товч хажуугийн товчтойгоо нэг шугамд байна */}
-      <p role="status" className="text-[15px] text-ink-2 empty:sr-only">
+      <p role="status" className="text-small text-ink-2 empty:sr-only">
         {st.kind === "done" && (
           <>
             {st.text}{" "}

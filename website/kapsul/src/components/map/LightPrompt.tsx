@@ -27,12 +27,12 @@ export function LightPrompt() {
     <section aria-labelledby="light-title" className="glass p-6 md:p-8">
       <div>
                 <div className="min-w-0 flex-1">
-          <h2 id="light-title" className="text-[25px] leading-tight font-bold text-ink">
+          <h2 id="light-title" className="text-h2 leading-tight font-bold text-ink">
             Газрын зураг дээр гэрлээ асаагаарай
           </h2>
           <div className="mt-5">
             {state === "done" ? (
-              <p role="status" className="text-base text-ink">
+              <p role="status" className="text-body text-ink">
                 {msg}{" "}
                 <Link href="/about#map" className="link-accent font-semibold">
                   Газрын зураг дээр харах
@@ -42,7 +42,7 @@ export function LightPrompt() {
               <>
                 <AimagPicker onPick={light} busy={state === "busy"} />
                 {state === "error" && (
-                  <p role="alert" className="mt-3 text-[15px] text-false">
+                  <p role="alert" className="mt-3 text-small text-false">
                     {msg}
                   </p>
                 )}

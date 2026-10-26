@@ -8,6 +8,7 @@
 import { useEffect, useMemo, useRef, type RefObject } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import "@/lib/three-console";
 
 export type PortraitDrive = {
   shares: number[]; // 6 ангиллын хувь (нийлбэр 1): тоглох үед алгоритмын загвар, төгсгөлд бодит feed

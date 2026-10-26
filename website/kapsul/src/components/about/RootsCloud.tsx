@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import gsap from "gsap";
 import * as THREE from "three";
+import "@/lib/three-console";
 import { LAYERS } from "@/data/layers";
 
 // Модны орон зай (px): газар y = 0, дээш эерэг. Титэм ~ +270 хүртэл, үндэс ~ -105 хүртэл.

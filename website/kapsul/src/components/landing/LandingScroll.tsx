@@ -230,29 +230,29 @@ export function LandingScroll() {
               {/* Цэгүүдийн дээр уншигдахаар: үндсэн өнгө + фоны өнгөтэй хүрээ */}
               <p
                 data-caption="0"
-                className="max-w-md text-lg font-medium text-ink [text-shadow:0_0_2px_var(--bg),0_0_10px_var(--bg),0_0_24px_var(--bg)] md:text-xl"
+                className="max-w-md text-lead font-medium text-ink [text-shadow:0_0_2px_var(--bg),0_0_10px_var(--bg),0_0_24px_var(--bg)]"
               >
-                Таны Facebook feed-ийг хэн сонгодог вэ?
+                Таны Facebook дээр харагддаг постуудыг хэн сонгодог вэ?
               </p>
             </div>
 
             {/* 1–2: бичвэрийн багана (зүүн; утсан дээр дээд хэсэгт). Нэг нүдэнд давхцана. */}
             <div className="pointer-events-none absolute inset-x-0 top-0 z-10 grid md:inset-y-0 md:right-auto md:w-[46%] md:content-center [text-shadow:0_0_2px_var(--bg),0_0_10px_var(--bg),0_0_24px_var(--bg)] [&>*]:[grid-area:1/1] group-data-[mode=static]:hidden motion-reduce:hidden">
-              <div data-caption="1" className="flex max-w-md flex-col gap-3 text-xl leading-snug md:text-[25px]">
+              <div data-caption="1" className="flex max-w-md flex-col gap-3 text-h3 leading-snug md:text-h2">
                 <p className="font-semibold text-ink">Таны харж буй пост бүрийг алгоритм сонгодог.</p>
-                <p className="text-ink-2">Хамгийн их сэтгэл хөдлөл төрүүлдэг нь хамгийн хурдан тархдаг.</p>
+                <p className="text-ink-2">Сэтгэл хөдлөл их төрүүлсэн пост илүү хурдан тархдаг.</p>
               </div>
-              <div data-caption="2" className="flex max-w-md flex-col gap-3 text-xl leading-snug md:text-[25px]">
-                <p className="text-[31.25px] leading-tight font-bold text-ink md:text-[39px]">Нэг эм хангалтгүй.</p>
-                <p className="text-ink-2">Манипуляцаас хамгаалах ганц шийдэл гэж байхгүй.</p>
+              <div data-caption="2" className="flex max-w-md flex-col gap-3 text-h3 leading-snug md:text-h2">
+                <p className="text-h2 leading-tight font-bold text-ink md:text-h1">Нэг эм хангалтгүй.</p>
+                <p className="text-ink-2">Манипуляцаас хамгаалахын тулд олон дадал хэрэгтэй.</p>
               </div>
             </div>
 
             <h2
               data-final
-              className={`absolute top-0 left-0 z-10 text-[25px] leading-tight font-bold text-ink md:top-[4%] md:text-[31.25px] ${flow}`}
+              className={`absolute top-0 left-0 z-10 text-h2 leading-tight font-bold text-ink md:top-[4%] ${flow}`}
             >
-              Ганц эм биш, таван дадал
+              Мэдээллийн дархлааны таван дадал.
             </h2>
 
             {/* 3: 5 дадал. Компьютер дээр бөөгнөрөл бүрийн доор, утсан дээр (ба static үед) жагсаалт.
@@ -277,10 +277,10 @@ export function LandingScroll() {
                       style={{ background: h.color }}
                     />
                     <span className="flex flex-col gap-0.5">
-                      <span className={`font-semibold text-ink ${i === HABIT_BIG ? "text-[19px] md:text-[22px]" : "text-[17px] md:text-[19px]"}`}>
+                      <span className={`font-semibold text-ink ${i === HABIT_BIG ? "text-lead md:text-h3" : "text-lead"}`}>
                         {h.name}
                       </span>
-                      <span className="text-[14px] leading-snug text-ink-2 md:mx-auto md:max-w-[15rem] md:text-[15px]">{h.line}</span>
+                      <span className="text-small leading-snug text-ink-2 md:mx-auto md:max-w-[15rem]">{h.line}</span>
                     </span>
                   </div>
                 </li>
@@ -290,7 +290,7 @@ export function LandingScroll() {
 
           <div
             data-scroll-hint
-            className="relative z-10 flex items-center justify-between text-[15px] font-semibold text-ink-3 group-data-[mode=static]:hidden motion-reduce:hidden"
+            className="relative z-10 flex items-center justify-between text-small font-semibold text-ink-3 group-data-[mode=static]:hidden motion-reduce:hidden"
           >
             <span>Гүйлгэх ↓</span>
             <a href="#habits" onClick={skip} className="btn-quiet inline-flex min-h-11 items-center">

@@ -17,7 +17,7 @@ export function PillLink({ href, children, tone = "primary" }: { href: string; c
 export function SourceLink({ source, period, className = "" }: { source: Source; period?: string; className?: string }) {
   if (!source.url)
     return (
-      <span className={`inline-flex items-center gap-1 text-[12.8px] font-medium ${className}`}>
+      <span className={`inline-flex items-center gap-1 text-caption font-medium ${className}`}>
         Эх сурвалж: {source.name}
         {period ? `, ${period}` : ""}
       </span>
@@ -27,7 +27,7 @@ export function SourceLink({ source, period, className = "" }: { source: Source;
       href={source.url}
       target="_blank"
       rel="noreferrer"
-      className={`inline-flex items-center gap-1 text-[12.8px] font-medium underline decoration-current/40 underline-offset-4 hover:decoration-current ${className}`}
+      className={`inline-flex items-center gap-1 text-caption font-medium underline decoration-current/40 underline-offset-4 hover:decoration-current ${className}`}
     >
       Эх сурвалж: {source.name}
       {period ? `, ${period}` : ""}
@@ -39,7 +39,7 @@ export function SourceLink({ source, period, className = "" }: { source: Source;
 // Зохиомол контентыг тэмдэглэх ("Мэдээлэл" дүгнэлтийн өнгө)
 export function SyntheticTag({ children = "Зохиомол жишээ" }: { children?: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full bg-info-tint px-2.5 py-0.5 text-[12.8px] font-semibold text-ink">
+    <span className="inline-flex items-center rounded-full bg-info-tint px-2.5 py-0.5 text-caption font-semibold text-ink">
       {children}
     </span>
   );

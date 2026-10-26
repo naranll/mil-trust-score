@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import gsap from "gsap";
 import * as THREE from "three";
+import "@/lib/three-console";
 import { LAYERS } from "@/data/layers";
 
 const R = 150; // дүрсийн радиус (px, самбарын богино талд багтаана)

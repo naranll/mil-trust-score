@@ -14,7 +14,7 @@ export default async function DataPage() {
   return (
     <div className={PAGE}>
       <PageTitle title="Өгөгдөл" lead="Мэдээллийн сайтын уншигчид, уншдаг мэдээллийн төрөл, хиймэл оюуны хэрэглээ.">
-        <p className="mt-3 text-[12.8px] text-ink-3">{origin === "supabase" ? "Supabase-ээс шууд" : "Дотоод нөөцөөс"}</p>
+        <p className="mt-3 text-caption text-ink-3">{origin === "supabase" ? "Supabase-ээс шууд" : "Дотоод нөөцөөс"}</p>
       </PageTitle>
 
       {/* Хэвлэлийн хүрээлэнгийн өгөгдөл: хаана, юу уншдаг вэ, хиймэл оюун */}

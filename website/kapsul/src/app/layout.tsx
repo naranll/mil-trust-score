@@ -30,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </main>
         {/* Footer: minimal, зөвхөн холбогдох мэдээлэл (цэс нь header-т). Имэйл нь SITE.email бөглөгдсөн үед л. */}
         <footer className="mt-10 border-t md:mt-14 border-(--rule)">
-          <div className="flex w-full flex-col gap-2 px-5 py-6 text-[14px] text-ink-3 sm:flex-row sm:items-center sm:justify-between md:px-10 xl:px-16">
+          <div className="flex w-full flex-col gap-2 px-5 py-6 text-small text-ink-3 sm:flex-row sm:items-center sm:justify-between md:px-10 xl:px-16">
             <p>
               Todruulii баг {SITE.hackathon}
             </p>

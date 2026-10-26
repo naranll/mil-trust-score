@@ -41,7 +41,7 @@ export function Nav() {
                 <Link
                   href={n.href}
                   aria-current={active ? "page" : undefined}
-                  className={`relative inline-flex items-center px-4 text-[15px] transition-colors duration-(--dur-fast) after:absolute after:inset-x-4 after:bottom-0 after:h-0.5 after:rounded-full ${
+                  className={`relative inline-flex items-center px-4 text-small transition-colors duration-(--dur-fast) after:absolute after:inset-x-4 after:bottom-0 after:h-0.5 after:rounded-full ${
                     active ? "font-semibold text-ink after:bg-accent" : "text-ink-2 after:bg-transparent hover:text-ink"
                   }`}
                 >
@@ -80,7 +80,7 @@ export function Nav() {
                   href={n.href}
                   aria-current={active ? "page" : undefined}
                   onClick={() => setOpen(false)}
-                  className={`flex min-h-14 items-center justify-between text-xl ${active ? "font-semibold text-ink" : "text-ink-2"}`}
+                  className={`flex min-h-14 items-center justify-between text-h3 ${active ? "font-semibold text-ink" : "text-ink-2"}`}
                 >
                   {n.label}
                   {active && <span aria-hidden className="size-2 rounded-full bg-accent" />}

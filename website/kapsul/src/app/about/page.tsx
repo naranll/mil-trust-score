@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Бидний тухай", descriptio
 
 const WONT = ["Худал мэдээг «шийднэ» гэж амлахгүй", "Хүнд оноо, шошго наахгүй", "Хувийн мэдээлэл цуглуулахгүй", "Улс төрийн тал баримтлахгүй"];
 
-const H2 = "text-[25px] font-bold text-ink md:text-[31.25px]";
+const H2 = "text-h2 font-bold text-ink";
 
 export default function About() {
   return (
@@ -22,8 +22,8 @@ export default function About() {
           <h1 className={`max-w-[14ch] ${H1}`}>
             Бид навч биш, үндсийг хардаг
           </h1>
-          <p className="mt-6 max-w-[56ch] text-xl leading-relaxed text-ink-2">
-            Навч бол таны feed дээрх нэг пост. Үндэс бол түүнийг танд хүргэсэн систем. Бид дөрвөн үндсийг ил гаргахыг зорьдог.
+          <p className="mt-6 max-w-[56ch] text-lead leading-relaxed text-ink-2">
+            Навч бүр таны харж буй нэг пост. Харин үндэс нь тэр постыг танд харуулж буй систем. Бид энэ системийн дөрвөн үндсийг ил гаргана.
           </p>
           <ul className="mt-8 grid max-w-2xl gap-x-8 gap-y-4 sm:grid-cols-2">
             {LAYERS.map((l) => (
@@ -31,12 +31,12 @@ export default function About() {
                 <span aria-hidden className="mt-2 size-2.5 shrink-0 rounded-full" style={{ background: l.particle }} />
                 <span>
                   <span className="block font-semibold text-ink">{l.name}</span>
-                  <span className="text-[15px] text-ink-2">{l.question}</span>
+                  <span className="text-small text-ink-2">{l.question}</span>
                 </span>
               </li>
             ))}
           </ul>
-          <p className="mt-8 text-[15px] text-ink-3">{SITE.hackathon}-д оролцож буй 4 оюутан</p>
+          <p className="mt-8 text-small text-ink-3">{SITE.hackathon}-д оролцож буй 4 оюутан</p>
         </div>
         <RootsTree className="mx-auto w-full max-w-[30rem] lg:-mt-6 lg:max-w-none" />
       </section>
@@ -48,9 +48,9 @@ export default function About() {
         <ul className="mt-6 grid border-t border-line sm:grid-cols-2 lg:grid-cols-4">
           {TEAM.map((m) => (
             <li key={m.role} className="border-b border-line py-6 sm:pr-8 lg:border-b-0">
-              <p className={`text-lg font-semibold ${m.placeholder ? "text-ink-2" : "text-ink"}`}>{m.name}</p>
+              <p className={`text-lead font-semibold ${m.placeholder ? "text-ink-2" : "text-ink"}`}>{m.name}</p>
               <p className="text-ink-2">{m.role}</p>
-              <p className="mt-3 max-w-[34ch] text-[15px] leading-relaxed text-ink-3">{m.note}</p>
+              <p className="mt-3 max-w-[34ch] text-small leading-relaxed text-ink-3">{m.note}</p>
             </li>
           ))}
         </ul>
@@ -69,7 +69,7 @@ export default function About() {
         </h2>
         <ul className="grid border-t border-line sm:grid-cols-2">
           {WONT.map((w) => (
-            <li key={w} className="flex items-center gap-3 border-b border-line py-5 text-lg text-ink sm:pr-6">
+            <li key={w} className="flex items-center gap-3 border-b border-line py-5 text-lead text-ink sm:pr-6">
               <Ban aria-hidden className="size-5 shrink-0 text-ink-3" />
               {w}
             </li>
@@ -78,7 +78,7 @@ export default function About() {
       </section>
 
       <section className="mt-14 flex flex-col items-start gap-6 border-t border-line pt-10 md:mt-20 md:flex-row md:items-center md:justify-between">
-        <p className="text-[20px] font-semibold text-ink md:text-[25px]">Тоо бүрийн эх сурвалж нээлттэй</p>
+        <p className="text-h3 font-semibold text-ink md:text-h2">Тоо бүрийн эх сурвалж нээлттэй</p>
         <PillLink href="/data" tone="secondary">
           Өгөгдөл үзэх
         </PillLink>
