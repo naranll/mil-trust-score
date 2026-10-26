@@ -47,11 +47,11 @@
 #mv-viz .wrap {
   max-width: none; /* бүтэн өргөн: хуудас бүр хоёр талдаа хоосон зайгүй */
   margin: 0 auto;
-  padding: 28px 20px 32px;
+  padding: 28px 0 32px; /* хажуугийн зайг хуудас өгнө: гарчигтай нэг ирмэгт */
 }
 @media (min-width: 768px) {
   #mv-viz .wrap {
-    padding: 40px 48px 40px;
+    padding: 40px 0;
   }
 }
 #mv-viz .plate {

@@ -119,6 +119,7 @@
 
 html {
   overflow-x: clip;
+  scrollbar-gutter: stable; /* гүйлгэгддэггүй хуудсанд ч header-ийн байрлал ижил */
   background: var(--bg);
   color: var(--text-primary);
   scroll-behavior: smooth;

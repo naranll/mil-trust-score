@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { StarViz } from "@/components/data/StarViz";
 import { getStats } from "@/lib/stats";
+import { PAGE, PageTitle } from "@/components/ui/PageTitle";
 
 export const metadata: Metadata = {
   title: "Өгөгдөл",
@@ -11,9 +12,10 @@ export default async function DataPage() {
   const { origin } = await getStats();
 
   return (
-    <div className="w-full px-5 pt-14 md:px-10 md:pt-20 xl:px-16">
-      <h1 className="text-[clamp(2.4rem,6vw,3.9rem)] leading-[1.05] font-bold tracking-[-0.02em] text-ink">Өгөгдөл</h1>
-      <p className="mt-2 text-[12.8px] text-ink-3">{origin === "supabase" ? "Supabase-ээс шууд" : "Дотоод нөөцөөс"}</p>
+    <div className={PAGE}>
+      <PageTitle title="Өгөгдөл" lead="Мэдээллийн сайтын уншигчид, уншдаг мэдээллийн төрөл, хиймэл оюуны хэрэглээ.">
+        <p className="mt-3 text-[12.8px] text-ink-3">{origin === "supabase" ? "Supabase-ээс шууд" : "Дотоод нөөцөөс"}</p>
+      </PageTitle>
 
       {/* Хэвлэлийн хүрээлэнгийн өгөгдөл: хаана, юу уншдаг вэ, хиймэл оюун */}
       <section aria-label="Хэвлэл мэдээллийн хэрэглээ" className="mt-10">

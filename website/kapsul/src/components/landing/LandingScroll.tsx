@@ -190,107 +190,111 @@ export function LandingScroll() {
   const flow = "group-data-[mode=static]:static motion-reduce:static";
 
   return (
-    // -mt-16: sticky цэсний (64px) доогуур орж, эхний дэлгэцийг бүтэн эзэлнэ
-    <section ref={root} data-landing data-mode={mode} aria-labelledby="landing-title" className="group relative -mt-16">
-      <div ref={stage} className="relative flex min-h-svh w-full flex-col px-5 pt-20 pb-4 md:px-10 md:pt-24 md:pb-6 xl:px-16">
-        {/* Бүтэн дэлгэцийн canvas (цэсний доогуур ч), ирмэг рүүгээ цэгүүд бүдгэрнэ */}
-        {mode === "anim" && count > 0 && (
-          <div data-canvas aria-hidden className="absolute inset-0">
-            <div className={`h-full w-full transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}>
-              <PointCapsule driveRef={driveRef} count={count} colors={COLORS} big={HABIT_BIG} active={active} onReady={onReady} />
+    // -mt-16: sticky цэсний (64px) доогуур орж, эхний дэлгэцийг бүтэн эзэлнэ.
+    // Гаднах div: GSAP pin нь section-ийг pin-spacer-ээр ороодог тул React-ийн эзэмшдэг эцэг хэрэгтэй,
+    // эс бөгөөс өөр хуудас руу шилжихэд React DOM-оо олохгүй унана (insertBefore NotFoundError).
+    <div className="-mt-16">
+      <section ref={root} data-landing data-mode={mode} aria-labelledby="landing-title" className="group relative">
+        <div ref={stage} className="relative flex min-h-svh w-full flex-col px-5 pt-20 pb-4 md:px-10 md:pt-24 md:pb-6 xl:px-16">
+          {/* Бүтэн дэлгэцийн canvas (цэсний доогуур ч), ирмэг рүүгээ цэгүүд бүдгэрнэ */}
+          {mode === "anim" && count > 0 && (
+            <div data-canvas aria-hidden className="absolute inset-0">
+              <div className={`h-full w-full transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}>
+                <PointCapsule driveRef={driveRef} count={count} colors={COLORS} big={HABIT_BIG} active={active} onReady={onReady} />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div
-          ref={area}
-          data-area
-          className="relative flex-1 group-data-[mode=static]:flex group-data-[mode=static]:flex-col group-data-[mode=static]:gap-10 motion-reduce:flex motion-reduce:flex-col motion-reduce:gap-10"
-        >
-          {/* 0: гарчиг капсулын урд, голд */}
           <div
-            className={`pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-5 text-center group-data-[mode=static]:items-start group-data-[mode=static]:text-left motion-reduce:items-start motion-reduce:text-left ${flow}`}
+            ref={area}
+            data-area
+            className="relative flex-1 group-data-[mode=static]:flex group-data-[mode=static]:flex-col group-data-[mode=static]:gap-10 motion-reduce:flex motion-reduce:flex-col motion-reduce:gap-10"
           >
-            <h1
-              id="landing-title"
-              aria-label={TITLE}
-              className="text-[clamp(3rem,11vw,10rem)] leading-[0.95] font-bold tracking-tight text-ink [text-shadow:0_0_40px_var(--bg),0_0_12px_var(--bg)]"
+            {/* 0: гарчиг капсулын урд, голд */}
+            <div
+              className={`pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-5 text-center group-data-[mode=static]:items-start group-data-[mode=static]:text-left motion-reduce:items-start motion-reduce:text-left ${flow}`}
             >
-              <span aria-hidden>
-                {[...TITLE].map((ch, i) => (
-                  <span key={i} data-char className="inline-block whitespace-pre">
-                    {ch}
-                  </span>
-                ))}
-              </span>
-            </h1>
-            <p data-caption="0" className="max-w-md text-lg text-ink-2 [text-shadow:0_0_16px_var(--bg)] md:text-xl">
-              Таны Facebook feed-ийг хэн сонгодог вэ?
-            </p>
-          </div>
-
-          {/* 1–2: бичвэрийн багана (зүүн; утсан дээр дээд хэсэгт). Нэг нүдэнд давхцана. */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 grid md:inset-y-0 md:right-auto md:w-[46%] md:content-center [&>*]:[grid-area:1/1] group-data-[mode=static]:hidden motion-reduce:hidden">
-            <div data-caption="1" className="flex max-w-md flex-col gap-3 text-xl leading-snug md:text-[25px]">
-              <p className="font-semibold text-ink">Таны харж буй пост бүрийг алгоритм сонгодог.</p>
-              <p className="text-ink-2">Хамгийн их сэтгэл хөдлөл төрүүлдэг нь хамгийн хурдан тархдаг.</p>
-            </div>
-            <div data-caption="2" className="flex max-w-md flex-col gap-3 text-xl leading-snug md:text-[25px]">
-              <p className="text-[31.25px] leading-tight font-bold text-ink md:text-[39px]">Нэг эм хангалтгүй.</p>
-              <p className="text-ink-2">Манипуляцаас хамгаалах ганц шийдэл гэж байхгүй.</p>
-            </div>
-          </div>
-
-          <h2
-            data-final
-            className={`absolute top-0 left-0 z-10 text-[25px] leading-tight font-bold text-ink md:top-[4%] md:text-[31.25px] ${flow}`}
-          >
-            Ганц эм биш, таван дадал
-          </h2>
-
-          {/* 3: 5 дадал. Компьютер дээр бөөгнөрөл бүрийн доор, утсан дээр (ба static үед) жагсаалт.
-              Холбоос биш (сайтын хэсгүүд рүү цэс хөтөлнө). Хулгана аваачихад бөөгнөрөл нь тодорно. */}
-          <ul
-            id="habits"
-            className={`absolute inset-x-0 top-14 z-10 flex flex-col gap-1 md:top-auto md:bottom-[6%] md:grid md:grid-cols-5 md:gap-4 ${flow}`}
-          >
-            {HABITS.map((h, i) => (
-              <li
-                key={h.id}
-                data-label={i}
-                onMouseEnter={() => (driveRef.current.hover = i)}
-                onMouseLeave={() => (driveRef.current.hover = -1)}
+              <h1
+                id="landing-title"
+                aria-label={TITLE}
+                className="text-[clamp(3rem,11vw,10rem)] leading-[0.95] font-bold tracking-tight text-ink [text-shadow:0_0_40px_var(--bg),0_0_12px_var(--bg)]"
               >
-                <div data-pill={h.id} className="flex items-center gap-3 rounded-2xl px-3 py-2.5 md:flex-col md:gap-1 md:text-center">
-                  {/* Өнгөт тэмдэг: static үед харагдана; хөдөлгөөнтэй үед утсан дээр цэгэн капсулын байр (хоосон) */}
-                  <span
-                    aria-hidden
-                    data-swatch
-                    className="invisible h-12 w-9 shrink-0 rounded-full group-data-[mode=static]:visible group-data-[mode=static]:h-4 motion-reduce:visible motion-reduce:h-4 md:hidden md:group-data-[mode=static]:block md:motion-reduce:block"
-                    style={{ background: h.color }}
-                  />
-                  <span className="flex flex-col gap-0.5">
-                    <span className={`font-semibold text-ink ${i === HABIT_BIG ? "text-[19px] md:text-[22px]" : "text-[17px] md:text-[19px]"}`}>
-                      {h.name}
+                <span aria-hidden>
+                  {[...TITLE].map((ch, i) => (
+                    <span key={i} data-char className="inline-block whitespace-pre">
+                      {ch}
                     </span>
-                    <span className="text-[14px] leading-snug text-ink-2 md:mx-auto md:max-w-[15rem] md:text-[15px]">{h.line}</span>
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+                  ))}
+                </span>
+              </h1>
+              <p data-caption="0" className="max-w-md text-lg text-ink-2 [text-shadow:0_0_16px_var(--bg)] md:text-xl">
+                Таны Facebook feed-ийг хэн сонгодог вэ?
+              </p>
+            </div>
 
-        <div
-          data-scroll-hint
-          className="relative z-10 flex items-center justify-between text-[15px] font-semibold text-ink-3 group-data-[mode=static]:hidden motion-reduce:hidden"
-        >
-          <span>Гүйлгэх ↓</span>
-          <a href="#habits" onClick={skip} className="btn-quiet inline-flex min-h-11 items-center">
-            Алгасах →
-          </a>
+            {/* 1–2: бичвэрийн багана (зүүн; утсан дээр дээд хэсэгт). Нэг нүдэнд давхцана. */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 grid md:inset-y-0 md:right-auto md:w-[46%] md:content-center [&>*]:[grid-area:1/1] group-data-[mode=static]:hidden motion-reduce:hidden">
+              <div data-caption="1" className="flex max-w-md flex-col gap-3 text-xl leading-snug md:text-[25px]">
+                <p className="font-semibold text-ink">Таны харж буй пост бүрийг алгоритм сонгодог.</p>
+                <p className="text-ink-2">Хамгийн их сэтгэл хөдлөл төрүүлдэг нь хамгийн хурдан тархдаг.</p>
+              </div>
+              <div data-caption="2" className="flex max-w-md flex-col gap-3 text-xl leading-snug md:text-[25px]">
+                <p className="text-[31.25px] leading-tight font-bold text-ink md:text-[39px]">Нэг эм хангалтгүй.</p>
+                <p className="text-ink-2">Манипуляцаас хамгаалах ганц шийдэл гэж байхгүй.</p>
+              </div>
+            </div>
+
+            <h2
+              data-final
+              className={`absolute top-0 left-0 z-10 text-[25px] leading-tight font-bold text-ink md:top-[4%] md:text-[31.25px] ${flow}`}
+            >
+              Ганц эм биш, таван дадал
+            </h2>
+
+            {/* 3: 5 дадал. Компьютер дээр бөөгнөрөл бүрийн доор, утсан дээр (ба static үед) жагсаалт.
+                Холбоос биш (сайтын хэсгүүд рүү цэс хөтөлнө). Хулгана аваачихад бөөгнөрөл нь тодорно. */}
+            <ul
+              id="habits"
+              className={`absolute inset-x-0 top-14 z-10 flex flex-col gap-1 md:top-auto md:bottom-[6%] md:grid md:grid-cols-5 md:gap-4 ${flow}`}
+            >
+              {HABITS.map((h, i) => (
+                <li
+                  key={h.id}
+                  data-label={i}
+                  onMouseEnter={() => (driveRef.current.hover = i)}
+                  onMouseLeave={() => (driveRef.current.hover = -1)}
+                >
+                  <div data-pill={h.id} className="flex items-center gap-3 rounded-2xl px-3 py-2.5 md:flex-col md:gap-1 md:text-center">
+                    {/* Өнгөт тэмдэг: static үед харагдана; хөдөлгөөнтэй үед утсан дээр цэгэн капсулын байр (хоосон) */}
+                    <span
+                      aria-hidden
+                      data-swatch
+                      className="invisible h-12 w-9 shrink-0 rounded-full group-data-[mode=static]:visible group-data-[mode=static]:h-4 motion-reduce:visible motion-reduce:h-4 md:hidden md:group-data-[mode=static]:block md:motion-reduce:block"
+                      style={{ background: h.color }}
+                    />
+                    <span className="flex flex-col gap-0.5">
+                      <span className={`font-semibold text-ink ${i === HABIT_BIG ? "text-[19px] md:text-[22px]" : "text-[17px] md:text-[19px]"}`}>
+                        {h.name}
+                      </span>
+                      <span className="text-[14px] leading-snug text-ink-2 md:mx-auto md:max-w-[15rem] md:text-[15px]">{h.line}</span>
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div
+            data-scroll-hint
+            className="relative z-10 flex items-center justify-between text-[15px] font-semibold text-ink-3 group-data-[mode=static]:hidden motion-reduce:hidden"
+          >
+            <span>Гүйлгэх ↓</span>
+            <a href="#habits" onClick={skip} className="btn-quiet inline-flex min-h-11 items-center">
+              Алгасах →
+            </a>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }

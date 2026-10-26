@@ -15,6 +15,7 @@ import type { PortraitDrive } from "./PortraitCloud";
 import { SyntheticTag } from "@/components/ui/Pill";
 import { LightPrompt } from "@/components/map/LightPrompt";
 import { ShareButton } from "@/components/map/ShareButton";
+import { H1 } from "@/components/ui/PageTitle";
 import { useReducedMotion, useWebGL } from "@/lib/render-mode";
 
 const PortraitCloud = dynamic(() => import("./PortraitCloud"), { ssr: false });
@@ -407,7 +408,7 @@ function Intro({ guess, setGuess, onStart }: { guess: number; setGuess: (n: numb
   return (
     <div className="flex flex-col gap-10">
       <div>
-        <h1 className="text-[clamp(2.4rem,6vw,4.25rem)] leading-[1.02] font-bold tracking-tight text-ink">Таны feed хэрхэн бүтдэг вэ?</h1>
+        <h1 className={H1}>Таны feed хэрхэн бүтдэг вэ?</h1>
         <ol className="mt-8 space-y-3">
           {steps.map((st) => (
             <li key={st.text} className="flex items-center gap-4 text-lg text-ink">

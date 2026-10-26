@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 // Урт агуулга зүүн баганын дотор гүйлгэгдэнэ.
 export default function GamePage() {
   return (
-    <div data-app className="flex h-[calc(100svh-4rem)] w-full flex-col overflow-hidden px-5 pt-4 pb-4 md:px-10 md:pt-8 md:pb-8 xl:px-16">
+    <div data-app className="flex h-[calc(100svh-4rem)] w-full flex-col overflow-hidden px-5 pt-4 pb-4 md:px-10 md:pt-20 md:pb-8 xl:px-16">
       <FeedGame />
     </div>
   );

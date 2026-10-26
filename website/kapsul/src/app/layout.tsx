@@ -32,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <footer className="mt-24 border-t border-(--rule)">
           <div className="flex w-full flex-col gap-2 px-5 py-6 text-[14px] text-ink-3 sm:flex-row sm:items-center sm:justify-between md:px-10 xl:px-16">
             <p>
-              Cure the Core баг, {SITE.hackathon}
+              Todruulii баг {SITE.hackathon}
             </p>
             <ul className="flex flex-wrap items-center gap-x-6">
               {SITE.email && (

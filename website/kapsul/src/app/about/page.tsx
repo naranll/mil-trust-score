@@ -5,6 +5,7 @@ import { LightMap } from "@/components/map/LightMap";
 import { RootsTree } from "@/components/about/RootsTree";
 import { LAYERS } from "@/data/layers";
 import { SITE, TEAM } from "@/data/site";
+import { H1, PAGE } from "@/components/ui/PageTitle";
 
 export const metadata: Metadata = { title: "Бидний тухай", description: "Cure from the Core баг, HACKMIL 2026." };
 
@@ -14,11 +15,11 @@ const H2 = "text-[25px] font-bold text-ink md:text-[31.25px]";
 
 export default function About() {
   return (
-    <div className="w-full px-5 pt-14 pb-10 md:px-10 md:pt-20 xl:px-16">
+    <div className={PAGE}>
       {/* Hero: зүүн талд санаа, баруун талд гүйлгэхэд үндэс нь ургадаг цэгэн мод */}
-      <section className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] lg:gap-16">
+      <section className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] lg:gap-16">
         <div>
-          <h1 className="max-w-[14ch] text-[clamp(2.4rem,6vw,4.25rem)] leading-[1.02] font-bold tracking-[-0.025em] text-ink">
+          <h1 className={`max-w-[14ch] ${H1}`}>
             Бид навч биш, үндсийг хардаг
           </h1>
           <p className="mt-6 max-w-[56ch] text-xl leading-relaxed text-ink-2">
