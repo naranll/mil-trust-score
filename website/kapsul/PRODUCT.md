@@ -23,7 +23,7 @@ Success for the demo: a judge understands the idea in one viewport, plays the al
 
 ## Positioning
 
-Slogan: **Cure the Core.** Metaphor: a pill/capsule — but not "one pill cures it".
+Slogan: **Cure from the Core.** Metaphor: a pill/capsule — but not "one pill cures it".
 
 - The **symptom** is one false/misleading claim. Everyone else treats the symptom (score the article).
 - The **core** is the system that produces, selects and delivers the claim, plus the habits that make us accept it.
@@ -40,7 +40,7 @@ Lines to use: "Treat the root, not the leaf." "The symptom is the claim. The dis
 
 ## Capabilities and Constraints
 
-- Routes: `/` home, `/game` feed-algorithm game, `/data` light map + 3D data viz, `/blog` + `/blog/[slug]`, `/about`, `/extension`.
+- Routes: `/` home, `/game` feed-algorithm game, `/data` data viz, `/blog` + `/blog/[slug]`, `/about` (team + light map). The extension has no page on the site.
 - No login, no user accounts. Mongolian (Cyrillic) only.
 - Supabase stores data-viz statistics and the light map (`lights`: aimag, kind, time — no personal data). If env vars are missing the site reads the same numbers from `src/data/stats.ts` so the demo never breaks.
 - It is a demo website for the hackathon, not a finished product.
@@ -48,7 +48,7 @@ Lines to use: "Treat the root, not the leaf." "The symptom is the claim. The dis
 
 ## Brand Commitments
 
-- Slogan "Cure the Core" (user-given).
+- Slogan "Cure from the Core" (user-given).
 - Pill/capsule metaphor (user-given).
 - Visual system: **HACKMIL 2026 Design system v3** (user-supplied sheets): Okabe Ito for UI and verdicts, Paul Tol for chart scales, Golos Text, light + dark, WCAG 2.2 AA, color never works alone.
 - Visual references supplied by the user: an opened capsule spilling particles (3D); tsaaguur.mn/network starfield graph for the light map.

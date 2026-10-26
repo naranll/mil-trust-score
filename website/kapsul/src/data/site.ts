@@ -1,6 +1,5 @@
-// Сайтын тохиргоо. Extension-ий татах линк бэлэн болмогц энд оруулна.
+// Сайтын тохиргоо
 export const SITE = {
-  extensionUrl: "", // жишээ нь: "https://github.com/<team>/<repo>/releases/latest"
   hackathon: "HACKMIL 2026",
 };
 

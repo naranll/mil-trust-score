@@ -1,5 +1,5 @@
 // Feed алгоритмын энгийн загвар. Бодит Facebook-ийн код биш, харин зарчмыг харуулах симуляц:
-// 1) Чиний үйлдлээс сонирхлыг тань сурна (like, share, удаан харах).
+// 1) Таны үйлдлээс сонирхлыг сурна (like, share, удаан харах).
 // 2) Платформ өөрөө ч их харилцаа (engagement) авчирдаг постыг илүүд үзнэ (bait).
 // Дараагийн пост = сонирхол × bait гэсэн оноогоор сонгогдоно.
 import { CATEGORIES, POSTS, type Category, type Post } from "@/data/posts";
@@ -11,7 +11,7 @@ export type Delivered = {
   post: Post;
   action?: Action;
   dwellMs?: number;
-  reason: string; // яагаад энэ пост чамд хүрсэн бэ
+  reason: string; // яагаад энэ пост танд хүрсэн бэ
 };
 
 export type GameState = {
@@ -26,7 +26,7 @@ const STARTERS = ["n1", "h1", "o1"]; // эхний 3 пост: холимог
 export function initState(): GameState {
   const weights = Object.fromEntries(CATS.map((c) => [c, 1])) as Record<Category, number>;
   const first = POSTS.find((p) => p.id === STARTERS[0])!;
-  return { weights, feed: [{ post: first, reason: "Эхлэл: алгоритм чамайг одоохондоо мэдэхгүй байна." }], log: [] };
+  return { weights, feed: [{ post: first, reason: "Эхлэл: алгоритм таныг одоохондоо мэдэхгүй байна." }], log: [] };
 }
 
 // Үйлдлээс сонирхлын жин хэр өөрчлөгдөх вэ
@@ -88,14 +88,14 @@ export function act(state: GameState, action: Action, dwellMs: number, seed: num
   return { weights, feed: next ? feed.concat({ post: next, reason }) : feed, log: [line, ...state.log] };
 }
 
-// "Яагаад чамд хүрсэн бэ": тархалтын тайлбар
+// "Яагаад танд хүрсэн бэ": тархалтын тайлбар
 function explain(p: Post, weights: Record<Category, number>, feed: Delivered[]) {
   const c = CATEGORIES[p.category];
   const engaged = feed.filter((f) => f.post.category === p.category && f.action && f.action !== "skip").length;
   const parts: string[] = [];
   if (weights[p.category] > 1.6 && engaged > 0)
-    parts.push(`Чи «${c.label}» төрлийн пост дээр ${engaged} удаа хариу үйлдэл хийсэн`);
-  else if (weights[p.category] > 1.3) parts.push(`Чи «${c.label}» төрлийн постыг удаан харсан`);
+    parts.push(`Та «${c.label}» төрлийн пост дээр ${engaged} удаа хариу үйлдэл хийсэн`);
+  else if (weights[p.category] > 1.3) parts.push(`Та «${c.label}» төрлийн постыг удаан харсан`);
   if (c.bait >= 1.5) parts.push("энэ төрөл сэтгэгдэл, хуваалцалт их цуглуулдаг тул платформ урагшлуулсан");
   if (parts.length === 0) return "Алгоритм шинэ сэдэв туршиж байна.";
   const s = parts.join(", ");
@@ -110,7 +110,7 @@ export function summarize(state: GameState) {
   const emotionalShown = state.feed.filter((f) => CATEGORIES[f.post.category].emotional).length;
   const actual = Math.round((emotionalShown / n) * 100);
 
-  // Харьцуулалт: платформ bait ашиглаагүй, зөвхөн чиний сонирхлыг харсан бол
+  // Харьцуулалт: платформ bait ашиглаагүй, зөвхөн таны сонирхлыг харсан бол
   const interestOnly = (() => {
     let emo = 0;
     let tot = 0;

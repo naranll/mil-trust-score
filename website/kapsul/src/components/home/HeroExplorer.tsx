@@ -4,6 +4,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { LAYERS } from "@/data/layers";
 import { ClaimDemo, CognitionDemo, ProductionDemo, SpreadDemo } from "./LayerDemos";
 
@@ -39,33 +40,27 @@ export function HeroExplorer({ loss, lossUrl }: { loss: number; lossUrl: string 
           {!active ? (
             <div>
               <h1 id="hero-title" className="text-[clamp(2.6rem,6vw,4.75rem)] leading-[1.02] font-bold tracking-[-0.025em] text-ink">
-                Cure the Core
+                Cure from the Core
               </h1>
-              <p className="mt-5 max-w-md text-xl leading-relaxed text-ink-2">
-                Худал пост бол зөвхөн гадна бүрхүүл нь. Капсулыг нээгээд дотор нь юу байгааг өөрөө хар.
-              </p>
+              <p className="mt-5 max-w-md text-xl leading-relaxed text-ink-2">Худал пост бол зөвхөн бүрхүүл. Дотор нь юу байгааг хараарай.</p>
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-                <button
-                  type="button"
-                  onClick={openIt}
-                  className="inline-flex min-h-12 items-center rounded-full bg-accent px-7 text-lg font-semibold text-on-accent hover:bg-accent-strong"
-                >
+                <button type="button" onClick={openIt} className="btn btn-primary text-base">
                   Капсулыг нээх
                 </button>
-                <Link href="/game" className="link-accent text-lg font-semibold">
-                  Эсвэл шууд тоглох
+                <Link href="/game" className="btn-quiet inline-flex items-center">
+                  Шууд тоглох
                 </Link>
               </div>
             </div>
           ) : (
-            <div className="glass rounded-2xl p-5 md:p-7" key={active.id}>
+            <div className="glass p-5 md:p-7" key={active.id}>
               <div className="flex items-center justify-between gap-3">
                 <h2 id="hero-title" className="flex items-center gap-3 text-[25px] leading-tight font-bold text-ink">
                   <span aria-hidden className="size-4 rounded-full" style={{ background: active.particle }} />
                   {active.name}
                 </h2>
-                <button type="button" onClick={close} className="min-h-11 rounded-full px-3 text-[15px] font-semibold text-ink-2 hover:bg-subtle hover:text-ink">
-                  Капсулыг хаах
+                <button type="button" onClick={close} aria-label="Капсулыг хаах" className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-2 hover:bg-subtle hover:text-ink">
+                  <X aria-hidden className="size-5" />
                 </button>
               </div>
               <p className="mt-1 text-lg text-ink-2">{active.question}</p>
@@ -112,7 +107,7 @@ export function HeroExplorer({ loss, lossUrl }: { loss: number; lossUrl: string 
           <div
             role="tablist"
             aria-label="Капсулын давхарга"
-            className={`grid grid-cols-4 gap-1.5 transition-opacity duration-[var(--dur-slow)] ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
+            className={`seg grid w-full grid-cols-4 transition-opacity duration-[var(--dur-slow)] ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
           >
             {LAYERS.map((l, i) => (
               <button
@@ -123,9 +118,7 @@ export function HeroExplorer({ loss, lossUrl }: { loss: number; lossUrl: string 
                 onClick={() => setSelected(i)}
                 onMouseEnter={() => setHover(i)}
                 onMouseLeave={() => setHover(null)}
-                className={`min-h-11 rounded-full px-1 text-center text-[13px] leading-tight font-semibold transition-colors md:text-[15px] ${
-                  selected === i ? "bg-ink text-bg" : hover === i ? "bg-subtle text-ink" : "text-ink-2 hover:bg-subtle"
-                }`}
+                className={`!px-1 text-center !text-[13px] leading-tight md:!text-[15px] ${hover === i && selected !== i ? "text-ink" : ""}`}
               >
                 {l.name}
               </button>

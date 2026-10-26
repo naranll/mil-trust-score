@@ -3,7 +3,7 @@ import { FeedGame } from "@/components/game/FeedGame";
 
 export const metadata: Metadata = {
   title: "Feed тоглоом",
-  description: "12 пост гүйлгээд алгоритм чамайг хэрхэн харсныг, пост бүр яагаад чамд хүрснийг олж мэд.",
+  description: "12 пост гүйлгээд алгоритм таныг хэрхэн харсныг олж мэдээрэй.",
 };
 
 export default function GamePage() {

@@ -1,0 +1,321 @@
+/* Одтой data viz (Хакмил 2026). Бүх дүрэм #mv-viz дотор хаалттай тул сайтын бусад хэв маягт нөлөөлөхгүй.
+   Хоёр бүлгийг зөвхөн өнгөөр биш, одны хэлбэрээр (4 хошуу / 6 хошуу) ялгана. */
+#mv-viz {
+  color-scheme: dark;
+  --bg: #0a1024;
+  --text: #e9edf7;
+  --muted: #9aa2ba;
+  --faint: #7d86a3;
+  --grid: rgba(165, 182, 225, 0.11);
+  --rule: rgba(165, 182, 225, 0.16);
+  --blue: #6f86ff;
+  --amber: #ffb547;
+  --star: #dce3ff;
+  display: block;
+  position: relative;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+  text-align: left;
+  border-radius: 16px;
+  overflow: clip;
+  -webkit-font-smoothing: antialiased;
+}
+#mv-viz *,
+#mv-viz *::before,
+#mv-viz *::after {
+  box-sizing: border-box;
+}
+#mv-viz h2,
+#mv-viz p {
+  margin: 0;
+}
+#mv-viz svg {
+  max-width: none;
+}
+#mv-viz ::selection {
+  background: var(--blue);
+  color: var(--bg);
+}
+#mv-viz :focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
+#mv-viz .wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 28px 20px 32px;
+}
+@media (min-width: 768px) {
+  #mv-viz .wrap {
+    padding: 40px 48px 40px;
+  }
+}
+#mv-viz .plate {
+  display: grid;
+  gap: 22px;
+  padding-block: clamp(44px, 8vw, 92px);
+  border-top: 1px solid var(--rule);
+}
+#mv-viz .plate:first-of-type {
+  border-top: 0;
+  padding-top: 20px;
+}
+#mv-viz .plate h2 {
+  color: var(--text);
+  font-size: clamp(25px, 3.6vw, 39px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  max-width: 24ch;
+  text-wrap: balance;
+}
+#mv-viz .tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+#mv-viz .chart {
+  position: relative;
+  width: 100%;
+}
+#mv-viz .view {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+}
+#mv-viz .view button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.25s cubic-bezier(0.2, 0, 0, 1), color 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+#mv-viz .view button:hover {
+  color: var(--text);
+}
+#mv-viz .view button[aria-pressed="true"] {
+  background: var(--text);
+  color: var(--bg);
+}
+#mv-viz .view svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+#mv-viz .tblwrap {
+  display: none;
+}
+#mv-viz .plate.as-table .chart {
+  display: none;
+}
+#mv-viz .plate.as-table .tblwrap {
+  display: block;
+}
+#mv-viz .chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+#mv-viz .src {
+  font-size: 12.8px;
+  color: var(--faint);
+  max-width: 70ch;
+}
+#mv-viz .key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  font-size: 14px;
+  color: var(--muted);
+}
+#mv-viz .key span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+#mv-viz .key svg {
+  width: 18px;
+  height: 18px;
+  overflow: visible;
+  flex: none;
+}
+#mv-viz table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+#mv-viz table.data caption {
+  text-align: left;
+  color: var(--muted);
+  font-size: 12.8px;
+  padding-bottom: 8px;
+}
+#mv-viz table.data th,
+#mv-viz table.data td {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--rule);
+  font-weight: 400;
+}
+#mv-viz table.data th {
+  color: var(--muted);
+  font-weight: 600;
+}
+#mv-viz table.data td + td,
+#mv-viz table.data th + th {
+  text-align: right;
+}
+#mv-viz svg text {
+  font-family: var(--font-sans);
+}
+#mv-viz .axl {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+#mv-viz .nm {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 400;
+}
+#mv-viz .val {
+  font-weight: 400;
+  fill: var(--text);
+  font-variant-numeric: tabular-nums;
+  transition: opacity 0.4s ease;
+}
+/* одууд */
+#mv-viz .pt {
+  cursor: pointer;
+  transition: opacity 0.4s ease;
+  outline: none;
+}
+#mv-viz .hv {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#mv-viz .pt.on .hv {
+  transform: scale(1.5);
+}
+#mv-viz .ring {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+#mv-viz .pt:focus-visible .ring {
+  opacity: 1;
+}
+#mv-viz .tw {
+  animation: mv-tw 4.2s ease-in-out infinite;
+}
+#mv-viz .halo {
+  animation: mv-halo 4.2s ease-in-out infinite;
+}
+@keyframes mv-tw {
+  0%,
+  100% {
+    transform: scale(0.92) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.08) rotate(7deg);
+  }
+}
+@keyframes mv-halo {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+#mv-viz .off .tw,
+#mv-viz .off .halo,
+#mv-viz .off .flow,
+#mv-viz .off .breathe,
+#mv-viz .off .ripple {
+  animation-play-state: paused;
+}
+#mv-viz .dim .pt:not(.on),
+#mv-viz .dim .val:not(.on) {
+  opacity: 0.35;
+}
+#mv-viz .flow {
+  animation: mv-flow 11s linear infinite;
+}
+@keyframes mv-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+#mv-viz .breathe {
+  animation: mv-breathe 6s ease-in-out infinite;
+}
+@keyframes mv-breathe {
+  0%,
+  100% {
+    opacity: 0.78;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+#mv-viz .ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mv-ripple 7s ease-out infinite;
+}
+@keyframes mv-ripple {
+  0% {
+    transform: scale(0.08);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+#mv-viz .dust circle {
+  fill: #c9d4f2;
+}
+#mv-viz footer {
+  border-top: 1px solid var(--rule);
+  padding-top: 16px;
+  font-size: 12.8px;
+  color: var(--faint);
+}
+@media (prefers-reduced-motion: reduce) {
+  #mv-viz .tw,
+  #mv-viz .halo,
+  #mv-viz .flow,
+  #mv-viz .breathe,
+  #mv-viz .ripple {
+    animation: none;
+  }
+  #mv-viz .hv,
+  #mv-viz .pt,
+  #mv-viz .val,
+  #mv-viz .view button {
+    transition: none;
+  }
+}

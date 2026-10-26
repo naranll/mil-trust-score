@@ -2,31 +2,12 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { Source } from "@/data/stats";
 
-// Design system v3: товч 44px өндөр, капсул хэлбэртэй, нэг дэлгэцэнд нэг primary.
-type Tone = "primary" | "secondary";
+// Design system v3: товч 44px, капсул хэлбэртэй, нэг дэлгэцэнд нэг primary. Класс нь globals.css-д.
+type Tone = "primary" | "secondary" | "quiet";
 
-const tones: Record<Tone, string> = {
-  primary: "bg-accent text-on-accent hover:bg-accent-strong",
-  secondary: "bg-surface text-accent ring-[1.5px] ring-inset ring-accent hover:bg-accent-tint",
-};
-
-export function PillLink({
-  href,
-  children,
-  tone = "primary",
-  size = "md",
-}: {
-  href: string;
-  children: React.ReactNode;
-  tone?: Tone;
-  size?: "md" | "lg";
-}) {
-  const sz = size === "lg" ? "min-h-12 px-7 text-base md:text-lg" : "min-h-11 px-5 text-[15px]";
+export function PillLink({ href, children, tone = "primary" }: { href: string; children: React.ReactNode; tone?: Tone }) {
   return (
-    <Link
-      href={href}
-      className={`inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-colors duration-[var(--dur-fast)] ${tones[tone]} ${sz}`}
-    >
+    <Link href={href} className={tone === "quiet" ? "btn-quiet inline-flex items-center" : `btn btn-${tone}`}>
       {children}
     </Link>
   );

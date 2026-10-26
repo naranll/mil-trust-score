@@ -72,7 +72,7 @@ function Stars() {
   }, []);
   return (
     <points geometry={geo}>
-      <pointsMaterial color="#a9afb8" size={0.05} transparent opacity={0.6} sizeAttenuation />
+      <pointsMaterial color="#9aa2ba" size={0.05} transparent opacity={0.6} sizeAttenuation />
     </points>
   );
 }
@@ -96,14 +96,14 @@ function LandDots() {
   }, []);
   return (
     <points geometry={geo}>
-      <pointsMaterial color="#8a919b" size={0.026} transparent opacity={0.75} sizeAttenuation />
+      <pointsMaterial color="#7d86a3" size={0.026} transparent opacity={0.75} sizeAttenuation />
     </points>
   );
 }
 
 function Outline() {
   const pts = useMemo(() => MONGOLIA_OUTLINE.map(([lon, lat]) => new THREE.Vector3(...project(lon, lat), 0)), []);
-  return <Line points={pts} color="#56b4e9" lineWidth={1.5} transparent opacity={0.75} />;
+  return <Line points={pts} color="#6f86ff" lineWidth={1.5} transparent opacity={0.75} />;
 }
 
 // Нэг гэрэл: шинэ бол гялс гэж томроод тогтворжино
@@ -154,7 +154,7 @@ function Lights({ lights, glow }: { lights: Light[]; glow: THREE.Texture }) {
   return (
     <>
       {links.map((s, i) => (
-        <Line key={i} points={s} color="#56b4e9" lineWidth={0.8} transparent opacity={0.28} />
+        <Line key={i} points={s} color="#6f86ff" lineWidth={0.8} transparent opacity={0.28} />
       ))}
       {placed.map((p) => (
         <LightSprite key={p.l.id} light={p.l} glow={glow} pos={p.pos} />
@@ -204,7 +204,7 @@ function Halos({ counts, glow }: { counts: Record<string, number>; glow: THREE.T
         const s = 0.45 + Math.sqrt(counts[a.id]) * 0.16;
         return (
           <sprite key={a.id} position={[x, y, 0.02]} scale={[s, s, s]}>
-            <spriteMaterial map={glow} color="#56b4e9" transparent opacity={0.16} depthWrite={false} blending={THREE.AdditiveBlending} />
+            <spriteMaterial map={glow} color="#6f86ff" transparent opacity={0.16} depthWrite={false} blending={THREE.AdditiveBlending} />
           </sprite>
         );
       })}
@@ -275,9 +275,9 @@ export default function MapScene({ lights, counts }: { lights: Light[]; counts: 
             ref={(el) => {
               refs.current[a.id] = el;
             }}
-            className="absolute top-0 left-0 rounded-md bg-[#1b1e23]/85 px-1.5 py-0.5 text-[12px] font-semibold whitespace-nowrap text-[#eceef1] opacity-0 ring-1 ring-[#737a84]/50"
+            className="absolute top-0 left-0 rounded-md bg-[#111a36]/90 px-1.5 py-0.5 text-[12px] font-semibold whitespace-nowrap text-[#e9edf7] opacity-0 ring-1 ring-[#6b7596]/50"
           >
-            {a.name} <span className="text-[#56b4e9] tnum">{a.n}</span>
+            {a.name} <span className="text-[#6f86ff] tnum">{a.n}</span>
           </span>
         ))}
       </div>

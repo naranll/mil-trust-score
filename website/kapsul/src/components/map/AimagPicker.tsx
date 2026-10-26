@@ -18,15 +18,15 @@ export function AimagPicker({ onPick, label = "Гэрэл асаах", busy }: {
       }}
     >
       <label className="flex min-w-48 flex-1 flex-col gap-1.5 text-[15px] font-semibold text-ink">
-        Аль аймаг, хотод амьдардаг вэ?
+        Таны аймаг, хот
         <select
           required
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="min-h-11 rounded-lg bg-surface px-3 text-base font-normal text-ink ring-[1.5px] ring-inset ring-line focus:ring-accent"
+          className="min-h-11 rounded-lg bg-surface px-3 text-base font-normal text-ink ring-[1.5px] ring-inset ring-line focus:outline-none focus-visible:ring-[3px] focus-visible:ring-accent"
         >
           <option value="" disabled>
-            Сонгоно уу
+            Сонгох
           </option>
           {AIMAGS.map((a) => (
             <option key={a.id} value={a.id}>
@@ -38,7 +38,7 @@ export function AimagPicker({ onPick, label = "Гэрэл асаах", busy }: {
       <button
         type="submit"
         disabled={!value || busy}
-        className="min-h-11 rounded-full bg-accent px-6 text-[15px] font-semibold text-on-accent hover:bg-accent-strong disabled:bg-subtle disabled:text-ink-3"
+        className="btn btn-primary"
       >
         {busy ? "Асааж байна…" : label}
       </button>

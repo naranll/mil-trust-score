@@ -57,7 +57,7 @@ export function LightMap() {
 
       {/* Зүүн дээд: гол тоо */}
       <div className="p-4 pb-0 md:pointer-events-none md:absolute md:top-4 md:left-4 md:w-80 md:p-0">
-        <div className="pointer-events-auto rounded-2xl bg-surface/85 p-5 ring-1 ring-line/40 backdrop-blur-[12px]">
+        <div className="pointer-events-auto rounded-2xl bg-surface p-5 shadow-1">
           <p className="text-[15px] text-ink-2">Асаасан гэрэл</p>
           <p className="text-[39px] leading-[1.15] font-bold tnum" aria-live="polite">
             {ready ? lights.length.toLocaleString("mn-MN") : "…"}
@@ -68,7 +68,7 @@ export function LightMap() {
               <span className="tnum">{stats.top[1]}</span>)
             </p>
           ) : (
-            ready && <p className="mt-2 text-[15px] text-ink-2">Одоохондоо харанхуй байна. Эхний гэрлийг чи асаа.</p>
+            ready && <p className="mt-2 text-[15px] text-ink-2">Эхний гэрлийг та асаагаарай.</p>
           )}
           {last && AIMAG_BY_ID[last.aimag] && (
             <p className="mt-1 text-[12.8px] text-ink-3">
@@ -80,36 +80,30 @@ export function LightMap() {
 
       {/* Доод хэсэг: тайлбар ба үйлдэл */}
       <div className="flex flex-col gap-3 p-4 md:pointer-events-none md:absolute md:inset-x-4 md:bottom-4 md:flex-row md:items-end md:justify-between md:p-0">
-        <ul className="pointer-events-auto flex flex-col gap-2 rounded-2xl bg-surface/85 p-4 text-[15px] ring-1 ring-line/40 backdrop-blur-[12px] md:min-w-64">
+        <ul className="pointer-events-auto flex flex-col gap-2 rounded-2xl bg-surface p-4 text-[15px] shadow-1 md:min-w-64">
           <li className="flex items-center gap-2.5">
-            <span aria-hidden className="size-3 rounded-full" style={{ background: KIND_COLOR.game, boxShadow: `0 0 10px ${KIND_COLOR.game}` }} />
+            <span aria-hidden className="size-3 rounded-full" style={{ background: KIND_COLOR.game }} />
             Тоглоом тоглосон
             <span className="ml-auto pl-4 text-ink-2 tnum">{stats.game}</span>
           </li>
           <li className="flex items-center gap-2.5">
-            <span aria-hidden className="size-3 rounded-full" style={{ background: KIND_COLOR.share, boxShadow: `0 0 10px ${KIND_COLOR.share}` }} />
+            <span aria-hidden className="size-3 rounded-full" style={{ background: KIND_COLOR.share }} />
             Мэдлэг хуваалцсан
             <span className="ml-auto pl-4 text-ink-2 tnum">{stats.share}</span>
           </li>
           <li className="mt-1 flex items-center gap-2 text-[12.8px] text-ink-3">
-            <span aria-hidden className={`size-2 rounded-full ${live ? "bg-[#009e73]" : "bg-ink-3"}`} />
-            {live ? "Шууд: бусдын гэрэл ч мөн асна" : "Зөвхөн энэ төхөөрөмжийн гэрэл харагдаж байна"}
+            <span aria-hidden className={`size-2 rounded-full ${live ? "bg-cat-3" : "bg-ink-3"}`} />
+            {live ? "Шууд" : "Зөвхөн энэ төхөөрөмж"}
           </li>
         </ul>
 
-        <div className="pointer-events-auto rounded-2xl bg-surface/85 p-5 ring-1 ring-line/40 backdrop-blur-[12px] md:max-w-sm">
-          <p className="text-[20px] leading-snug font-semibold">Гэрлээ асаа</p>
-          <p className="mt-1 text-[15px] leading-relaxed text-ink-2">
-            Тоглоом дуусгах эсвэл энэ сайтын мэдээг хэн нэгэнд хуваалцах бүрт таны аймаг дээр +1 гэрэл асна.
-          </p>
+        <div className="pointer-events-auto rounded-2xl bg-surface p-5 shadow-1 md:max-w-sm">
+          <p className="text-[20px] leading-snug font-semibold">Тоглох, хуваалцах бүрт +1 гэрэл</p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <Link
-              href="/game"
-              className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 text-[15px] font-semibold text-on-accent hover:bg-accent-strong"
-            >
+            <Link href="/game" className="btn btn-primary">
               Тоглоом тоглох
             </Link>
-            <ShareButton title="Cure the Core: Feed-ээ задлаад үзээрэй" path="/" quiet />
+            <ShareButton title="Cure from the Core: feed-ээ задлаад үзээрэй" path="/" quiet />
           </div>
         </div>
       </div>

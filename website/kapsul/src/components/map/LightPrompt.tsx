@@ -6,7 +6,6 @@ import { useState } from "react";
 import { AIMAG_BY_ID } from "@/data/aimags";
 import { addLight } from "@/lib/lights";
 import { AimagPicker } from "./AimagPicker";
-import { CapsuleMark } from "@/components/ui/Wordmark";
 
 export function LightPrompt() {
   const [state, setState] = useState<"idle" | "busy" | "done" | "error">("idle");
@@ -16,7 +15,7 @@ export function LightPrompt() {
     setState("busy");
     try {
       await addLight("game", aimag);
-      setMsg(`${AIMAG_BY_ID[aimag]?.name} дээр таны гэрэл асчээ.`);
+      setMsg(`${AIMAG_BY_ID[aimag]?.name} дээр таны гэрэл асав.`);
       setState("done");
     } catch (e) {
       setMsg((e as Error).message);
@@ -25,21 +24,17 @@ export function LightPrompt() {
   };
 
   return (
-    <section aria-labelledby="light-title" className="glass rounded-2xl p-6 md:p-8">
-      <div className="flex items-start gap-4">
-        <CapsuleMark className="mt-1.5 h-4 w-8 shrink-0 text-accent" />
-        <div className="min-w-0 flex-1">
+    <section aria-labelledby="light-title" className="glass p-6 md:p-8">
+      <div>
+                <div className="min-w-0 flex-1">
           <h2 id="light-title" className="text-[25px] leading-tight font-bold text-ink">
-            Монголын газрын зураг дээр гэрлээ асаа
+            Газрын зураг дээр гэрлээ асаагаарай
           </h2>
-          <p className="mt-2 max-w-xl text-base leading-relaxed text-ink-2">
-            Feed-ээ задалсан хүн бүр нэг гэрэл болно. Хэдэн аймагт гэрэл асаж байгааг бүгдээрээ харна.
-          </p>
           <div className="mt-5">
             {state === "done" ? (
               <p role="status" className="text-base text-ink">
                 {msg}{" "}
-                <Link href="/data#map" className="link-accent font-semibold">
+                <Link href="/about#map" className="link-accent font-semibold">
                   Газрын зураг дээр харах
                 </Link>
               </p>

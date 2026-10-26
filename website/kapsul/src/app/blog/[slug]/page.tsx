@@ -28,23 +28,22 @@ export default async function BlogPost({ params }: PageProps<"/blog/[slug]">) {
 
   return (
     <article className="mx-auto max-w-3xl px-5 pt-14 md:pt-20">
-      <Link href="/blog" className="text-sm font-semibold text-ink link-accent">
+      <Link href="/blog" className="btn-quiet inline-flex items-center text-[15px]">
         Бүх нийтлэл
       </Link>
       <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-2">
-        <span className="rounded-full bg-accent-tint px-3 py-0.5 text-xs font-semibold text-ink">{post.layer}</span>
+        <span className="rounded-full bg-accent-tint px-3 py-0.5 text-[12.8px] font-semibold text-ink">{post.layer}</span>
         <time dateTime={post.date}>{mnDate(post.date)}</time>
       </div>
-      <h1 className="font-display mt-4 text-[clamp(2rem,5vw,3.4rem)] leading-[1.04] font-bold tracking-[-0.02em] text-ink">
+      <h1 className="mt-4 text-[clamp(2rem,5vw,3.4rem)] leading-[1.04] font-bold tracking-[-0.02em] text-ink">
         {post.title}
       </h1>
       <p className="mt-5 text-xl leading-relaxed text-ink-2">{post.excerpt}</p>
       <div className="prose-capsule mt-10 text-ink">
         <ReactMarkdown>{post.content}</ReactMarkdown>
       </div>
-      <aside className="mt-14 glass rounded-2xl p-6">
-        <p className="text-[20px] font-semibold text-ink">Энэ нийтлэл хэрэгтэй санагдсан уу?</p>
-        <p className="mt-1 mb-4 text-base text-ink-2">Хуваалцвал таны аймаг дээр мэдлэгийн гэрэл асна.</p>
+      <aside className="glass mt-14 p-6">
+        <p className="mb-4 text-[20px] font-semibold text-ink">Хуваалцвал таны аймагт гэрэл асна</p>
         <ShareButton title={post.title} path={`/blog/${post.slug}`} />
       </aside>
     </article>

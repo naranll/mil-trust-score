@@ -6,11 +6,11 @@
 
 ## 1. Юу хийж байна вэ (нэг догол мөр)
 
-Facebook дээрх манипуляцийг тайлбарладаг browser extension-ий **хамтрагч вэб**. Уриа: **Cure the Core**. Мэдэгдэл (claim) бол шинж тэмдэг, харин өвчин нь түүнийг үйлдвэрлэж, түгээдэг систем юм. Вэб нь капсулыг огтлоод 4 давхаргыг харуулна:
+Facebook дээрх манипуляцийг тайлбарладаг browser extension-ий **хамтрагч вэб**. Уриа: **Cure from the Core**. Мэдэгдэл (claim) бол шинж тэмдэг, харин өвчин нь түүнийг үйлдвэрлэж, түгээдэг систем юм. Вэб нь капсулыг огтлоод 4 давхаргыг харуулна:
 
 | # | Давхарга | Хаана |
 |---|---|---|
-| 1 | Мэдэгдэл (шинж тэмдэг) | `/extension` |
+| 1 | Мэдэгдэл (шинж тэмдэг) | нүүрний капсулын тоглоом |
 | 2 | Тархалт: яагаад чамд хүрсэн бэ | `/game` ← хамгийн гүнзгий хэсэг |
 | 3 | Үйлдвэрлэл: хэн, юуны төлөө хийсэн бэ | `/data` + stub |
 | 4 | Танин мэдэхүй: өөрийн дадал | `/game` төгсгөл + extension сургалтын горим |
@@ -39,7 +39,6 @@ src/
     data/page.tsx         # 3D data viz
     blog/page.tsx, blog/[slug]/page.tsx
     about/page.tsx
-    extension/page.tsx
   components/
     three/                # R3F canvas-ууд (client)
     game/                 # тоглоомын логик + UI
@@ -62,7 +61,10 @@ Token-ууд бүгд `src/app/globals.css`-д байна. Hex-ийг шууд �
 - **Суурь:** `bg-bg`, `bg-surface`, `bg-subtle`, `text-ink` / `text-ink-2` / `text-ink-3`, `ring-line`, `bg-accent` / `hover:bg-accent-strong` / `bg-accent-tint`, `text-on-accent`, `bg-inverse` / `text-on-inverse`.
 - **Дүгнэлтийн өнгө (Okabe Ito):** `true`, `false`, `mislead`, `info`, `unchecked` (+ `-tint`). **Өнгийг дангаар нь хэзээ ч бүү ашигла**, заавал icon болон үгтэй хамт хэрэглэ.
 - **Графикийн ангилал:** `cat-1`…`cat-5` (`#0072B2, #E69F00, #009E73, #CC79A7, #56B4E9`, энэ дарааллаар).
-- **Light/dark** горим нь браузерын тохиргоог дагана. `.theme-dark` class нь тухайн хэсгийг үргэлж харанхуй болгоно (газрын зураг).
+- **Theme:** «Гэрэлтэх өгөгдөл» (одтой data viz-ийн шөнийн хөх тэнгэр, `#0A1024`). Сайт үргэлж харанхуй горимтой; дүгнэлтийн өнгө нь Sheet 1-ийн dark баганаас. Карт = `glass` (цул surface + 1px хүрээ), header = `frost`.
+- **Товч:** `btn btn-primary` / `btn btn-secondary` / `btn-quiet` (globals.css), сегмент: `seg`. Статус: `components/ui/Status.tsx`.
+- **Сонсох:** цэсний `ListenButton` (`components/ui/Listen.tsx`) `#main`-ийг уншиж, уншиж буй хэсгийг `--highlight`-аар тодруулна.
+- **Хэллэг:** хэрэглэгчид «та» гэж хандана. Бичвэр цөөн, тайлбарын оронд дүрслэл, interaction.
 - **Font:** Golos Text (`@fontsource-variable/golos-text`). Scale 1.25: 39 / 31.25 / 25 / 20 / 16 / 12.8 px. Жин: 400/600/700.
 - **Radius:** 8px (sm), 16px (`rounded-2xl`, карт), pill (зөвхөн товч, tag, bar). **Shadow:** `shadow-1`, `shadow-2`.
 - **Товч:** 44px өндөр, капсул хэлбэртэй, нэг дэлгэцэнд нэг л primary товч (`PillLink tone="primary"`), бусад нь `secondary`.
@@ -70,7 +72,7 @@ Token-ууд бүгд `src/app/globals.css`-д байна. Hex-ийг шууд �
 - **Капсул metaphor** нь лого, icon, loader зэрэг цөөн газарт л ашиглагдана.
 - **Хориглох зүйлс:** gradient, гарчгийн дээрх eyebrow шошго, ижил хэмжээтэй icon+гарчиг картууд, emoji-г icon болгох.
 
-## 4b. Гэрлийн газрын зураг (`/data#map`)
+## 4b. Гэрлийн газрын зураг (`/about#map`)
 
 - Тоглоом дуусгах (`LightPrompt`) эсвэл хуваалцах (`ShareButton`) бүрт хэрэглэгчийн сонгосон аймаг дээр +1 гэрэл асна.
 - Өгөгдөл: Supabase-ийн `lights` хүснэгт (`supabase/schema.sql`), realtime-аар шууд шинэчлэгдэнэ. Env байхгүй бол зөвхөн тухайн браузерын localStorage-д хадгалагдана.

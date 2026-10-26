@@ -7,7 +7,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export type LightKind = "game" | "share";
 // Гэрлийн өнгө: тоглоом = цэнхэр, хуваалцсан = улбар шар (Okabe Ito)
-export const KIND_COLOR = { game: "#56b4e9", share: "#e69f00" } as const;
+export const KIND_COLOR = { game: "#6f86ff", share: "#ffb547" } as const;
 
 export type Light = { id: string; aimag: string; kind: LightKind; created_at: string };
 

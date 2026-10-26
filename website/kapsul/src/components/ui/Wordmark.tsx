@@ -12,7 +12,7 @@ export function Wordmark({ size = "sm" }: { size?: "sm" | "lg" }) {
   return (
     <span className={`inline-flex select-none items-center gap-2.5 font-bold text-ink ${size === "lg" ? "text-xl" : "text-[15px]"}`}>
       <CapsuleMark className={`text-accent ${size === "lg" ? "h-5 w-10" : "h-4 w-8"}`} />
-      Cure the Core
+      Cure from the Core
     </span>
   );
 }

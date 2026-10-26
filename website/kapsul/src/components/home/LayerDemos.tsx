@@ -1,14 +1,13 @@
 "use client";
 
 // Давхарга бүрийн жижиг тоглоом. Уншихын оронд хүрч, хараад ойлгоно.
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { RotateCcw } from "lucide-react";
 
-const btn =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-[15px] font-semibold transition-colors duration-[var(--dur-fast)]";
-const primary = `${btn} bg-accent text-on-accent hover:bg-accent-strong`;
-const quiet = `${btn} text-accent ring-[1.5px] ring-inset ring-accent/70 hover:bg-accent-tint`;
+// Товчны класс globals.css-д (Design system v3)
+const primary = "btn btn-primary";
+const quiet = "btn btn-secondary";
+const panel = "rounded-2xl bg-bg p-5 ring-1 ring-line/20";
 
 /* ---------- 1. Мэдэгдэл: дохиог өөрөө ол ---------- */
 const POST: { t: string; sig?: string }[] = [
@@ -26,8 +25,8 @@ export function ClaimDemo() {
   const done = found.length === total;
   return (
     <div>
-      <p className="text-[15px] text-ink-2">Энэ постод 3 дохио нуугдсан байна. Сэжигтэй гэж бодсон үгээ дар.</p>
-      <div className="mt-4 rounded-2xl bg-surface/70 p-5 text-lg leading-relaxed text-ink ring-1 ring-line/20">
+      <p className="text-[15px] text-ink-2">Сэжигтэй 3 үгийг олоорой.</p>
+      <div className={`mt-4 ${panel} text-lg leading-relaxed text-ink`}>
         {POST.map((p, i) =>
           p.sig ? (
             <button
@@ -60,10 +59,7 @@ export function ClaimDemo() {
         </span>{" "}
         {done ? (
           <>
-            олсон. Extension яг үүнийг Facebook дээр хийдэг.{" "}
-            <Link href="/extension" className="link-accent font-semibold">
-              Хэрхэн ажилладгийг үзэх
-            </Link>
+            олсон. Хуваалцахаасаа өмнө ийм дохиог хайгаарай.
           </>
         ) : (
           "дохио олсон"
@@ -109,7 +105,7 @@ export function SpreadDemo() {
   const shown = tree.filter((n) => n.g <= gen);
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label="Постын төрөл">
+      <div className="seg" role="radiogroup" aria-label="Постын төрөл">
         {(
           [
             ["calm", "Тайван мэдээ"],
@@ -125,9 +121,6 @@ export function SpreadDemo() {
               setMode(m);
               setGen(0);
             }}
-            className={`min-h-11 rounded-full px-4 text-[15px] font-semibold ${
-              mode === m ? "bg-ink text-bg" : "text-ink-2 ring-1 ring-inset ring-line/40 hover:bg-subtle"
-            }`}
           >
             {l}
           </button>
@@ -163,7 +156,7 @@ export function SpreadDemo() {
           <span className="text-[25px] font-bold text-ink tnum">{shown.length - 1}</span> хүнд хүрлээ
         </p>
       </div>
-      <p className="mt-3 text-[12.8px] text-ink-3">Энгийн загвар. Бодит тоо биш, зөвхөн зарчмыг харуулна.</p>
+      <p className="mt-3 text-[12.8px] text-ink-3">Зарчмыг харуулах энгийн загвар</p>
     </div>
   );
 }
@@ -182,7 +175,7 @@ export function ProductionDemo({ loss, sourceUrl }: { loss: number; sourceUrl: s
           style={{ transform: flipped ? "rotateY(180deg)" : "none" }}
         >
           {/* Нүүр тал */}
-          <div className="absolute inset-0 flex flex-col justify-between rounded-2xl bg-surface/75 p-5 ring-1 ring-line/20 [backface-visibility:hidden]">
+          <div className="absolute inset-0 flex flex-col justify-between rounded-2xl bg-bg p-5 ring-1 ring-line/20 [backface-visibility:hidden]">
             <div>
               <p className="text-[12.8px] font-semibold text-ink-3">Мега Сугалаа MN, ивээн тэтгэсэн</p>
               <p className="mt-2 text-[25px] leading-tight font-bold text-ink">Баяр хүргэе! Та iPhone хожлоо.</p>
@@ -201,7 +194,7 @@ export function ProductionDemo({ loss, sourceUrl }: { loss: number; sourceUrl: s
             <ol className="flex flex-wrap items-center gap-2 text-[15px] font-semibold">
               {CHAIN.map((c, i) => (
                 <li key={c} className="flex items-center gap-2">
-                  <span className={`rounded-full px-3 py-1.5 ${i === CHAIN.length - 1 ? "bg-false text-white" : "bg-on-inverse/15"}`}>{c}</span>
+                  <span className={`rounded-full px-3 py-1.5 ${i === CHAIN.length - 1 ? "bg-false text-[#1b1d21]" : "bg-on-inverse/15"}`}>{c}</span>
                   {i < CHAIN.length - 1 && (
                     <svg aria-hidden viewBox="0 0 20 10" className="h-2.5 w-5 text-on-inverse-2">
                       <path d="M1 5h16M13 1l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -217,7 +210,7 @@ export function ProductionDemo({ loss, sourceUrl }: { loss: number; sourceUrl: s
                 ЦЕГ
               </a>
             </p>
-            <button type="button" className={`${btn} self-start text-on-inverse ring-1 ring-inset ring-on-inverse/40 hover:bg-on-inverse/10`} onClick={() => setFlipped(false)}>
+            <button type="button" className="btn self-start text-on-inverse ring-[1.5px] ring-inset ring-on-inverse/60 hover:bg-on-inverse/10" onClick={() => setFlipped(false)}>
               Буцааж эргүүлэх
             </button>
           </div>
@@ -248,7 +241,7 @@ export function CognitionDemo() {
   return (
     <div>
       <p className="text-[15px] text-ink-2">Гарчиг 3 секунд харагдана. Юу хийх вэ?</p>
-      <div className="mt-4 min-h-[13rem] rounded-2xl bg-surface/75 p-5 ring-1 ring-line/20">
+      <div className={`mt-4 min-h-[13rem] ${panel}`}>
         {phase === "idle" && (
           <button type="button" className={primary} onClick={() => setPhase("run")}>
             Эхлэх
@@ -280,9 +273,9 @@ export function CognitionDemo() {
               {phase === "late" && "Цаг дууслаа."}
             </p>
             <p className="mt-2 max-w-md text-ink-2">
-              {phase === "share" && "Ийм хурдан шийдэхэд айдас л шийддэг. Газар хөдлөлтийг хэн ч хоног өмнө таамаглаж чаддаггүй."}
-              {phase === "check" && "Ганц асуулт хангалттай: «Ямар эрдэмтэд, хаана хэлсэн бэ?» Ийм нэр гарчигт байдаггүй."}
-              {phase === "late" && "Шийдэхгүй өнгөрөх нь ч бас сонголт. Ихэнх худал пост хурдан шийдвэр дээр л амьдардаг."}
+              {phase === "share" && "Хурдан шийдвэрийг айдас гаргадаг. Газар хөдлөлтийг хэн ч урьдчилан таамаглаж чаддаггүй."}
+              {phase === "check" && "«Ямар эрдэмтэд, хаана хэлсэн бэ?» гэдэг ганц асуулт хангалттай."}
+              {phase === "late" && "Шийдэхгүй өнгөрөх нь ч бас сонголт."}
             </p>
             <button type="button" className={`${quiet} mt-4`} onClick={() => setPhase("idle")}>
               <RotateCcw className="size-4" aria-hidden /> Дахин
