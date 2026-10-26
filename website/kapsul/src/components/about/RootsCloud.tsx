@@ -11,7 +11,7 @@ import * as THREE from "three";
 import { LAYERS } from "@/data/layers";
 
 // Модны орон зай (px): газар y = 0, дээш эерэг. Титэм ~ +270 хүртэл, үндэс ~ -150 хүртэл.
-const W = 440;
+const W = 400;
 const H = 440;
 const MID_Y = 60; // модны босоо төв
 

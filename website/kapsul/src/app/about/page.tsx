@@ -17,7 +17,7 @@ export default function About() {
   return (
     <div className={PAGE}>
       {/* Hero: зүүн талд санаа, баруун талд гүйлгэхэд үндэс нь ургадаг цэгэн мод */}
-      <section className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] lg:gap-16">
+      <section className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,40rem)] lg:gap-12">
         <div>
           <h1 className={`max-w-[14ch] ${H1}`}>
             Бид навч биш, үндсийг хардаг
@@ -38,7 +38,7 @@ export default function About() {
           </ul>
           <p className="mt-8 text-[15px] text-ink-3">{SITE.hackathon}-д оролцож буй 4 оюутан</p>
         </div>
-        <RootsTree className="mx-auto w-full max-w-[24rem] lg:max-w-none" />
+        <RootsTree className="mx-auto w-full max-w-[30rem] lg:-mt-6 lg:max-w-none" />
       </section>
 
       <section aria-labelledby="team-title" className="mt-14 md:mt-20">
