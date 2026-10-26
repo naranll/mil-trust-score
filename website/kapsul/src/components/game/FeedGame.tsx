@@ -1,17 +1,34 @@
 "use client";
 
 // Feed тоглоом: 2-р давхарга (тархалт) + 4-р давхарга (таамаглал ба бодит байдал).
+// Баруун талын самбар: цэгэн «хөрөг» = алгоритм таныг хэрхэн харж байна вэ. Эхлээд саарал (таныг мэдэхгүй),
+// тоглох тусам ангиллын өнгөөр будагдаж, төгсгөлд таны feed-ийн найрлагаар задарна (PortraitCloud).
+// Постыг чирч (swipe) эсвэл товчоор хариулна. WebGL байхгүй үед хөргийн оронд баганан график.
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import gsap from "gsap";
 import { ChartColumn, Copy, Eye, Heart, Hourglass, Repeat2, RotateCcw, Search, SkipForward } from "lucide-react";
-import { CATEGORIES, type Category } from "@/data/posts";
+import { CATEGORIES, type Category, type Post } from "@/data/posts";
 import { act, initState, summarize, ROUNDS, type Action, type GameState } from "./engine";
+import type { PortraitDrive } from "./PortraitCloud";
 import { SyntheticTag } from "@/components/ui/Pill";
 import { LightPrompt } from "@/components/map/LightPrompt";
 import { ShareButton } from "@/components/map/ShareButton";
+import { useReducedMotion, useWebGL } from "@/lib/render-mode";
+
+const PortraitCloud = dynamic(() => import("./PortraitCloud"), { ssr: false });
 
 type Phase = "intro" | "play" | "reveal";
 const CATS = Object.keys(CATEGORIES) as Category[];
+const COLORS = CATS.map((c) => CATEGORIES[c].color);
+
+// Алгоритмын сонголтын магадлал (engine.ts-тэй ижил томьёо): сонирхол × платформын «bait», ^2.6
+function algoShares(weights: Record<Category, number>) {
+  const s = CATS.map((c) => Math.pow(weights[c] * CATEGORIES[c].bait, 2.6));
+  const t = s.reduce((a, b) => a + b, 0);
+  return s.map((x) => x / t);
+}
 
 export function FeedGame() {
   const [phase, setPhase] = useState<Phase>("intro");
@@ -20,6 +37,16 @@ export function FeedGame() {
   const [seed, setSeed] = useState(1);
   const shownAt = useRef(0);
   const [dwellLive, setDwellLive] = useState(0);
+  const reduced = useReducedMotion();
+  const driveRef = useRef<PortraitDrive>({
+    shares: [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6],
+    known: 0,
+    split: 0,
+    pulse: 0,
+    pulseCat: -1,
+    motion: 1,
+    layout: { cx: 0, cy: 0, h: 200, colW: 20, slots: Array(12).fill(0), radii: Array(6).fill(0) },
+  });
 
   // Пост харагдсан хугацааг хэмжинэ
   const current = state.feed[state.feed.length - 1];
@@ -33,6 +60,23 @@ export function FeedGame() {
     return () => clearInterval(id);
   }, [phase]);
 
+  const summary = useMemo(() => summarize(state), [state]);
+  const shares = useMemo(
+    () => (phase === "reveal" ? CATS.map((c) => summary.counts[c] / summary.n) : algoShares(state.weights)),
+    [phase, state.weights, summary],
+  );
+
+  // Хөрөгт өгөх утгууд: үе шат бүрт
+  useEffect(() => {
+    const d = driveRef.current;
+    d.motion = reduced ? 0 : 1;
+    d.shares = shares;
+    const known = phase === "intro" ? 0 : phase === "reveal" ? 1 : Math.min(1, 0.3 + state.feed.length * 0.15);
+    const split = phase === "reveal" ? 1 : 0;
+    if (reduced) Object.assign(d, { known, split });
+    else gsap.to(d, { known, split, duration: phase === "reveal" ? 1.6 : 0.8, ease: "power2.inOut", overwrite: true });
+  }, [phase, shares, state.feed.length, reduced]);
+
   const start = () => {
     setSeed(Math.floor(Math.random() * 100000));
     setState(initState());
@@ -41,21 +85,35 @@ export function FeedGame() {
 
   const onAction = (a: Action) => {
     const dwell = performance.now() - shownAt.current;
+    const d = driveRef.current;
+    d.pulse = 1;
+    d.pulseCat = CATS.indexOf(current.post.category);
     const next = act(state, a, dwell, seed);
     setState(next);
     if (next.feed.length >= ROUNDS && next.feed[next.feed.length - 1].action) setPhase("reveal");
   };
 
-  if (phase === "intro") return <Intro guess={guess} setGuess={setGuess} onStart={start} />;
-  if (phase === "reveal") return <Reveal state={state} guess={guess} onReplay={() => setPhase("intro")} />;
+  const panel = <Panel phase={phase} shares={shares} summary={summary} reason={current?.reason} driveRef={driveRef} />;
+
+  if (phase === "intro")
+    return (
+      <Layout panel={panel} phase={phase}>
+        <Intro guess={guess} setGuess={setGuess} onStart={start} />
+      </Layout>
+    );
+  if (phase === "reveal")
+    return (
+      <Layout panel={panel} phase={phase}>
+        <Reveal state={state} summary={summary} guess={guess} onReplay={() => setPhase("intro")} />
+      </Layout>
+    );
 
   const round = state.feed.length;
-
   return (
-    <div className="grid gap-8 md:grid-cols-[minmax(0,26rem)_1fr] md:items-start md:gap-14">
+    <Layout panel={panel} phase={phase}>
       {/* Утасны дэлгэц */}
-      <div className="mx-auto w-full max-w-[26rem] rounded-[2rem] bg-subtle p-2.5 shadow-1">
-        <div className="rounded-[1.6rem] bg-bg px-4 pt-4 pb-5">
+      <div className="mx-auto w-full max-w-[26rem] rounded-[2rem] bg-subtle p-1.5 shadow-1 md:p-2.5">
+        <div className="rounded-[1.6rem] bg-bg px-3 pt-3 pb-3 md:px-4 md:pt-4 md:pb-5">
           <div className="flex items-center justify-between px-1 pb-3 text-sm">
             <span className="font-semibold text-ink">Feed</span>
             <span className="tnum text-ink-2" aria-live="polite">
@@ -66,55 +124,126 @@ export function FeedGame() {
             <div className="h-full rounded-full bg-accent transition-[width] duration-[var(--dur-slow)]" style={{ width: `${(round / ROUNDS) * 100}%` }} />
           </div>
 
-          <article key={current.post.id} className="animate-[postIn_.4s_var(--ease-out-expo)] rounded-2xl bg-surface p-5 shadow-1">
-            <header className="flex items-center gap-3">
-              <span aria-hidden className="size-10 shrink-0 rounded-full" style={{ background: CATEGORIES[current.post.category].color }} />
-              <div className="min-w-0">
-                <p className="truncate font-semibold text-ink">{current.post.author}</p>
-                <p className="text-[12.8px] text-ink-2">Зохиомол хуудас</p>
-              </div>
-            </header>
-            <p className="mt-4 min-h-[6.5rem] text-[1.05rem] leading-relaxed text-ink">{current.post.text}</p>
-            <p className="mt-3 text-[12.8px] text-ink-2 tnum">{current.post.reactions.toLocaleString("mn-MN")} хариу үйлдэл</p>
-          </article>
+          <SwipeCard key={current.post.id} post={current.post} onAction={onAction} reduced={reduced} last={round >= ROUNDS} />
 
-          <div className="mt-4 grid grid-cols-3 gap-2">
-            <GameButton onClick={() => onAction("like")} icon={<Heart className="size-4" />} label="Like" />
-            <GameButton onClick={() => onAction("share")} icon={<Repeat2 className="size-4" />} label="Хуваалцах" />
-            <GameButton onClick={() => onAction("skip")} icon={<SkipForward className="size-4" />} label="Алгасах" quiet />
-          </div>
-          <p className="mt-3 text-center text-[12.8px] text-ink-3 tnum" aria-hidden>
-            {dwellLive.toFixed(1)} сек
+          <p className="mt-3 text-center text-[12.8px] text-ink-3" aria-hidden>
+            Баруун тийш чирвэл Like, зүүн тийш Алгасах, дээш Хуваалцах · <span className="tnum">{dwellLive.toFixed(1)} сек</span>
           </p>
         </div>
       </div>
+    </Layout>
+  );
+}
 
-      {/* Алгоритмын тэмдэглэл */}
-      <section aria-labelledby="algo-title" className="md:pt-4">
-        <h2 id="algo-title" className="text-[25px] font-bold text-ink">
-          Алгоритм таныг ажиглаж байна
-        </h2>
-        <p className="mt-1 text-ink-2">Like, хуваалцах, удаан харах бүр жин нэмнэ.</p>
+// Хоёр багана, нэг дэлгэцэнд багтана: зүүн талд үе шатны агуулга (дотроо гүйлгэгдэнэ), баруун талд хөрөгтэй самбар.
+// Утсан дээр самбар дээр нь (дэлгэцийн ~30%), доор нь агуулга: пост ба хөрөг нэг дэлгэцэнд.
+function Layout({ children, panel, phase }: { children: React.ReactNode; panel: React.ReactNode; phase: Phase }) {
+  const play = phase === "play";
+  // Үе шат солигдоход агуулга дээд талаасаа эхэлнэ (тоглох үеийн гүйлгэлт үлдэхгүй)
+  const scroller = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    scroller.current?.scrollTo({ top: 0 });
+  }, [phase]);
+  return (
+    <div
+      className={`grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)] gap-4 md:grid-rows-1 md:gap-10 lg:gap-14 ${
+        play ? "md:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]" : "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
+      }`}
+    >
+      <div ref={scroller} className="min-h-0 min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain [scrollbar-width:thin] md:pr-2">
+        {children}
+      </div>
+      <aside className="order-first min-h-0 md:order-none">{panel}</aside>
+    </div>
+  );
+}
 
-        <Weights weights={state.weights} />
+// --- Swipe карт -----------------------------------------------------------------
+const FLY: Record<Action, string> = {
+  like: "translate(140%, -8%) rotate(16deg)",
+  skip: "translate(-140%, -8%) rotate(-16deg)",
+  share: "translate(0, -150%) rotate(-3deg)",
+};
 
-        <div className="glass mt-6 p-5">
-          <p className="text-sm font-semibold text-ink-2">Энэ пост яагаад танд хүрсэн бэ</p>
-          <p className="mt-1 leading-relaxed text-ink" aria-live="polite">
-            {current.reason}
-          </p>
-        </div>
+function SwipeCard({ post, onAction, reduced, last }: { post: Post; onAction: (a: Action) => void; reduced: boolean; last: boolean }) {
+  const start = useRef<{ x: number; y: number } | null>(null);
+  const [drag, setDrag] = useState({ x: 0, y: 0 });
+  const [fly, setFly] = useState<Action | null>(null);
+  const [dragging, setDragging] = useState(false);
 
-        {state.log.length > 0 && (
-          <ul className="mt-5 space-y-1.5 text-sm text-ink-2" aria-label="Сүүлийн үйлдлүүд">
-            {state.log.slice(0, 3).map((l, i) => (
-              <li key={state.log.length - i} className={i === 0 ? "text-ink" : ""}>
-                {l}
-              </li>
-            ))}
-          </ul>
+  const commit = (a: Action) => {
+    if (fly) return;
+    setFly(a);
+    setTimeout(() => onAction(a), reduced ? 0 : 220);
+  };
+  const decide = () => {
+    const { x, y } = drag;
+    if (-y > 90 && -y > Math.abs(x)) commit("share");
+    else if (x > 90) commit("like");
+    else if (x < -90) commit("skip");
+    else setDrag({ x: 0, y: 0 });
+  };
+
+  const transform = fly ? FLY[fly] : `translate(${drag.x}px, ${Math.min(drag.y, 0) * 0.6}px) rotate(${drag.x * 0.05}deg)`;
+  // Чирэх чиглэлийн тэмдэг (Like / Алгасах / Хуваалцах)
+  const up = -drag.y > Math.abs(drag.x);
+  const stamp = up ? { t: "Хуваалцах", o: -drag.y / 90 } : drag.x > 0 ? { t: "Like", o: drag.x / 90 } : { t: "Алгасах", o: -drag.x / 90 };
+
+  return (
+    <div className="relative">
+      {/* Ард нь дараагийн пост хүлээж байгаа мэт: feed-ийн гүн */}
+      {!last && <div aria-hidden className="absolute inset-x-3 top-3 bottom-[-0.5rem] rounded-2xl bg-surface/50" />}
+      <article
+        onPointerDown={(e) => {
+          if (fly) return;
+          (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+          start.current = { x: e.clientX, y: e.clientY };
+          setDragging(true);
+        }}
+        onPointerMove={(e) => start.current && setDrag({ x: e.clientX - start.current.x, y: e.clientY - start.current.y })}
+        onPointerUp={() => {
+          start.current = null;
+          setDragging(false);
+          decide();
+        }}
+        onPointerCancel={() => {
+          start.current = null;
+          setDragging(false);
+          setDrag({ x: 0, y: 0 });
+        }}
+        style={{
+          transform,
+          transition: dragging ? "none" : reduced ? "none" : "transform 260ms var(--ease-out-expo), opacity 260ms",
+          opacity: fly ? 0 : 1,
+          touchAction: "none",
+        }}
+        className="relative animate-[postIn_.4s_var(--ease-out-expo)] cursor-grab touch-none rounded-2xl bg-surface p-4 shadow-1 select-none active:cursor-grabbing md:p-5"
+      >
+        <header className="flex items-center gap-3">
+          <span aria-hidden className="size-10 shrink-0 rounded-full" style={{ background: CATEGORIES[post.category].color }} />
+          <div className="min-w-0">
+            <p className="truncate font-semibold text-ink">{post.author}</p>
+            <p className="text-[12.8px] text-ink-2">Зохиомол хуудас</p>
+          </div>
+        </header>
+        <p className="mt-3 min-h-[4.5rem] text-[15px] leading-relaxed text-ink md:mt-4 md:min-h-[6.5rem] md:text-[1.05rem]">{post.text}</p>
+        <p className="mt-3 text-[12.8px] text-ink-2 tnum">{post.reactions.toLocaleString("mn-MN")} хариу үйлдэл</p>
+        {!fly && Math.max(Math.abs(drag.x), -drag.y) > 12 && (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute top-4 right-4 rounded-full border-2 border-accent px-3 py-1 text-sm font-semibold text-accent"
+            style={{ opacity: Math.min(1, stamp.o) }}
+          >
+            {stamp.t}
+          </span>
         )}
-      </section>
+      </article>
+
+      <div className="relative mt-3 grid grid-cols-3 gap-2 md:mt-4">
+        <GameButton onClick={() => commit("like")} icon={<Heart className="size-4" />} label="Like" />
+        <GameButton onClick={() => commit("share")} icon={<Repeat2 className="size-4" />} label="Хуваалцах" />
+        <GameButton onClick={() => commit("skip")} icon={<SkipForward className="size-4" />} label="Алгасах" quiet />
+      </div>
     </div>
   );
 }
@@ -128,26 +257,136 @@ function GameButton({ onClick, icon, label, quiet }: { onClick: () => void; icon
   );
 }
 
-// Сонирхлын жин: хэвтээ багана
-function Weights({ weights }: { weights: Record<Category, number> }) {
-  const max = Math.max(...Object.values(weights), 2.5);
+// --- Хөрөгтэй самбар ---------------------------------------------------------------
+function Panel({
+  phase,
+  shares,
+  summary,
+  reason,
+  driveRef,
+}: {
+  phase: Phase;
+  shares: number[];
+  summary: ReturnType<typeof summarize>;
+  reason?: string;
+  driveRef: React.RefObject<PortraitDrive>;
+}) {
+  const webgl = useWebGL();
+  const box = useRef<HTMLDivElement>(null);
+  const mid = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(true);
+
+  // Хөрөг ба 6 цэгэн баганын байрлал (px, самбарын төвөөс, y дээшээ). Багана бүр шошгоныхоо дээрээс ургана.
+  useEffect(() => {
+    if (!webgl || !box.current) return;
+    const measure = () => {
+      if (!box.current || !mid.current) return;
+      const b = box.current.getBoundingClientRect();
+      const m = mid.current.getBoundingClientRect();
+      const bx = b.left + b.width / 2, by = b.top + b.height / 2;
+      const L = driveRef.current.layout;
+      L.h = Math.min(m.height * 0.92, m.width * 1.1);
+      L.cx = m.left + m.width / 2 - bx;
+      L.cy = by - (m.top + m.height / 2);
+      const items = box.current.querySelectorAll<HTMLElement>("[data-cat]");
+      const maxShare = Math.max(...driveRef.current.shares, 0.01);
+      items.forEach((el) => {
+        const i = Number(el.dataset.cat);
+        const r = el.getBoundingClientRect();
+        L.colW = Math.min(r.width * 0.28, 28);
+        // Хамгийн их ангилал самбарын дунд хэсгийн 85%-ийг эзэлнэ
+        L.radii[i] = ((driveRef.current.shares[i] ?? 0) / maxShare) * (r.top - m.top) * 0.85;
+        L.slots[i * 2] = r.left + r.width / 2 - bx;
+        L.slots[i * 2 + 1] = by - (r.top - 10);
+      });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(box.current);
+    const io = new IntersectionObserver(([e]) => setActive(e.isIntersecting));
+    io.observe(box.current);
+    addEventListener("scroll", measure, { passive: true });
+    return () => {
+      ro.disconnect();
+      io.disconnect();
+      removeEventListener("scroll", measure);
+    };
+  }, [webgl, driveRef, phase, shares]);
+
+  const title =
+    phase === "intro" ? "Алгоритм таныг одоохондоо мэдэхгүй" : phase === "play" ? "Алгоритм таныг ингэж харж байна" : "Таны feed-ийн найрлага";
+  const note =
+    phase === "intro"
+      ? "Тоглох тусам энэ хөрөг таны үйлдлээр будагдана."
+      : phase === "play"
+        ? reason
+        : `${summary.n} постын ${summary.actual}% нь сэтгэл хөдлөлд тулгуурласан.`;
+
   return (
-    <ul className="mt-6 space-y-2.5" aria-label="Алгоритмын сурсан сонирхол">
-      {CATS.map((c) => {
-        const score = weights[c] * CATEGORIES[c].bait;
-        return (
-          <li key={c} className="grid grid-cols-[7.5rem_1fr] items-center gap-3 text-[15px]">
-            <span className="font-medium text-ink">{CATEGORIES[c].label}</span>
-            <span className="relative h-5 overflow-hidden rounded-full bg-subtle">
-              <span
-                className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-[var(--dur-slow)] ease-[var(--ease-out-expo)]"
-                style={{ width: `${Math.min((score / (max * 1.85)) * 100, 100)}%`, background: CATEGORIES[c].color }}
-              />
+    <div
+      ref={box}
+      className="relative flex h-[30svh] min-h-[13rem] flex-col overflow-hidden rounded-[2rem] bg-surface/60 shadow-1 md:h-full"
+    >
+      {webgl && (
+        <div aria-hidden className="absolute inset-0">
+          <PortraitCloud driveRef={driveRef} count={typeof window !== "undefined" && innerWidth < 768 ? 700 : 1400} colors={COLORS} active={active} />
+        </div>
+      )}
+
+      <div className="relative px-4 pt-3 md:p-7" aria-live="polite">
+        <h2 className="text-[17px] leading-tight font-semibold text-ink md:text-[25px]">{title}</h2>
+        {note && <p className="mt-0.5 line-clamp-2 max-w-md text-[13px] leading-snug text-ink-2 md:mt-1 md:line-clamp-none md:text-base">{note}</p>}
+      </div>
+
+      <div ref={mid} className="relative min-h-0 flex-1">
+        {webgl === false && (phase === "reveal" ? <Composition summary={summary} /> : <Weights shares={shares} />)}
+      </div>
+
+      {/* Ангиллын шошго: тоглох үед алгоритмын хувь, төгсгөлд бодит пост тоо. Бөмбөлөг нь эдгээрийн дээр. */}
+      <ul className="relative grid grid-cols-6 gap-x-1 px-2 pb-2.5 md:gap-x-2 md:px-6 md:pb-6" aria-label="Ангилал">
+        {CATS.map((c, i) => (
+          <li key={c} data-cat={i} className="flex flex-col items-center text-center">
+            <span className="inline-flex items-center gap-1 text-[10.5px] whitespace-nowrap text-ink-2 md:gap-1.5 md:text-[12.8px]">
+              <span aria-hidden className="size-2.5 shrink-0 rounded-full" style={{ background: CATEGORIES[c].color }} />
+              {/* Утсан дээр нэр нь багтахгүй: өнгөт цэг + тоо, нэрийг дэлгэц уншигч уншина */}
+              <span className="sr-only md:not-sr-only">{CATEGORIES[c].label}</span>
+            </span>
+            <span className="text-[13px] font-semibold text-ink tnum md:text-[15px]">
+              {phase === "intro" ? "?" : phase === "reveal" ? summary.counts[c] : `${Math.round(shares[i] * 100)}%`}
+              {phase === "reveal" && <span className="hidden md:inline"> пост</span>}
             </span>
           </li>
-        );
-      })}
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// WebGL байхгүй үеийн нөөц: алгоритмын хувь (хэвтээ багана)
+function Weights({ shares }: { shares: number[] }) {
+  const max = Math.max(...shares, 0.2);
+  return (
+    <ul className="space-y-2.5 px-5 md:px-7" aria-hidden>
+      {CATS.map((c, i) => (
+        <li key={c} className="h-4 overflow-hidden rounded-full bg-subtle">
+          <span
+            className="block h-full rounded-full transition-[width] duration-[var(--dur-slow)] ease-[var(--ease-out-expo)]"
+            style={{ width: `${(shares[i] / max) * 100}%`, background: CATEGORIES[c].color }}
+          />
+        </li>
+      ))}
     </ul>
+  );
+}
+
+// WebGL байхгүй үеийн нөөц: feed-ийн найрлага (нэг мөр)
+function Composition({ summary }: { summary: ReturnType<typeof summarize> }) {
+  return (
+    <div className="flex h-14 overflow-hidden rounded-full mx-5 md:mx-7" aria-hidden>
+      {CATS.filter((c) => summary.counts[c] > 0).map((c) => (
+        <div key={c} className="border-r-2 border-surface last:border-r-0" style={{ flex: summary.counts[c], background: CATEGORIES[c].color }} />
+      ))}
+    </div>
   );
 }
 
@@ -166,11 +405,9 @@ function Intro({ guess, setGuess, onStart }: { guess: number; setGuess: (n: numb
     { icon: <ChartColumn className="size-5" />, text: "Алгоритм таныг хэрхэн «тодорхойлсныг» харна" },
   ];
   return (
-    <div className="grid gap-10 md:grid-cols-[1.1fr_1fr] md:items-center">
+    <div className="flex flex-col gap-10">
       <div>
-        <h1 className="text-[clamp(2.4rem,6vw,4.25rem)] leading-[1.02] font-bold tracking-[-0.025em] text-ink">
-          Таны feed хэрхэн бүтдэг вэ?
-        </h1>
+        <h1 className="text-[clamp(2.4rem,6vw,4.25rem)] leading-[1.02] font-bold tracking-tight text-ink">Таны feed хэрхэн бүтдэг вэ?</h1>
         <ol className="mt-8 space-y-3">
           {steps.map((st) => (
             <li key={st.text} className="flex items-center gap-4 text-lg text-ink">
@@ -211,12 +448,21 @@ function Intro({ guess, setGuess, onStart }: { guess: number; setGuess: (n: numb
   );
 }
 
-function Reveal({ state, guess, onReplay }: { state: GameState; guess: number; onReplay: () => void }) {
-  const s = useMemo(() => summarize(state), [state]);
+function Reveal({
+  state,
+  summary: s,
+  guess,
+  onReplay,
+}: {
+  state: GameState;
+  summary: ReturnType<typeof summarize>;
+  guess: number;
+  onReplay: () => void;
+}) {
   const diff = s.actual - guess;
   return (
     <div>
-      <h1 className="max-w-3xl text-[clamp(2.2rem,5.4vw,3.9rem)] leading-[1.04] font-bold tracking-[-0.025em] text-ink">
+      <h1 className="max-w-3xl text-[clamp(2.2rem,5.4vw,3.9rem)] leading-[1.04] font-bold tracking-tight text-ink">
         Таны feed-ийн {s.actual}% нь сэтгэл хөдлөлд тулгуурласан пост байлаа
       </h1>
 
@@ -242,27 +488,6 @@ function Reveal({ state, guess, onReplay }: { state: GameState; guess: number; o
             : diff > 0
               ? `Бодит байдал ${diff} пунктээр өндөр гарлаа.`
               : `Бодит байдал ${-diff} пунктээр бага гарлаа.`}
-        </figcaption>
-      </figure>
-
-      {/* Feed-ийн найрлага */}
-      <figure className="mt-12">
-        <div
-          className="flex h-14 overflow-hidden rounded-full md:h-16"
-          role="img"
-          aria-label={CATS.filter((c) => s.counts[c]).map((c) => `${CATEGORIES[c].label} ${s.counts[c]}`).join(", ")}
-        >
-          {CATS.filter((c) => s.counts[c] > 0).map((c) => (
-            <div key={c} className="border-r-2 border-surface last:border-r-0" style={{ flex: s.counts[c], background: CATEGORIES[c].color }} />
-          ))}
-        </div>
-        <figcaption className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[15px]">
-          {CATS.filter((c) => s.counts[c] > 0).map((c) => (
-            <span key={c} className="inline-flex items-center gap-2 text-ink">
-              <span aria-hidden className="size-3 rounded-full ring-1 ring-line/30" style={{ background: CATEGORIES[c].color }} />
-              {CATEGORIES[c].label} <span className="tnum text-ink-2">{s.counts[c]}</span>
-            </span>
-          ))}
         </figcaption>
       </figure>
 
@@ -297,11 +522,11 @@ function Reveal({ state, guess, onReplay }: { state: GameState; guess: number; o
         </ol>
       </section>
 
-      <section aria-labelledby="habits" className="mt-14">
-        <h2 id="habits" className="text-[25px] font-bold text-ink">
+      <section aria-labelledby="next-time" className="mt-14">
+        <h2 id="next-time" className="text-[25px] font-bold text-ink">
           Дараагийн удаа
         </h2>
-        <ul className="mt-5 grid gap-3 md:grid-cols-3">
+        <ul className="mt-5 grid gap-3 lg:grid-cols-3">
           {[
             { icon: <Hourglass className="size-5" />, t: "Уурлуулсан пост дээр 3 секунд зогсоорой" },
             { icon: <Eye className="size-5" />, t: "Удаан харах нь өөрөө like" },

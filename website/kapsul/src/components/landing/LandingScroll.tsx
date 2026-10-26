@@ -8,6 +8,7 @@
 // Хөдөлгөөн багасгасан эсвэл WebGL байхгүй үед canvas-гүй, эцсийн төлөв шууд (data-mode="static").
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useRenderMode } from "@/lib/render-mode";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -21,23 +22,6 @@ const PointCapsule = dynamic(() => import("./PointCapsule"), { ssr: false });
 const TITLE = "Cure the Core";
 const COLORS = HABITS.map((h) => h.color);
 
-// Хөтчийн боломжийг нэг удаа шалгана. Server дээр "pending" (hydration зөрөхгүй).
-type Mode = "pending" | "anim" | "static";
-let cachedMode: Mode | null = null;
-function clientMode(): Mode {
-  if (cachedMode) return cachedMode;
-  let webgl = false;
-  try {
-    const c = document.createElement("canvas");
-    webgl = !!(c.getContext("webgl2") || c.getContext("webgl"));
-  } catch {
-    webgl = false;
-  }
-  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  cachedMode = reduced || !webgl ? "static" : "anim";
-  return cachedMode;
-}
-const noSubscribe = () => () => {};
 
 export function LandingScroll() {
   const root = useRef<HTMLElement>(null);
@@ -58,8 +42,12 @@ export function LandingScroll() {
     layout: { x0: 0, y0: 0, cx: 0, cy: 0, capH: 300, clusterH: 80, ex: 600, ey: 400, slots: Array(10).fill(0) },
   });
 
-  const mode = useSyncExternalStore(noSubscribe, clientMode, () => "pending" as Mode);
-  const count = useSyncExternalStore(noSubscribe, () => (innerWidth < 768 ? 900 : 3000), () => 0);
+  const mode = useRenderMode();
+  const count = useSyncExternalStore(
+    () => () => {},
+    () => (innerWidth < 768 ? 900 : 3000),
+    () => 0,
+  );
   const [ready, setReady] = useState(false);
   const [active, setActive] = useState(true);
 

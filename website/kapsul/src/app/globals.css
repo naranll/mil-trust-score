@@ -434,3 +434,11 @@ input[type="range"]::-moz-range-thumb {
     visibility: hidden;
   }
 }
+
+/* Апп маягийн хуудас (тоглоом): хуудас гүйлгэгдэхгүй, footer харагдахгүй. Агуулга дотроо гүйлгэгдэнэ. */
+html:has([data-app]) {
+  overflow: hidden;
+}
+body:has([data-app]) > footer {
+  display: none;
+}

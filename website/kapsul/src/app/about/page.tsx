@@ -10,7 +10,7 @@ const WONT = ["Худал мэдээг «шийднэ» гэж амлахгүй"
 
 export default function About() {
   return (
-    <div className="mx-auto max-w-6xl px-5 pt-14 md:pt-20">
+    <div className="w-full px-5 pt-14 md:px-10 md:pt-20 xl:px-16">
       <h1 className="max-w-3xl text-[clamp(2.4rem,6vw,4.25rem)] leading-[1.02] font-bold tracking-[-0.025em] text-ink">
         Бид навч биш, үндсийг хардаг
       </h1>
