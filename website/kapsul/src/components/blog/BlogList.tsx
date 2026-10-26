@@ -2,7 +2,7 @@
 
 // Блогийн жагсаалт: давхаргаар шүүх товчнууд (өнгө нь давхаргыг заана), хамгийн сүүлийн нийтлэл том,
 // бусад нь доор хоёр баганаар. Онцлох самбарын цэгэн үүл (BlogCloud) хулгана/фокус байгаа нийтлэл эсвэл
-// шүүлтүүрийн давхаргын дүрс рүү урсаж хувирна. Хөдөлгөөн багасгасан эсвэл WebGL-гүй үед SVG дүрс.
+// сонгосон (дарсан) шүүлтүүрийн давхаргын дүрс рүү урсаж хувирна. Хөдөлгөөн багасгасан эсвэл WebGL-гүй үед SVG дүрс.
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
@@ -49,7 +49,6 @@ export function BlogList({ posts }: { posts: PostMeta[] }) {
         type="button"
         aria-pressed={on}
         onClick={() => setLayer(name)}
-        {...(name ? peek(name) : {})}
         className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-[15px] transition-colors duration-[var(--dur-base)] ${
           on ? "border-transparent bg-ink text-bg" : "border-line text-ink-2 hover:border-ink-3 hover:text-ink"
         }`}
