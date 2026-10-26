@@ -1,0 +1,22 @@
+[
+  {"name": "Montsame", "aliases": ["МОНЦАМЭ", "Montsame Agency", "МОНЦАМЭ агентлаг"], "slug": "montsame.agency",
+   "type": "Төрийн мэдээллийн агентлаг", "source": "montsame.mn сайтын header/footer линк"},
+  {"name": "MNB", "aliases": ["MNB TV", "МҮОНРТ", "Mongolian National Broadcaster"], "slug": "mnbtv",
+   "type": "Үндэсний олон нийтийн радио, телевиз", "source": "mnb.mn сайтын footer линк"},
+  {"name": "iKon.mn", "aliases": ["ikon.mn", "Ikon News", "iKon News"], "slug": "ikonnews",
+   "type": "Мэдээллийн сайт", "source": "ikon.mn сайтын header/footer линк"},
+  {"name": "GoGo.mn", "aliases": ["gogo.mn", "GoGo Mongolia"], "slug": "gogo.mn",
+   "type": "Мэдээллийн сайт", "source": "gogo.mn сайтын footer линк"},
+  {"name": "News.mn", "aliases": ["News agency", "News.mn agency"], "slug": "news.mn.agency",
+   "type": "Мэдээллийн агентлаг", "source": "news.mn сайтын header/footer линк"},
+  {"name": "Medee.mn", "aliases": ["Мэдээ.мн", "Medee MN"], "slug": "www.medeemn",
+   "type": "Мэдээллийн сайт", "source": "Facebook хайлтын үр дүн (facebook.com/www.MedeeMN) — сайтаас линк олдоогүй"},
+  {"name": "Өнөөдөр", "aliases": ["Unuudur.mn", "Өнөөдөр сонин", "Unuudur"], "slug": "www.unuudur.mn",
+   "type": "Өдөр тутмын сонин", "source": "unuudur.mn сайтын footer линк"},
+  {"name": "iSee.mn", "aliases": ["isee.mn"], "slug": "www.isee.mn",
+   "type": "Мэдээллийн сайт", "source": "isee.mn сайтын og:author мета"},
+  {"name": "MFCC", "aliases": ["mfcc.mn", "Mongolian Fact-Checking Center", "Баримт шалгах төв"], "slug": "mfcc.mn",
+   "type": "Баримт шалгах байгууллага (Meta-гийн гуравдагч талын fact-checker)", "source": "mfcc.mn сайтын header/footer линк"},
+  {"name": "Eagle News", "aliases": ["EAGLE.mn", "Eagle TV"], "slug": "",
+   "type": "Телевиз, мэдээллийн сайт", "source": "Facebook хаягийг баталгаажуулж чадаагүй — slug-ийг Console-оос харж нөхөөрэй"}
+]

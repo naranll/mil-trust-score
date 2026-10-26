@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { width: 280px; margin: 0; padding: 14px; font: 13px/1.45 system-ui, sans-serif; color: #1c1e21; }
+    h1 { font-size: 15px; margin: 0 0 8px; }
+    .st { padding: 8px 10px; border-radius: 8px; background: #f0f2f5; margin-bottom: 10px; }
+    .ok { background: #e7f6ec; color: #11602f; } .bad { background: #fde8e8; color: #9b1c1c; }
+    label { font-size: 12px; opacity: .7; } input { width: 100%; box-sizing: border-box; padding: 6px; margin: 4px 0 8px; }
+    button { padding: 6px 10px; } p { margin: 6px 0; font-size: 12px; opacity: .75; }
+  </style>
+</head>
+<body>
+  <h1>🛡️ Итгэлцлийн оноо</h1>
+  <div id="st" class="st">Сервер шалгаж байна…</div>
+  <label for="api">API хаяг</label>
+  <input id="api" placeholder="http://127.0.0.1:8000">
+  <button id="save">Хадгалах</button>
+  <p>🟢 70+ найдвартай төстэй · 🟡 40–69 шалгаж үзээрэй · 🔴 &lt;40 анхааруулах дохиотой</p>
+  <script src="popup.js"></script>
+</body>
+</html>

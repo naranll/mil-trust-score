@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итгэлцлийн оноо — демо лэнд</title>
+  <style>
+    :root { --bg: #eef0f3; --card: #fff; --ink: #1c1e21; --mute: #65676b; --line: #e4e6eb; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #18191a; --card: #242526; --ink: #e4e6eb; --mute: #b0b3b8; --line: #3a3b3c; } }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    header { padding: 14px 16px; background: var(--card); border-bottom: 1px solid var(--line); font-weight: 700; }
+    header small { font-weight: 400; color: var(--mute); margin-left: 8px; }
+    main { max-width: 560px; margin: 16px auto; padding: 0 16px; display: grid; gap: 14px; }
+    .post { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
+    .who { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .av { width: 36px; height: 36px; border-radius: 50%; background: #c9ced6; display: grid; place-items: center; font-weight: 700; color: #fff; }
+    .name { font-weight: 600; } .name a { color: inherit; text-decoration: none; } .time { color: var(--mute); font-size: 12px; }
+    .link { display: block; margin-top: 8px; color: var(--mute); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header>Демо лэнд <small>Facebook-д нэвтрэхгүйгээр extension-ийг үзүүлэх туршилтын хуудас (зохиомол постууд)</small></header>
+  <main id="feed"></main>
+  <script>
+    // Зохиомол постууд — бодит хүн, пэйж биш
+    const POSTS = [
+      ["Сэтгэл судлалын клуб", "ЯАРАЛТАЙ!!! Эмч нар нууж байгаа энэ аргаар 3 хоногт чихрийн шижин 100% эдгэрнэ, ШЭЙРЛЭЭРЭЙ найзуудаа", null],
+      ["Medee.mn", "Налайх орчимд баавгай үзэгдсэн гэнэ, гадуур явахдаа болгоомжтой байгаарай. Хүүхдүүдээ ганцааранг нь битгий гаргаарай", null],
+      ["Medee.mn", "УИХ-ын намрын ээлжит чуулганы хуралдаанаар ирэх оны төсвийн төслийг хэлэлцэх эсэхийг шийдвэрлэлээ", "https://ikon.mn/n/demo"],
+      ["Бэлэгтэй дэлгүүр", "Баяр хүргэе! Та банкнаас 500,000 төгрөгийн бэлэг хожсон байна, линк дээр дарж картын дугаараа баталгаажуулаарай", "http://ik0n.mn/promo"],
+      ["Medee.rnn", "Тэд биднээс нууж байна. Вакцин дотор чип суулгаад бүгдийг хянаж байгаа, сэрээрэй монголчууд аа", null],
+      ["Сургуулийн эцэг эхчүүд", "Хүүхдээ эрт илрүүлгийн үзлэгт хамруулаарай, сургууль цэцэрлэг дээр нь үнэгүй хийж байгаа юм билээ", null],
+      ["Сараа", "Өнөөдөр гэрийнхэнтэйгээ хамт уулаар алхлаа 🙂", null],
+      // Өмнө нь MFCC няцаасан мэдэгдлийг өөр үгээр дахин тараасан
+      ["Болд", "Норвегид вакцин хийлгэсэн 23 хүн нас барсан гэнэ шүү, болгоомжтой байцгаая", null],
+      // 4 дэх утга = зураг дээрх бичвэр (Facebook-ийн автомат alt текстийг дуурайсан)
+      ["Эрүүл амьдрал", "Анхаараарай 👇", null, "ЭМЧ НАР НУУЖ БАЙНА! Энэ ундааг 7 хоног уувал хорт хавдар 100% эдгэрнэ"],
+      // 5 дахь утга = видео, 6 дахь = Facebook-ийн "AI info" шошго
+      ["Гайхалтай видео", "Энэ юу болоод байна аа 😱", null, null, true, true],
+    ];
+    // Зурагт бичвэр бүхий энгийн SVG (демод зориулсан)
+    const imgSrc = (t) => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="520" height="260"><rect width="100%" height="100%" fill="#2b2d42"/>` +
+      `<foreignObject x="24" y="24" width="472" height="212"><div xmlns="http://www.w3.org/1999/xhtml" style="font:700 26px system-ui;color:#ffd166">${t}</div></foreignObject></svg>`);
+    const SLUG = { "Medee.mn": "www.MedeeMN" };   // албан ёсны пэйжийн хаяг
+    const feed = document.getElementById("feed");
+    POSTS.forEach(([who, text, link, imgText, isVideo, aiInfo], i) => {
+      const el = document.createElement("div");
+      el.className = "post"; el.setAttribute("role", "article");
+      el.innerHTML = `
+        <div class="who"><div class="av">${who[0]}</div><div><div class="name" data-hm-author><a href="https://www.facebook.com/${SLUG[who] || who.replace(/\s+/g, '.').toLowerCase()}">${who}</a></div><div class="time">${i + 1} цагийн өмнө</div></div></div>
+        <div data-ad-preview="message"><div dir="auto">${text}</div></div>
+        ${link ? `<a class="link" href="${link}">${link}</a>` : ""}
+        ${isVideo ? `<video controls width="520" style="max-width:100%;border-radius:8px;margin-top:8px;background:#000" poster="${imgSrc("▶ Тэнгэрт гэрэлтэй биет нисэж байна")}"></video>` : ""}
+        ${aiInfo ? `<div><span style="font-size:12px;color:var(--mute)">AI info</span></div>` : ""}
+        ${imgText ? `<img src="${imgSrc(imgText)}" width="520" style="max-width:100%;border-radius:8px;margin-top:8px" alt="Энэ нь '${imgText}' гэсэн текстийн зураг байж болзошгүй">` : ""}`;
+      feed.appendChild(el);
+    });
+  </script>
+</body>
+</html>
