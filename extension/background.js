@@ -4,6 +4,14 @@
 
 const DEFAULT_API = "http://127.0.0.1:8000";
 
+// Popup-д харуулах статистик: хэдэн пост шалгасан / алгассан / алдаа гарсан
+async function countStats(results, failed = 0) {
+  const { stats = { green: 0, yellow: 0, red: 0, skip: 0, error: 0 } } = await chrome.storage.local.get("stats");
+  if (results) results.forEach((r) => { const k = r.status === "ok" ? r.zone : (r.status === "skip" ? "skip" : "error"); stats[k] = (stats[k] || 0) + 1; });
+  stats.error += failed;
+  await chrome.storage.local.set({ stats });
+}
+
 async function getApi() {
   const { api } = await chrome.storage.local.get("api");
   return api || DEFAULT_API;
@@ -18,8 +26,11 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ items: msg.items }),
         });
-        sendResponse(await res.json());
+        const data = await res.json();
+        await countStats(data.results || []);
+        sendResponse(data);
       } catch (e) {
+        await countStats(null, msg.items.length);
         sendResponse({ error: String(e) });   // сервер асаагүй бол энд орно
       }
     })();

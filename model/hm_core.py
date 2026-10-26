@@ -45,6 +45,15 @@ def clip_words(t, n=MAX_WORDS):
     return cut[:m[-1].end()] if m and m[-1].end() > len(cut) * 0.5 else cut
 
 
+def mask(t):
+    """clean()-тэй ижил маск, гэхдээ өгүүлбэр тайрахгүй — манипуляцийн дохиог бүтэн постоос хайхад"""
+    t = html.unescape(str(t or ""))
+    t = re.sub(r"\s+", " ", t).strip()
+    t = EMAIL_RE.sub("[ИМЭЙЛ]", t)
+    t = URL_RE.sub("[ЛИНК]", t)
+    return PHONE_RE.sub("[УТАС]", t)
+
+
 def clean(t):
     t = html.unescape(str(t or ""))
     t = re.sub(r"\s+", " ", t).strip().strip(QUOTES).strip()
@@ -55,6 +64,44 @@ def clean(t):
     sents = re.split(r"(?<=[.!?…])\s+(?=[\"«“„А-ЯЁӨҮA-Z0-9\[])", t)
     t = clip_words(" ".join(sents[:2]))
     return re.sub(r"[\s.,;:–—-]+$", "", t).strip()
+
+
+# ---------------------------------------------------------------------------
+# Латин үсгээр бичсэн монгол текстийг кирилл рүү ойролцоогоор хөрвүүлэх
+# Facebook дээр «yaaraltai sharelaarai» маягаар бичих нь их. Таамаг: v=ү, q=ө, w=в (түгээмэл бичлэг)
+# ---------------------------------------------------------------------------
+LAT_MULTI = [("sh", "ш"), ("ch", "ч"), ("ts", "ц"), ("kh", "х"), ("zh", "ж"), ("ya", "я"), ("yu", "ю"),
+             ("yo", "ё"), ("ye", "е"), ("ii", "ий"), ("ai", "ай"), ("ei", "эй"), ("oi", "ой"), ("ui", "уй")]
+LAT_ONE = dict(zip("abvgdezijklmnopqrstufhcwxy", "абүгдэзижклмнопөрстуфхцвхы"))
+EN_WORDS = re.compile(r"\b(the|and|is|are|you|this|that|with|for|of|to|in|on|it|was|have)\b", re.I)
+
+
+def is_english(t):
+    words = re.findall(r"[A-Za-z]+", t)
+    return len(words) >= 4 and len(EN_WORDS.findall(t)) / len(words) >= 0.12
+
+
+# Англи үгнээс гаралтай FB хэллэг («shareleerei», «likedaarai») — үсэг үсгээр нь хөрвүүлбэл «шарэ» болчихно
+LAT_WORDS = [("share", "шэйр"), ("like", "лайк"), ("link", "линк"), ("page", "пэйж"), ("post", "пост"),
+             ("comment", "коммент"), ("online", "онлайн"), ("free", "фрий")]
+
+
+def latin_to_cyrillic(t):
+    def conv(m):
+        w = m.group(0); low = w.lower(); out = ""; i = 0
+        for a, b in LAT_WORDS:
+            if low.startswith(a):
+                out, i = b, len(a)
+                break
+        while i < len(low):
+            for a, b in LAT_MULTI:
+                if low.startswith(a, i):
+                    out += b; i += len(a); break
+            else:
+                out += LAT_ONE.get(low[i], low[i]); i += 1
+        return out.upper() if w.isupper() and len(w) > 1 else (out.capitalize() if w[0].isupper() else out)
+    # [ЛИНК] гэх мэт маскыг хөндөхгүй
+    return re.sub(r"(?<!\[)\b[A-Za-z]+\b(?!\])", conv, t)
 
 
 def cyrillic_ratio(t):
@@ -151,6 +198,28 @@ def explain(f, text):
     return tpl.format(m=text[a:b][:30])
 
 
+def label_of(f):
+    tpl = EXPLAIN.get(f, "")
+    return (tpl.split(":")[0] if "{m}" in tpl else tpl.split("—")[0]).strip()
+
+
+def found_of(f, text):
+    if f == "named_person":
+        m = INITIALS.search(text)
+    elif f in SIGNALS:
+        m = re.search(SIGNALS[f][0], text.lower())
+    else:
+        return ""
+    if not m:
+        return ""
+    a, b = m.span()
+    while a > 0 and text[a - 1].isalnum():
+        a -= 1
+    while b < len(text) and (text[b].isalnum() or text[b] == "%"):
+        b += 1
+    return text[a:b][:30]
+
+
 def reasons(S_row, text):
     contrib = EXPLAINER.booster_.predict(S_row[COLS], pred_contrib=True)[0][:-1]
     minus, plus, keys = [], [], []
@@ -179,6 +248,21 @@ SUMMARY = {
     "yellow": "Итгэх эсэхээ шийдэхээсээ өмнө эх сурвалжийг нь шалгаарай.",
     "red":    "Худал мэдээлэлд түгээмэл ажиглагддаг хэд хэдэн шинж илэрлээ.",
 }
+
+
+def summary_for(z, fc, risks, kind, capped=False):
+    """Нэг өгүүлбэр дүгнэлт — жагсаасан шалтгаантай заавал нийцнэ"""
+    if fc and fc["strong"]:
+        return f"Үүнтэй төстэй мэдэгдлийг {fc['by']} өмнө нь «{fc['verdict']}» гэж тогтоосон. Доорх шалгалтыг уншаарай."
+    if z == "red":
+        return "Худал мэдээлэл, луйварт түгээмэл ажиглагддаг шинж илэрлээ. Хуваалцахаасаа өмнө шалгаарай."
+    if z == "yellow" and capped and not risks:
+        return "Бичвэрт анхааруулах шинж олдсонгүй, гэхдээ хэн нийтэлсэн нь баталгаагүй. Өөр эх сурвалжаас шалгаарай."
+    if z == "yellow":
+        return "Итгэх эсэхээ шийдэхээсээ өмнө эх сурвалжийг нь шалгаарай."
+    if kind == "trusted" and risks:
+        return "Бүртгэлтэй мэдээллийн пэйж. Доорх жижиг зүйлсийг анхаараарай."
+    return "Ноцтой анхааруулах шинж илрээгүй." if not risks else "Ноцтой анхааруулах шинж илрээгүй, гэхдээ доорх зүйлийг анхаараарай."
 
 
 def mil_card(keys):
@@ -265,10 +349,13 @@ def source_adjust(author, author_url, verified):
         if n and n in p["names"]:
             # id:123 хэлбэрийн хаягаар (vanity нэргүй линк) дуурайсан гэж дүгнэхгүй
             if s and not s.startswith("id:") and p["slug"] and s != p["slug"]:
-                # Нэр нь яг ижил боловч хаяг нь өөр → дуурайсан пэйж байх магадлал өндөр
-                return "lookalike", f"− «{author}» нэртэй боловч албан ёсны {p['title']} пэйжийн хаяг биш"
+                # Нэр нь яг ижил боловч хаяг нь өөр. «Өнөөдөр» гэх мэт энгийн үг бол өөр пэйж байх нь
+                # хэвийн тул зөвхөн брэнд нэр (латин үсэгтэй: medee.mn, ikon) дээр дуурайсан гэж үзнэ
+                if re.search(r"[a-z]", n):
+                    return "lookalike", f"− «{author}» нэртэй боловч албан ёсны {p['title']} пэйжийн хаяг биш"
+                return "unknown", ""
             return "trusted", f"✔ Бүртгэлтэй мэдээллийн пэйж: {author}"
-    all_names = [x for p in pages for x in p["names"] if len(x) >= 5]
+    all_names = [x for p in pages for x in p["names"] if len(x) >= 5 and re.search(r"[a-z]", x)]
     # Нэр нь бүртгэлтэй пэйжтэй маш төстэй боловч яг биш → дуурайсан байж магадгүй
     if n and len(n) >= 5 and any(0 < levenshtein(n, x) <= 2 for x in all_names):
         return "lookalike", f"− «{author}» нэр нь алдартай пэйжийг дуурайсан байж магадгүй"
@@ -287,7 +374,14 @@ FC = joblib.load(FC_FILE) if FC_FILE.exists() else None
 # Босго: үнэн мэдээний 0.1%-ийг л буруу таардаг, өөрөөр бичсэн (paraphrase) худлын ~2/3-ийг олдог
 FC_STRONG, FC_WEAK = 0.45, 0.38
 # Пост нь худлыг ИШЛЭЭД няцааж байгаа бол (жишээ нь MFCC-ийн пост) шийтгэхгүй
-DEBUNK_RE = re.compile(r"худал|няцаа|баримт шалга|хуурамч|ташаа|үнэн биш|төөрөгдүүлсэн|fact.?check", re.I)
+DEBUNK_RE = re.compile(r"худал|няцаа|баримт шалга|хуурамч|ташаа|үнэн биш|төөрөгдүүлсэн|fact.?check|"
+                       r"холбоогүй|үндэслэлгүй|нотлогдоогүй|тогтоогдоогүй|баталгаагүй|буруу мэдээлэл", re.I)
+# «худал биш», «хуурамч бус» = няцаалт биш, харин эсрэгээрээ батлах гэсэн оролдлого
+NEGATED_RE = re.compile(r"(худал|хуурамч|ташаа|төөрөгдүүлсэн|холбоогүй|үндэслэлгүй|баталгаагүй)\s+(биш|бус)", re.I)
+
+
+def is_debunk(raw):
+    return bool(DEBUNK_RE.search(raw)) and not NEGATED_RE.search(raw)
 FC_LABEL = {"false": "худал", "misleading": "төөрөгдүүлсэн", "inaccurate": "ташаа"}
 
 
@@ -309,16 +403,35 @@ def factcheck_match(text):
 STRONG = ["scam", "urgency", "absolute", "conspiracy"]   # бүртгэлтэй пэйж ч гэсэн нуухгүй дохио
 
 
-def trust_score(raw_text, url=None, author=None, author_url=None, verified=False):
+def caption_matches_link(caption, link_title):
+    """Постын тайлбар ба линкийн гарчиг ижил сэдэвтэй юу? Жинхэнэ сайтын линк хавсаргаад худал тайлбар
+    бичих заль мэхийг барина. Гарчиг байхгүй бол шалгах боломжгүй → таарсан гэж үзнэ."""
+    if not link_title:
+        return True
+    words = lambda s: {w[:6] for w in re.findall(r"[а-яёөүa-z]{4,}", s.lower())}
+    a, b = words(caption), words(link_title)
+    if not a or not b:
+        return True
+    return len(a & b) / min(len(a), len(b)) >= 0.15
+
+
+def trust_score(raw_text, url=None, author=None, author_url=None, verified=False, link_title=None):
     text = clean(raw_text)
     # Claim шүүлтүүр: оноох утгагүй постыг алгасна (зураг дээрх тайлбар, мэндчилгээ, англи пост …)
     if len([w for w in text.split() if re.search(r"[^\W\d_]", w)]) < 6:   # emoji, тоог үг гэж тооцохгүй
         return {"status": "skip", "why": "Хэт богино — шалгах мэдэгдэл алга"}
+    translit = False
     if cyrillic_ratio(text) < 0.6:
-        return {"status": "skip", "why": "Монгол (кирилл) бичвэр биш"}
+        if is_english(raw_text) or cyrillic_ratio(raw_text) > 0.3:
+            return {"status": "skip", "why": "Монгол бичвэр биш"}
+        # Латин үсгээр бичсэн монгол → кирилл болгоод шалгана (нарийвчлал бага гэдгийг хэрэглэгчид хэлнэ)
+        raw_text = latin_to_cyrillic(raw_text)
+        text, translit = clean(raw_text), True
 
-    S = signals([text])
+    S = signals([text])                      # загварт: сургалттай ижил (2 өгүүлбэр)
     S["text_model"] = TM.predict_proba([text])[:, 1]
+    full = mask(raw_text)
+    S_full = signals([full])                 # тайлбар, guardrail-д: бүтэн пост (3-р өгүүлбэрт байгаа луйврыг алдахгүй)
     trust = 100 * (1 - MODEL.predict_proba(S[COLS])[0, 1])
     text_trust = trust                                   # зөвхөн текстийн оноо (тайлбарт)
 
@@ -327,7 +440,7 @@ def trust_score(raw_text, url=None, author=None, author_url=None, verified=False
 
     # Эх сурвалжийн модуль
     kind, s_why = source_adjust(author, author_url, verified)
-    strong = any(S[k].iloc[0] > 0 for k in STRONG)
+    strong = any(S_full[k].iloc[0] > 0 for k in STRONG)
     if kind == "trusted":
         # Бүртгэлтэй пэйж: хүчтэй манипуляцийн дохио байхгүй бол хамгийн багадаа 🟢
         trust = max(trust, 75.0) if not strong else min(100.0, trust + 20)
@@ -338,19 +451,31 @@ def trust_score(raw_text, url=None, author=None, author_url=None, verified=False
 
     # Guardrail: манипуляцийн дохио ОГТ байхгүй бол 🔴 болгохгүй — хэв маягаар л буруутгахаас сэргийлнэ
     guard = False
-    if trust < 40 and not manipulation_fired(S, raw_text) and d_adj >= 0 and kind != "lookalike":
+    if trust < 40 and not manipulation_fired(S_full, raw_text) and d_adj >= 0 and kind != "lookalike":
         trust, guard = 40.0, True
 
     # Баримт шалгалттай тулгах: өмнө нь няцаагдсан мэдэгдэлтэй маш төстэй бол хамгийн хүчтэй дохио
     fc = factcheck_match(text)
-    debunk = bool(DEBUNK_RE.search(raw_text))
-    if fc and fc["strong"] and kind != "trusted" and not debunk:
-        trust, guard = min(trust, 15.0), False
+    debunk = is_debunk(raw_text)
+    if fc and fc["strong"] and not debunk:
+        # Бүртгэлтэй пэйж ч алдаа гаргадаг: ногоон биш, шар (60) болгоно; бусад пэйж → улаан (15)
+        trust, guard = min(trust, 60.0 if kind == "trusted" else 15.0), False
+
+    # Ногоон = «анхааруулах шинж алга» БА эх сурвалж батлагдсан (бүртгэлтэй пэйж эсвэл бүртгэлтэй сайтын линк).
+    # Эх сурвалж тодорхойгүй бол хэдий цэвэр бичсэн ч хамгийн ихдээ 🟡 69 — албан хэлбэрээр бичсэн
+    # худал мэдээ (жишээ: «хадгаламжийн 30%-ийг төрд шилжүүлнэ») ногоон авахаас сэргийлнэ
+    link_ok = caption_matches_link(raw_text, link_title)
+    if d_adj > 0 and not link_ok:
+        d_why = ["− Тайлбар нь хавсаргасан линкийн гарчигтай таарахгүй байна — линк жинхэнэ ч тайлбар өөр байж болно"]
+    evidence = kind == "trusted" or (d_adj > 0 and link_ok)
+    capped = False
+    if trust >= 70 and not evidence:
+        trust, capped = 69.0, True
 
     minus, plus, keys = reasons(S, text)
     # Илэрсэн манипуляцийн дохиог SHAP-ийн дарааллаас үл хамааран заавал харуулна
-    fired = [k for k in MANIP if S[k].iloc[0] > 0]
-    fired_txt = [explain(k, text) for k in fired]
+    fired = [k for k in MANIP if S_full[k].iloc[0] > 0]
+    fired_txt = [explain(k, full) for k in fired]
     minus = fired_txt + [m for m in minus if m not in fired_txt]
     keys = fired + [k for k in keys if k not in fired]
     if kind == "trusted":                    # бүртгэлтэй пэйж дээр «хэв маяг» гэсэн шалтгааныг харуулахгүй
@@ -361,11 +486,34 @@ def trust_score(raw_text, url=None, author=None, author_url=None, verified=False
         minus = [f"Үүнтэй {what} мэдэгдлийг {fc['by']} өмнө нь «{fc['verdict']}» гэж тогтоосон"
                  + (f" ({fc['date']})" if fc["date"] else "")] + minus
     plus = ([s_why] if kind in ("trusted", "verified") else []) + plus
+
+    # Хэрэглэгчид харуулах бүтэцтэй нотолгоо: юу олдсон + (server-т) яагаад + эх сурвалж
+    evidence = []
+    if kind == "lookalike":
+        evidence.append({"id": "lookalike", "text": s_why.lstrip("− ")})
+    if fc and not debunk:
+        evidence.append({"id": "factcheck", "found": fc["claim"][:60],
+                         "text": f"Үүнтэй {'маш ' if fc['strong'] else ''}төстэй мэдэгдлийг {fc['by']} «{fc['verdict']}» гэж тогтоосон"
+                                 + (f" ({fc['date']})" if fc["date"] else "")})
+    seen = set()
+    for k in keys:
+        if k in seen:
+            continue
+        seen.add(k)
+        if k == "text_model":
+            if not (kind == "trusted"):
+                evidence.append({"id": "style_model", "text": STYLE_BAD})
+        elif k in EXPLAIN and MONO.get(k, 0) >= 0:
+            evidence.append({"id": k, "text": label_of(k), "found": found_of(k, full)})
+    for w in d_why:
+        if w.startswith("−"):
+            evidence.append({"id": "domain", "text": w.lstrip("− ")})
     return {
+        "evidence": evidence[:5],
         "status": "ok",
         "trust": round(trust),
         "zone": zone(trust),
-        "summary": SUMMARY[zone(trust)],
+        "summary": summary_for(zone(trust), fc if not debunk else None, minus, kind, capped),
         "risks": (minus + [w for w in d_why if w.startswith("−")])[:4],
         "trust_signals": (plus + [w for w in d_why if w.startswith("+")])[:3],
         "card": mil_card(keys),
@@ -373,4 +521,6 @@ def trust_score(raw_text, url=None, author=None, author_url=None, verified=False
         "source": kind,
         "text_only_trust": round(text_trust),
         "factcheck": fc if (fc and not debunk) else None,
+        "translit": translit,
+        "source_unverified": capped,
     }

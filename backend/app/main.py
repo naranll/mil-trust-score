@@ -1,4 +1,5 @@
 import json
+import os
 import time
 
 from fastapi import FastAPI
@@ -12,12 +13,17 @@ from .scorecard import score_page
 
 app = FastAPI(title="Итгэлцлийн оноо API", version="0.1.0")
 
-# Chrome extensions call from chrome-extension:// and from page origins.
+# CORS: only the Chrome extension and local development pages may call the API from a browser.
+# A wildcard would let ANY web page open in the user's browser post fake feedback to a local server
+# and poison the retraining data. For a deployed website, list its origin(s) in HM_CORS_ORIGINS
+# (comma separated), e.g. HM_CORS_ORIGINS=https://itgeltsel.example.mn
+_extra = [o.strip() for o in os.getenv("HM_CORS_ORIGINS", "").split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_extra,
+    allow_origin_regex=r"chrome-extension://.*|http://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 app.include_router(posts.router)
@@ -26,13 +32,19 @@ app.include_router(posts.router)
 @app.get("/health")
 def health():
     m = model_adapter.status()
-    return {"ok": True, "model": "scorecard v3.1" if m["loaded"] else "unavailable", "model_error": m["error"]}
+    return {"ok": True, "model": "scorecard v4" if m["loaded"] else "unavailable", "model_error": m["error"]}
 
 
 @app.get("/demo", include_in_schema=False)
 def demo():
     """Facebook-free demo page for the extension (extension/demo/demo.html)."""
     return FileResponse(EXTENSION_DIR / "demo" / "demo.html")
+
+
+@app.get("/demo/fb", include_in_schema=False)
+def demo_fb():
+    """Test page that mimics Facebook's real DOM structure (extension/demo/fb_like.html)."""
+    return FileResponse(EXTENSION_DIR / "demo" / "fb_like.html")
 
 
 @app.post("/score", response_model=ScoreResponse)

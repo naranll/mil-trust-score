@@ -96,7 +96,10 @@ S_tr = hm_core.signals(tr.text)
 S_tr["text_model"] = cross_val_predict(text_model(), tr.text, tr.label, cv=GroupKFold(5), groups=tr.pair_id,
                                        method="predict_proba")[:, 1]
 tm = text_model().fit(tr.text, tr.label)
-model = CalibratedClassifierCV(lgbm(), method="isotonic", cv=5).fit(S_tr[COLS], tr.label)
+# cv=5 гэвэл ×3 давтсан Facebook мөрүүд train ба калибровкийн fold-д зэрэг орж, оноо хэт итгэлтэй болно
+# → давхардлуудыг нэг fold-д байлгахын тулд pair_id-аар бүлэглэсэн хуваалт өгнө
+cal_folds = list(GroupKFold(5).split(S_tr[COLS], tr.label, groups=tr.pair_id))
+model = CalibratedClassifierCV(lgbm(), method="isotonic", cv=cal_folds).fit(S_tr[COLS], tr.label)
 explainer = lgbm().fit(S_tr[COLS], tr.label)
 
 
@@ -120,7 +123,8 @@ def report(name, df, m, t):
     print(f"  {name:22s} n={len(df):4d}  нарийвчлал {acc:6.1%}   үнэн→🔴 {red_true:6.1%}   худал→🟢 {green_false:6.1%}")
 
 
-print("\nӨМНӨ (хуучин загвар):")
+print("\n⚠️  Доорх тоо нь зөвхөн ЗАГВАРЫН оноо (guardrail, пэйж, баримт шалгалтын дүрэмгүй)")
+print("ӨМНӨ (хуучин загвар):")
 report("Энгийн test", test, hm_core.MODEL, hm_core.TM)
 report("Facebook test", fb_te, hm_core.MODEL, hm_core.TM)
 print("ДАРАА (шинэ загвар):")

@@ -5,9 +5,13 @@
 ```
 data/
 ├── datasets/     HACKMIL_dataset_v31_{train,val,test}.csv   labelled texts used to train/evaluate
+│                 HACKMIL_dataset_v31.csv (all rows in one file, used by the v4 notebook),
+│                 HACKMIL_holdout_template.xlsx (fill with real Facebook posts → HACKMIL_holdout.csv),
+│                 type_seed_{commerce,personal}.txt (synthetic seeds for the post-type classifier)
 ├── reference/    hand-curated lists the backend reads at runtime
 │   ├── whitelist.json        registered outlet DOMAINS (page scorecard: registered_outlet, domain_lookalike)
-│   └── trusted_pages.json    trusted FACEBOOK PAGES by name/slug (post scoring: source_adjust)
+│   ├── trusted_pages.json    trusted FACEBOOK PAGES by name/slug (post scoring: source_adjust)
+│   └── knowledge.json        explanations, "how to check" steps and law references (laws unverified: docs/VERIFY.md)
 └── feedback/     local only, git-ignored: feedback.csv, page_feedback.jsonl (written by the backend)
 ```
 
