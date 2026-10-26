@@ -19,6 +19,7 @@ export function Pill({ s, big = false }: { s: Section; big?: boolean }) {
   return (
     <Link
       href={s.href}
+      {...(s.external ? { target: "_blank", rel: "noreferrer" } : {})}
       data-pill={s.id}
       style={{ "--c": s.color } as CSSProperties}
       className="group flex items-center gap-4 rounded-2xl p-3 text-left transition-colors duration-[var(--dur-fast)] hover:bg-[color-mix(in_srgb,var(--c)_14%,transparent)] focus-visible:outline-[var(--c)] md:flex-col md:gap-3 md:p-4 md:text-center"

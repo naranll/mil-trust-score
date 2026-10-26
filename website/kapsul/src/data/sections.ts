@@ -8,15 +8,17 @@ export type Section = {
   label: string;
   line: string;
   color: string;
+  external?: boolean;
 };
 
 // Дараалал = утсан дээрх жагсаалтын дараалал (Пост шалгагч эхэнд). Компьютер дээр Пост шалгагч голд (CSS order).
 export const SECTIONS: Section[] = [
   {
     id: "extension",
-    // TODO: extension-ий хуудас одоогоор байхгүй (133d0a6 «newweb»-д хасагдсан). Хуудас эсвэл
-    // суулгах холбоос гарвал энд солино.
-    href: "/extension",
+    // Extension-д сайтад тусдаа хуудас байхгүй (багийн шийдвэр): суулгах заавар руу шинэ табаар.
+    // Chrome Web Store-д гарвал энэ холбоосыг солино.
+    href: "https://github.com/naranll/mil-trust-score/tree/main/extension#readme",
+    external: true,
     label: "Пост шалгагч",
     line: "Facebook пост дээрх манипуляцын эрсдэлийг шалгана",
     color: "#D55E00",

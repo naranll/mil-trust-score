@@ -417,3 +417,39 @@ input[type="range"]::-moz-range-thumb {
     transform: scaleX(0);
   }
 }
+
+/* ===== Нүүрний гүйлгээтэй түүх (components/landing) =====
+   Анхны төлөв = 0-р үе шат. JS ачаалахаас өмнө эцсийн дүр зураг гялсхийхгүйн тулд эмүүдийг нууна;
+   GSAP autoAlpha-аар inline visibility тавьж харуулна. Хөдөлгөөн багасгасан үед эцсийн төлөв шууд. */
+[data-landing] [data-caption]:not([data-caption="0"]) {
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-landing] [data-pill] {
+    visibility: hidden;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-landing] [data-capsule],
+  [data-landing] [data-scroll-hint] {
+    display: none;
+  }
+}
+/* Капсул удаан хөвж, эргэлдэнэ (гүйлгээнээс үл хамааран) */
+.cap-idle {
+  animation: cap-idle 7s ease-in-out infinite;
+}
+@keyframes cap-idle {
+  0%,
+  100% {
+    transform: rotate(-16deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-6deg) translateY(-12px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cap-idle {
+    animation: none;
+  }
+}
