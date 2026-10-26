@@ -33,8 +33,9 @@ Slogan: **Cure from the Core.** Metaphor: a pill/capsule — but not "one pill c
   2. Distribution (why it reached you) → the feed game / feed forensics. **The deep layer.**
   3. Production (who makes it and why) → source profiles (stub).
   4. Cognition (your own defaults) → training mode + pre/post measurement.
-- Visual (home hero, changed 27 Oct 2026 at the user's request: the medicine capsule did not fit the subject): a
-  synthetic false Facebook post is the top layer of a stack; tapping it explodes the stack into the four layers.
+- Visual (home, 27 Oct 2026): a scroll-driven landing (`components/landing/`, GSAP). A monochrome capsule (the grey,
+  uniform "core") gets "sick", splits, and releases 5 Okabe-Ito pills, one per site section (`src/data/sections.ts`).
+  Each pill colour is that section's accent token (`--sec-*`). Motto on the landing: "Cure the Core".
 
 Language to avoid: "we solve misinformation", "our AI detects fake news", "we cure people", "trust score".
 Lines to use: "Treat the root, not the leaf." "The symptom is the claim. The disease is the pipeline."
@@ -50,7 +51,8 @@ Lines to use: "Treat the root, not the leaf." "The symptom is the claim. The dis
 ## Brand Commitments
 
 - Slogan "Cure from the Core" (user-given).
-- Pill/capsule metaphor (user-given) survives in the slogan and the logo only; the home hero no longer shows a pill.
+- Pill/capsule metaphor (user-given): one grey capsule is not the cure; many coloured pills (the 5 sections) are.
+- The extension has no page on the site; its pill links to the install guide on GitHub.
 - The site is used mostly on phones: design 390 px first, then desktop.
 - Visual system: **HACKMIL 2026 Design system v3** (user-supplied sheets): Okabe Ito for UI and verdicts, Paul Tol for chart scales, Golos Text, light + dark, WCAG 2.2 AA, color never works alone.
 - Visual references supplied by the user: an opened capsule spilling particles (3D); tsaaguur.mn/network starfield graph for the light map.
