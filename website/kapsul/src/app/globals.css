@@ -453,3 +453,30 @@ input[type="range"]::-moz-range-thumb {
     animation: none;
   }
 }
+/* 1-р үе шат: «өвчтэй» капсул чичирнэ. Далайц --j (0…1)-ийг GSAP гүйлгээнд дагуулж өөрчилнө.
+   @property-оор бүртгэсэн тул хувьсагч өөрчлөгдөхөд keyframe шууд шинэчлэгдэнэ. */
+@property --j {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+.cap-jitter {
+  animation: cap-jitter 0.16s linear infinite;
+}
+@keyframes cap-jitter {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(calc(var(--j) * -3px), calc(var(--j) * 2px)) rotate(calc(var(--j) * -1.5deg));
+  }
+  75% {
+    transform: translate(calc(var(--j) * 3px), calc(var(--j) * -1.5px)) rotate(calc(var(--j) * 1.5deg));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cap-jitter {
+    animation: none;
+  }
+}
