@@ -110,7 +110,12 @@ export function FeedGame() {
       <div className="mx-auto w-full max-w-[26rem] rounded-[2rem] bg-subtle p-1.5 shadow-1 md:p-2.5">
         <div className="rounded-[1.6rem] bg-bg px-3 pt-3 pb-3 md:px-4 md:pt-4 md:pb-5">
           <div className="flex items-center justify-between px-1 pb-3 text-small">
-            <span className="font-semibold text-ink">Feed</span>
+            <span>
+              <span className="font-semibold text-ink">Feed</span>
+              <span className="ml-3 text-ink-3" aria-hidden>
+                <DwellTimer since={shownAt} />
+              </span>
+            </span>
             <span className="tnum text-ink-2" aria-live="polite">
               {round} / {ROUNDS}
             </span>
@@ -122,7 +127,7 @@ export function FeedGame() {
           <SwipeCard key={current.post.id} post={current.post} onAction={onAction} reduced={reduced} last={round >= ROUNDS} />
 
           <p className="mt-3 text-center text-caption text-ink-3" aria-hidden>
-            Баруун тийш чирвэл Like, зүүн тийш Алгасах, дээш Хуваалцах · <DwellTimer since={shownAt} />
+            Баруун тийш чирвэл Like, зүүн тийш Алгасах, дээш Хуваалцах.
           </p>
         </div>
       </div>
@@ -497,7 +502,7 @@ function Reveal({
   const diff = s.actual - guess;
   return (
     <div>
-      <h1 className="max-w-3xl text-h1 leading-[1.04] font-bold tracking-tight text-ink">
+      <h1 className="max-w-3xl text-[clamp(2.2rem,5.4vw,3.9rem)] leading-[1.04] font-bold tracking-tight text-ink">
         Таны feed-ийн {s.actual}% нь сэтгэл хөдлөлд тулгуурласан пост байлаа
       </h1>
 

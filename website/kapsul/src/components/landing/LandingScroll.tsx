@@ -230,7 +230,7 @@ export function LandingScroll() {
               {/* Цэгүүдийн дээр уншигдахаар: үндсэн өнгө + фоны өнгөтэй хүрээ */}
               <p
                 data-caption="0"
-                className="max-w-md text-lead font-medium text-ink [text-shadow:0_0_2px_var(--bg),0_0_10px_var(--bg),0_0_24px_var(--bg)]"
+                className="max-w-md text-lead font-medium text-ink md:text-intro [text-shadow:0_0_2px_var(--bg),0_0_10px_var(--bg),0_0_24px_var(--bg)]"
               >
                 Таны Facebook дээр харагддаг постуудыг хэн сонгодог вэ?
               </p>
@@ -243,7 +243,7 @@ export function LandingScroll() {
                 <p className="text-ink-2">Сэтгэл хөдлөл их төрүүлсэн пост илүү хурдан тархдаг.</p>
               </div>
               <div data-caption="2" className="flex max-w-md flex-col gap-3 text-h3 leading-snug md:text-h2">
-                <p className="text-h2 leading-tight font-bold text-ink md:text-h1">Нэг эм хангалтгүй.</p>
+                <p className="text-h2 leading-tight font-bold text-ink md:text-stat">Нэг эм хангалтгүй.</p>
                 <p className="text-ink-2">Манипуляцаас хамгаалахын тулд олон дадал хэрэгтэй.</p>
               </div>
             </div>
@@ -292,9 +292,9 @@ export function LandingScroll() {
             data-scroll-hint
             className="relative z-10 flex items-center justify-between text-small font-semibold text-ink-3 group-data-[mode=static]:hidden motion-reduce:hidden"
           >
-            <span>Гүйлгэх ↓</span>
+            <span>Доош гүйлгээд үзээрэй</span>
             <a href="#habits" onClick={skip} className="btn-quiet inline-flex min-h-11 items-center">
-              Алгасах →
+              Алгасах
             </a>
           </div>
         </div>

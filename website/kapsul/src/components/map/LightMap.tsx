@@ -60,7 +60,7 @@ export function LightMap() {
       <div className="p-4 pb-0 md:pointer-events-none md:absolute md:top-4 md:left-4 md:w-80 md:p-0">
         <div className="pointer-events-auto rounded-2xl bg-surface p-5 shadow-1">
           <p className="text-small text-ink-2">Асаасан гэрэл</p>
-          <p className="text-h1 leading-[1.15] font-bold tnum" aria-live="polite">
+          <p className="text-stat font-bold tnum" aria-live="polite">
             {ready ? lights.length.toLocaleString("mn-MN") : "…"}
           </p>
           {stats.top ? (

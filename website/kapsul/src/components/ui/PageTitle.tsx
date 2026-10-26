@@ -7,7 +7,7 @@ export function PageTitle({ title, lead, children, className = "" }: { title: st
   return (
     <header className={className}>
       <h1 className={`max-w-[18ch] ${H1}`}>{title}</h1>
-      {lead && <p className="mt-5 max-w-[56ch] text-lead leading-relaxed text-ink-2">{lead}</p>}
+      {lead && <p className="mt-5 max-w-[56ch] text-intro leading-relaxed text-ink-2">{lead}</p>}
       {children}
     </header>
   );

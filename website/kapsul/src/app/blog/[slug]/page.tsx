@@ -62,8 +62,8 @@ async function Article({ params }: { params: PageProps<"/blog/[slug]">["params"]
         </aside>
 
         <div className="mt-8 min-w-0 lg:mt-0">
-          <h1 className="max-w-[22ch] text-h1 leading-[1.06] font-bold tracking-[-0.02em] text-ink">{post.title}</h1>
-          <p className="mt-5 max-w-[60ch] text-lead leading-relaxed text-ink-2">{post.excerpt}</p>
+          <h1 className="max-w-[22ch] text-[clamp(2rem,5vw,3.6rem)] leading-[1.06] font-bold tracking-[-0.02em] text-ink">{post.title}</h1>
+          <p className="mt-5 max-w-[60ch] text-intro leading-relaxed text-ink-2">{post.excerpt}</p>
           <div className="prose-capsule mt-10 border-t border-line pt-10 text-ink">
             <ReactMarkdown>{post.content}</ReactMarkdown>
           </div>

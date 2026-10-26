@@ -5,7 +5,7 @@ import { Nav } from "@/components/ui/Nav";
 import { SITE } from "@/data/site";
 
 export const metadata: Metadata = {
-  title: { default: "Cure from the Core", template: "%s · Cure from the Core" },
+  title: { default: "Cure from the Core", template: "%s | Cure from the Core" },
   description: "Худал мэдээ бол шинж тэмдэг. Үндэс нь түүнийг түгээдэг систем. HACKMIL 2026 төсөл.",
 };
 

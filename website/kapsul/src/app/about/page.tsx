@@ -22,7 +22,7 @@ export default function About() {
           <h1 className={`max-w-[14ch] ${H1}`}>
             Бид навч биш, үндсийг хардаг
           </h1>
-          <p className="mt-6 max-w-[56ch] text-lead leading-relaxed text-ink-2">
+          <p className="mt-6 max-w-[56ch] text-intro leading-relaxed text-ink-2">
             Навч бүр таны харж буй нэг пост. Харин үндэс нь тэр постыг танд харуулж буй систем. Бид энэ системийн дөрвөн үндсийг ил гаргана.
           </p>
           <ul className="mt-8 grid max-w-2xl gap-x-8 gap-y-4 sm:grid-cols-2">

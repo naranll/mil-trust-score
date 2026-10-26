@@ -86,7 +86,7 @@ export function BlogList({ posts }: { posts: PostMeta[] }) {
           </div>
           <div className="flex flex-col justify-center gap-4 p-6 md:p-12">
             <Meta p={lead} />
-            <h2 className="max-w-[20ch] text-h2 leading-[1.1] font-bold text-ink transition-colors duration-[var(--dur-base)] group-hover:text-accent">
+            <h2 className="max-w-[20ch] text-[clamp(1.75rem,3.4vw,2.75rem)] leading-[1.1] font-bold text-ink transition-colors duration-[var(--dur-base)] group-hover:text-accent">
               {lead.title}
             </h2>
             <p className="max-w-[56ch] text-lead leading-relaxed text-ink-2">{lead.excerpt}</p>
