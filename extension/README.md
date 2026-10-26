@@ -1,82 +1,50 @@
-# 🛡️ Итгэлцлийн оноо — Chrome extension (HACKMIL 2026)
+# extension/ — Chrome extension (Manifest V3)
+
+**Owner: extension member.** Plain JavaScript, no build step: load the folder in Chrome as an unpacked extension.
 
 ```
-Facebook хуудас ──(постын текст)──▶ extension ──▶ локал API (Python, загвар) ──▶ оноо + 3 шалтгаан ──▶ постын дээр тэмдэг
+Facebook feed ──(post text, page name)──▶ content.js ──▶ background.js ──▶ backend  POST /score/posts
+                                                                                  ◀── score + 3 reasons
+                badge on every post ◀────────────────────────────────────────────
 ```
 
-Загвар (scikit-learn + LightGBM) Python дээр ажилладаг тул extension өөрөө загвар ажиллуулдаггүй.
-Харин таны компьютер дээрх жижиг API сервер рүү постын текстийг илгээж, хариуг нь харуулдаг.
-
-## Бүтэц
 ```
-hackmil_extension/
-├── backend/
-│   ├── server.py                 # FastAPI: /score, /health, /demo
-│   ├── hm_core.py                # цэвэрлэгээ, шинж тэмдэг, оноо, guardrail, шалтгаан
-│   ├── hackmil_scorecard.joblib  # сургасан загвар (v3.1)
-│   └── requirements.txt
-├── extension/                    # Chrome-д ачаалах хавтас
-│   ├── manifest.json  background.js  content.js  styles.css  popup.html  popup.js
-└── demo/demo.html                # Facebook-гүйгээр үзүүлэх демо лэнд
+extension/
+├── manifest.json     permissions, host_permissions (API address), content-script matches
+├── content.js        finds Facebook posts, extracts text/author/image text, draws the badge + detail card
+├── background.js     service worker: forwards requests to the backend (avoids CORS / mixed-content blocks)
+├── popup.html/js     "server is running" check + API address setting
+├── styles.css        badge styles
+└── demo/demo.html    fake Facebook feed for demos without logging in (served by the backend at /demo)
 ```
 
-## 1. Серверээ асаах (5 мин)
+The model, reference lists and feedback handling are **not** here: see [`model/`](../model/README.md) and
+[`data/`](../data/README.md). API contract: [`docs/API.md`](../docs/API.md).
+
+## 1. Start the backend (5 min)
+
+From the repo root (see [`backend/README.md`](../backend/README.md) for details):
+
 ```bash
-cd hackmil_extension/backend
 python -m venv .venv
-# Windows:  .venv\Scripts\activate      Mac/Linux:  source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn server:app --port 8000
-python ..\tools\retrain_with_feedback.py # shinechileh 
+# Windows: .venv\Scripts\activate      Mac/Linux: source .venv/bin/activate
+pip install -r backend/requirements.txt
+cd backend && uvicorn app.main:app --port 8000
 ```
-Шалгах: хөтөч дээр http://127.0.0.1:8000/health → `{"ok":true,...}`
 
-> ⚠️ `scikit-learn==1.9.1`, `lightgbm==4.7.0` хувилбар ЯГ таарах ёстой (joblib файл тэр хувилбараар хадгалагдсан).
-> Өөр хувилбар хэрэглэх бол `HACKMIL_scorecard_v31.ipynb`-ийг өөрийн компьютер дээр ажиллуулж
-> `hackmil_scorecard.joblib`-ийг дахин үүсгээд `backend/` руу хуулна.
+Check: http://127.0.0.1:8000/health → `{"ok":true,"model":"scorecard v3.1",...}`
 
-## 2. Extension суулгах (2 мин)
+## 2. Install the extension (2 min)
 1. Chrome → `chrome://extensions`
-2. Баруун дээд буланд **Developer mode** асаана
-3. **Load unpacked** → `hackmil_extension/extension` хавтсыг сонгоно
-4. Extension-ий дүрс дээр дарахад "✅ Сервер ажиллаж байна" гэж гарах ёстой
+2. Turn on **Developer mode** (top right)
+3. **Load unpacked** → choose the `extension/` folder
+4. Click the extension icon: it should say "✅ Сервер ажиллаж байна"
 
-## 3. Турших
-- **Демо (интернэтгүй ч ажиллана):** http://127.0.0.1:8000/demo — танилцуулгад үүнийг ашиглахад хамгийн найдвартай
-- **Facebook:** facebook.com нээгээд лэндээ гүйлгэнэ. Монгол текстэй пост бүрийн дээр 🟢/🟡/🔴 тэмдэг гарна. Дарахад шалтгаан + MIL карт.
+## 3. Try it
+- **Demo (works without internet):** http://127.0.0.1:8000/demo — the most reliable option for presentations
+- **Facebook:** open facebook.com and scroll. Each Mongolian post gets a 🟢/🟡/🔴 badge; click it for reasons + MIL card.
 
-## Оноо хэрхэн гардаг вэ
-| Алхам | Юу хийдэг |
-|---|---|
-| Цэвэрлэгээ | Сургалтын өгөгдөлтэй ижил: линк/утас/он маскална, эхний 2 өгүүлбэр |
-| Claim шүүлтүүр | 6-аас цөөн үг, эсвэл кирилл биш бол оноохгүй |
-| Загвар | TF-IDF текст ангилагч + 14 шинж тэмдэг → LightGBM (monotonic) → калибровк |
-| Домэйн | Цагаан жагсаалт +10, дуурайсан домэйн −30, HTTPS байхгүй −10 |
-| **Guardrail** | Манипуляцийн дохио (clickbait, яаруулах, 100%, хуйвалдаан, луйвар, ТОМ ҮСЭГ, !!!) илрээгүй бол 🔴 болгохгүй → хамгийн ихдээ 🟡 |
-| Шалтгаан | SHAP + илэрсэн дохио → дээд тал нь 3 |
-
-Test дээр guardrail-тэй үр дүн: үнэн мэдээ 🔴 болох **0%**, худал мэдээ 🟢 болох **2%**.
-(Facebook-ийн жинхэнэ пост дээр хараахан хэмжээгүй — бодит тоо биш.)
-
-## Эх сурвалж (пост оруулсан пэйж) — `backend/trusted_pages.json`
-| Төрөл | Юу хийдэг |
-|---|---|
-| ✔ Бүртгэлтэй пэйж (жагсаалтад байгаа) | Хүчтэй манипуляцийн дохио (луйвар, яаруулах, 100%, хуйвалдаан) байхгүй бол хамгийн багадаа 75 🟢; байвал +20 |
-| − Дуурайсан нэр (жагсаалтынхаас 1–2 үсгээр зөрүүтэй) | −25, guardrail ажиллахгүй |
-| Цэнхэр тэмдэгтэй (verified) | +10 (verified нь үнэний баталгаа биш тул бага жинтэй) |
-
-Одоогийн жагсаалт (Facebook хаягийг тухайн байгууллагын **өөрийн сайтын** линкээс баталгаажуулсан):
-Montsame (`montsame.agency`), MNB (`mnbtv`), iKon.mn (`iKonNews`), GoGo.mn (`gogo.mn`), News.mn (`news.mn.agency`),
-Өнөөдөр (`www.unuudur.mn`), iSee.mn (`www.iSee.mn`), MFCC (`mfcc.mn`), Medee.mn (`www.MedeeMN` — Facebook хайлтаар),
-Eagle News (хаяг баталгаажаагүй — slug хоосон).
-**Slug нэрнээс давуу:** нэрийг яг хуулсан ч slug нь өөр бол «дуурайсан пэйж» гэж үзнэ.
-
-Пэйж нэмэх: Facebook дээр F12 → Console-ийн шүүлтүүрийг **Verbose** болгоход
-`[Итгэлцлийн оноо] зохиогч: Medee.mn https://www.facebook.com/...` гэж гарна.
-Тэр нэр эсвэл slug-ийг `trusted_pages.json`-д нэмнэ (сервер restart хийх шаардлагагүй):
-```json
-{"name": "Medee.mn", "slug": "medee.mn", "note": ""}
-```
+> To use a deployed backend, set its URL in the popup and add the same origin to `host_permissions` in `manifest.json`.
 
 ## Зураг дээрх бичвэр
 Facebook зураг бүрт автоматаар alt текст үүсгэдэг; зурагт бичвэр байвал түүнийг хашилтад оруулдаг
@@ -92,26 +60,6 @@ Facebook зураг бүрт автоматаар alt текст үүсгэдэ�
 2. **🔍 урвуу хайлт** — Google Lens-ээр зураг өмнө нь хаана гарсныг нэг товчоор хайна (хуучин зургийг шинэ мэт тараах нь хамгийн түгээмэл заль)
 3. **Юуг ажиглах вэ** — зураг/видео тус бүрт 3 зөвлөгөө (гар хуруу, бичиг, уруулын хөдөлгөөн, огноо/газар)
 Текстгүй, зөвхөн зураг/видеотой пост дээр оноо өгөхгүй — 🔍 "Зургийг шалгах" саарал тэмдэг гарна.
-
-## Баримт шалгалттай тулгах (`backend/factcheck_index.joblib`)
-MFCC, factcheck.mn-ийн няцаасан 1,982 мэдэгдэлтэй постыг харьцуулна (тэмдэгтийн TF-IDF cosine).
-Facebook дээр худал мэдээлэл дахин дахин эргэлддэг тул энэ нь хамгийн найдвартай дохио.
-| Ижил төстэй байдал | Юу хийдэг |
-|---|---|
-| ≥ 0.45 | Оноог 15 хүртэл бууруулна + шалгалтын линк. Үнэн мэдээний **0.1%**-ийг л буруу таардаг; өөр үгээр бичсэн худлын **~66%**-ийг олдог |
-| 0.38–0.45 | Оноонд нөлөөлөхгүй, зөвхөн «төстэй мэдэгдэл шалгагдсан» гэж харуулна |
-Пост нь худлыг ишлээд няцааж байвал («... гэдэг худал») эсвэл бүртгэлтэй пэйжийнх бол шийтгэхгүй.
-Индексийг шинэчлэх: `python tools/build_factcheck_index.py <dataset угтвар>`
-
-## Санал хүсэлт → дахин сургах
-Тэмдэг дээр дарахад «✅ Үнэн / ❌ Худал / 💬 Мэдэгдэл биш» товч гарна → `backend/feedback.csv`-д хадгалагдана.
-Багаараа Facebook гүйлгэж 150–200 пост шошголсны дараа:
-```bash
-cd backend
-python ../tools/retrain_with_feedback.py      # өгөгдөл: hackmil_extension/data/
-```
-Facebook өгөгдлийн 30%-ийг test болгож, хуучин ба шинэ загварыг харьцуулж хэвлэнэ. Шинэ загвар `hackmil_scorecard.joblib`-д
-хадгалагдана (хуучин нь `.bak`). Серверээ дахин асаахад л хангалттай.
 
 ## Facebook дээр тэмдэг гарахгүй бол
 Facebook HTML-ээ байнга өөрчилдөг. F12 → Console дээр:
