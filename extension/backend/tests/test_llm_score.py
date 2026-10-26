@@ -70,4 +70,24 @@ def test_score_batch_caches_and_survives_failure(monkeypatch):
 def test_disabled_without_key(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
     assert llm_score.score_batch([POST]) == {}
+
+
+def test_llm_endpoint_without_key(monkeypatch):
+    from fastapi.testclient import TestClient
+    from extension.backend.app.main import app
+
+    monkeypatch.setenv("HM_LLM", "0")
+    r = TestClient(app).post("/score/posts/llm", json={"items": [{"id": "a", "text": POST["text"]}]}).json()
+    assert r == {"results": [], "llm": False}
+
+
+def test_provider_follows_the_key(monkeypatch):
+    for k in ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "GOOGLE_API_KEY", "HM_LLM_PROVIDER", "HM_LLM_MODEL"):
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", "test")
+    assert (llm_score.provider(), llm_score.model()) == ("gemini", "gemini-3.5-flash-lite")
+    monkeypatch.setenv("HM_LLM_PROVIDER", "claude")
+    assert llm_score.provider() == "claude" and not llm_score.enabled()   # no Anthropic key
