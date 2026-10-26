@@ -352,7 +352,7 @@
     post.classList.remove("hm-flash"); void post.offsetWidth; post.classList.add("hm-flash");
   });
 
-  const TOAST_ICON = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6l6.6 11.6H1.4z" fill="#e3b05a"/><path d="M8 6v3.4M8 11.2v.1" stroke="#22303a" stroke-width="1.7" stroke-linecap="round"/></svg>`;
+  const TOAST_ICON = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6l6.6 11.6H1.4z" fill="#e69f00"/><path d="M8 6v3.4M8 11.2v.1" stroke="#0a1024" stroke-width="1.7" stroke-linecap="round"/></svg>`;
   function toast(msg) {
     document.getElementById("hm-toast")?.remove();
     const t = document.createElement("div");

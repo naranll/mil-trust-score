@@ -3,7 +3,7 @@
 
 const app = document.getElementById("app");
 const gear = document.getElementById("gear");
-let tabId = null, winId = null, post = null, online = null, showServer = false;
+let tabId = null, winId = null, post = null, online = null, showServer = false, lastKey = null;
 
 // Замын тэмдгийн хэлбэр (content.js-тэй ижил): f = дүүргэлт, s = доторх зураас
 const SHAPE = {
@@ -109,6 +109,30 @@ function laws(r) {
 }
 
 // --- Оноо -----------------------------------------------------------------
+// Цэгэн хэмжүүр: 50 цэг = 0–100 (цэг бүр 2 оноо), бүсийн өнгөөр. Оноо хүртэлх цэгүүд дараалан асна.
+function meter(v) {
+  let dots = "";
+  for (let k = 0; k < 50; k++) {
+    const tone = k * 2 < 40 ? "t-stop" : k * 2 < 70 ? "t-warn" : "t-ok";
+    dots += `<i class="${tone}${k * 2 < v ? " on" : ""}" style="--i:${k}"></i>`;
+  }
+  return `<div class="meter" aria-hidden="true">${dots}</div>`;
+}
+
+// Оноо 0-ээс тоолж өснө (хөдөлгөөн багасгасан үед шууд)
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function countUp() {
+  const el = app.querySelector("[data-count]");
+  if (!el || reduced) return;
+  const to = Number(el.dataset.count), t0 = performance.now(), dur = 700;
+  const step = (t) => {
+    const k = Math.min(1, (t - t0) / dur);
+    el.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3))));
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
 function scoreBlock(p, r, z, isAd) {
   const notes = [
     r.source_unverified && "Эх сурвалж нь бүртгэлгүй тул 69-өөс дээш оноо өгөхгүй.",
@@ -121,11 +145,11 @@ function scoreBlock(p, r, z, isAd) {
   return `<section class="score t-${z.tone}" aria-label="Итгэлцлийн оноо">
     ${hasNum ? `
       <div class="score-top">
-        <span class="num" aria-label="${v} / 100">${v}<small>/100</small></span>
+        <span class="num" aria-label="${v} / 100"><span data-count="${v}">${v}</span><small>/100</small></span>
         <span class="zone">${shape(z.shape)}${esc(z.label)}</span>
       </div>
-      <div class="scale" aria-hidden="true"><i class="t-stop"></i><i class="t-warn"></i><i class="t-ok"></i><b style="--v:${v}%"></b></div>
-      <div class="scale-nums" aria-hidden="true"><span>0</span><span>40</span><span><span>70</span><span>100</span></span></div>`
+      ${meter(v)}
+      <div class="meter-nums" aria-hidden="true"><span>0</span><span>40</span><span><span>70</span><span>100</span></span></div>`
     : `<span class="zone zone-big">${shape(z.shape)}${esc(z.label)}</span>`}
     ${r.summary ? `<p class="sum">${esc(r.summary)}</p>` : ""}
     ${notes.map((n) => `<p class="note">${esc(n)}</p>`).join("")}
@@ -165,9 +189,30 @@ function postView(p) {
     <p class="foot">Автомат үнэлгээ, магадлал биш. Итгэх эсэхээ та өөрөө шийднэ.</p>`;
 }
 
+// Хоосон төлөвийн цэгэн капсул: вэбсайтын нүүрний капсулын жижиг хувилбар. Дүгнэлтийн 4 өнгө = 4 давхарга,
+// давхарга бүр өөр үед анивчина (opacity анимаци GPU дээр, CPU ачаалахгүй).
+const CAPSULE = (() => {
+  let s = 7;
+  const rnd = () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646;
+  const layers = [[], [], [], []];
+  for (let n = 0; n < 380; ) {
+    const x = rnd() * 28 - 14, y = rnd() * 60 - 30;
+    const inside = Math.abs(y) <= 16 ? Math.abs(x) <= 14 : x * x + (Math.abs(y) - 16) ** 2 <= 196;
+    if (!inside) continue;
+    // Гадаргуу руу нягт (нүүрний капсул шиг хөндий)
+    if (rnd() > 0.35 + 0.65 * Math.min(1, (Math.abs(x) / 14) ** 2 + Math.max(0, Math.abs(y) - 16) / 14)) continue;
+    layers[n % 4].push(`<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${(0.42 + rnd() * 0.42).toFixed(2)}"/>`);
+    n++;
+  }
+  const col = ["var(--true)", "var(--mislead)", "var(--false)", "var(--info)"];
+  return `<div class="capsule" aria-hidden="true">${layers.map((c, i) =>
+    `<svg viewBox="-16 -32 32 64" fill="${col[i]}" style="animation-delay:${-i * 0.8}s">${c.join("")}</svg>`).join("")}</div>`;
+})();
+
 function emptyView() {
   const row = (k, t) => `<li class="t-${ZONE[k].tone}">${shape(ZONE[k].shape)}<span>${t}</span></li>`;
   return `<div class="empty">
+    ${CAPSULE}
     <h1>Лэнд дээрх тэмдэг дээр дарахад тухайн постын оноо, шалтгаан энд гарна.</h1>
     <ul class="legend">
       ${row("green", "Анхааруулах шинж илрээгүй")}
@@ -201,8 +246,13 @@ async function render() {
   if (online === false) parts.push(offlineView());
   if (showServer) parts.push(await serverView());
   parts.push(post ? postView(post) : emptyView());
+  // Хөдөлгөөн зөвхөн шинэ пост (эсвэл анхны ачаалалт) үед: серверийн төлөв шинэчлэгдэхэд дахин тоглохгүй
+  const key = post ? post.id : "empty";
+  app.classList.toggle("still", key === lastKey);
   app.innerHTML = parts.join("");
   gear.setAttribute("aria-expanded", String(showServer));
+  if (key !== lastKey) countUp();
+  lastKey = key;
 }
 
 function check() {
