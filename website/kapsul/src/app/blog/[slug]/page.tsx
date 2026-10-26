@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { getAllPosts, getPost } from "@/lib/blog";
 import { layerColor } from "@/data/layers";
 import { ShareButton } from "@/components/map/ShareButton";
-import { DotCapsule } from "@/components/ui/DotCapsule";
+import { DotGlyph } from "@/components/blog/DotGlyph";
 import { ReadingProgress } from "@/components/ui/ReadingProgress";
 
 export async function generateStaticParams() {
@@ -41,7 +41,7 @@ export default async function BlogPost({ params }: PageProps<"/blog/[slug]">) {
             Бүх нийтлэл
           </Link>
           <div className="mt-6 flex items-center gap-4 lg:mt-10 lg:flex-col lg:items-start">
-            <DotCapsule color={color} className="h-14 w-8 lg:h-24 lg:w-14" />
+            <DotGlyph layer={post.layer} className="size-12 lg:size-20" />
             <div className="text-[15px] text-ink-2">
               <p className="font-semibold text-ink">{post.layer}</p>
               <time dateTime={post.date}>{mnDate(post.date)}</time>

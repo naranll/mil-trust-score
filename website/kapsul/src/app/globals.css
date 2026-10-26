@@ -252,6 +252,29 @@ a.link-accent:hover {
   }
 }
 
+/* Шинэ карт ард байгаа картын байрлалаас (бага зэрэг доор, жижиг) урагш гарна */
+@keyframes cardIn {
+  from {
+    opacity: 0.4;
+    transform: translateY(12px) scale(0.955);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Блогийн цэгэн дүрсний зөөлөн анивчилт */
+@keyframes dotTwinkle {
+  0%,
+  100% {
+    fill-opacity: 1;
+  }
+  50% {
+    fill-opacity: 0.45;
+  }
+}
+
 /* Range slider-ийг палитраар */
 input[type="range"]::-webkit-slider-thumb {
   appearance: none;
@@ -436,10 +459,11 @@ input[type="range"]::-moz-range-thumb {
   }
 }
 
-/* Апп маягийн хуудас (тоглоом): хуудас гүйлгэгдэхгүй, footer харагдахгүй. Агуулга дотроо гүйлгэгдэнэ. */
-html:has([data-app]) {
+/* Апп маягийн хуудас (тоглоом): хуудас гүйлгэгдэхгүй, footer харагдахгүй. Агуулга дотроо гүйлгэгдэнэ.
+   data-app-mode-г AppMode тавина (зөвхөн хуудас идэвхтэй үед). */
+html[data-app-mode] {
   overflow: hidden;
 }
-body:has([data-app]) > footer {
+html[data-app-mode] body > footer {
   display: none;
 }

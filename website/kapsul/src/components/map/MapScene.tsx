@@ -106,27 +106,38 @@ function Outline() {
   return <Line points={pts} color="#6f86ff" lineWidth={1.5} transparent opacity={0.75} />;
 }
 
-// Нэг гэрэл: шинэ бол гялс гэж томроод тогтворжино
-function LightSprite({ light, glow, pos }: { light: Light; glow: THREE.Texture; pos: [number, number, number] }) {
-  const ref = useRef<THREE.Sprite>(null);
-  const born = useMemo(() => performance.now() - Math.max(0, Date.now() - new Date(light.created_at).getTime()), [light.created_at]);
-  const phase = useMemo(() => hash(light.id) * Math.PI * 2, [light.id]);
-  useFrame(() => {
-    if (!ref.current) return;
-    const age = (performance.now() - born) / 1000;
-    const flash = age < 2.2 ? Math.max(0, 1 - age / 2.2) : 0;
-    const twinkle = 1 + Math.sin(performance.now() / 900 + phase) * 0.08;
-    ref.current.scale.setScalar((0.2 + flash * 0.6) * twinkle);
-    (ref.current.material as THREE.SpriteMaterial).opacity = 0.55 + flash * 0.45;
-  });
-  return (
-    <sprite ref={ref} position={pos}>
-      <spriteMaterial map={glow} color={KIND_COLOR[light.kind]} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
-    </sprite>
-  );
-}
+// Бүх гэрэл нэг Points (нэг draw call): гэрэл бүр анивчина, шинэ гэрэл гялс гэж томроод тогтворжино.
+const lightVertex = /* glsl */ `
+attribute vec3 aColor;
+attribute float aPhase;
+attribute float aBorn; // performance.now()-ийн цагаар төрсөн мөч (сек)
+uniform float uNow, uDpr, uViewH;
+varying vec3 vColor;
+varying float vAlpha;
+void main() {
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float age = uNow - aBorn;
+  float flash = age < 2.2 ? max(0.0, 1.0 - age / 2.2) : 0.0;
+  float twinkle = 1.0 + sin(uNow / 0.9 + aPhase) * 0.08;
+  float world = (0.2 + flash * 0.6) * twinkle; // sprite-ийн хуучин хэмжээ (дэлхийн нэгж)
+  gl_PointSize = world * projectionMatrix[1][1] * uViewH * 0.5 / -mv.z;
+  vColor = aColor;
+  vAlpha = 0.55 + flash * 0.45;
+}`;
+const lightFragment = /* glsl */ `
+varying vec3 vColor;
+varying float vAlpha;
+void main() {
+  float d = length(gl_PointCoord - 0.5) * 2.0;
+  // useGlow-той ижил зөөлөн туяа
+  float g = d < 0.18 ? mix(1.0, 0.85, d / 0.18) : d < 0.45 ? mix(0.85, 0.22, (d - 0.18) / 0.27) : mix(0.22, 0.0, clamp((d - 0.45) / 0.55, 0.0, 1.0));
+  gl_FragColor = vec4(vColor * g * vAlpha, 1.0);
+}`;
 
-function Lights({ lights, glow }: { lights: Light[]; glow: THREE.Texture }) {
+function Lights({ lights }: { lights: Light[] }) {
+  const gl = useThree((s) => s.gl);
+  const size = useThree((s) => s.size);
   // Гэрэл бүрийн байрлал: аймгийн төвөөс тогтвортой санамсаргүй зай
   const placed = useMemo(
     () =>
@@ -142,23 +153,62 @@ function Lights({ lights, glow }: { lights: Light[]; glow: THREE.Texture }) {
     [lights],
   );
 
-  // Нэг аймгийн гэрлүүдийг дарааллаар нь холбоно
+  const geometry = useMemo(() => {
+    const now = performance.now() / 1000;
+    const pos = new Float32Array(placed.length * 3);
+    const col = new Float32Array(placed.length * 3);
+    const phase = new Float32Array(placed.length);
+    const born = new Float32Array(placed.length);
+    const c = new THREE.Color();
+    placed.forEach((p, i) => {
+      pos.set(p.pos, i * 3);
+      c.set(KIND_COLOR[p.l.kind]);
+      col.set([c.r, c.g, c.b], i * 3);
+      phase[i] = hash(p.l.id) * Math.PI * 2;
+      born[i] = now - Math.max(0, Date.now() - new Date(p.l.created_at).getTime()) / 1000;
+    });
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    g.setAttribute("aColor", new THREE.BufferAttribute(col, 3));
+    g.setAttribute("aPhase", new THREE.BufferAttribute(phase, 1));
+    g.setAttribute("aBorn", new THREE.BufferAttribute(born, 1));
+    return g;
+  }, [placed]);
+  const material = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader: lightVertex,
+        fragmentShader: lightFragment,
+        uniforms: { uNow: { value: 0 }, uDpr: { value: 1 }, uViewH: { value: 1 } },
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    [],
+  );
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  useEffect(() => () => material.dispose(), [material]);
+  const points = useRef<THREE.Points>(null);
+  useFrame(() => {
+    const u = (points.current?.material as THREE.ShaderMaterial | undefined)?.uniforms;
+    if (!u) return;
+    u.uNow.value = performance.now() / 1000;
+    u.uViewH.value = size.height * gl.getPixelRatio();
+  });
+
+  // Нэг аймгийн гэрлүүдийг дарааллаар нь холбоно: бүх зураас нэг Line (segments)
   const links = useMemo(() => {
     const by: Record<string, [number, number, number][]> = {};
     for (const p of [...placed].reverse()) (by[p.l.aimag] ??= []).push(p.pos);
-    const segs: [number, number, number][][] = [];
-    for (const arr of Object.values(by)) for (let i = 1; i < arr.length && i < 14; i++) segs.push([arr[i - 1], arr[i]]);
+    const segs: [number, number, number][] = [];
+    for (const arr of Object.values(by)) for (let i = 1; i < arr.length && i < 14; i++) segs.push(arr[i - 1], arr[i]);
     return segs;
   }, [placed]);
 
   return (
     <>
-      {links.map((s, i) => (
-        <Line key={i} points={s} color="#6f86ff" lineWidth={0.8} transparent opacity={0.28} />
-      ))}
-      {placed.map((p) => (
-        <LightSprite key={p.l.id} light={p.l} glow={glow} pos={p.pos} />
-      ))}
+      {links.length > 1 && <Line points={links} segments color="#6f86ff" lineWidth={0.8} transparent opacity={0.28} />}
+      <points ref={points} geometry={geometry} material={material} frustumCulled={false} />
     </>
   );
 }
@@ -231,7 +281,7 @@ function Scene({ lights, counts }: { lights: Light[]; counts: Record<string, num
       <LandDots />
       <Outline />
       <Halos counts={counts} glow={glow} />
-      <Lights lights={lights} glow={glow} />
+      <Lights lights={lights} />
     </group>
   );
 }
@@ -247,10 +297,19 @@ export default function MapScene({ lights, counts }: { lights: Light[]; counts: 
     return () => window.removeEventListener("resize", on);
   }, []);
   const items = useMemo(() => pickLabels(counts, narrow), [counts, narrow]);
+  // Дэлгэцэн дээр байхгүй үед зурахаа зогсооно (хуудас гүйлгэхэд саад болохгүй)
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const el = wrap.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
     <div ref={wrap} className="relative h-full w-full">
-    <Canvas dpr={[1, 1.75]} camera={{ position: [0, 3.5, 3.4], fov: 42 }} gl={{ antialias: true, alpha: true }}>
+    <Canvas dpr={[1, 1.5]} frameloop={visible ? "always" : "never"} camera={{ position: [0, 3.5, 3.4], fov: 42 }} gl={{ antialias: true, alpha: true }}>
       <Stars />
       <FitCamera />
       <LabelProjector items={items} refs={refs} />

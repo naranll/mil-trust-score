@@ -4,7 +4,7 @@
 // бусад нь доор хоёр баганаар.
 import Link from "next/link";
 import { useState } from "react";
-import { DotCapsule } from "@/components/ui/DotCapsule";
+import { DotGlyph } from "./DotGlyph";
 import { LAYERS, layerColor } from "@/data/layers";
 import type { PostMeta } from "@/lib/blog";
 
@@ -65,7 +65,7 @@ export function BlogList({ posts }: { posts: PostMeta[] }) {
             className="flex h-48 items-center justify-center md:h-auto md:min-h-80"
             style={{ background: `color-mix(in oklab, ${layerColor(lead.layer)} 10%, transparent)` }}
           >
-            <DotCapsule color={layerColor(lead.layer)} className="h-36 w-20 md:h-56 md:w-32" />
+            <DotGlyph layer={lead.layer} className="size-36 md:size-56" />
           </div>
           <div className="flex flex-col justify-center gap-4 p-6 md:p-12">
             <Meta p={lead} />
@@ -82,8 +82,8 @@ export function BlogList({ posts }: { posts: PostMeta[] }) {
         <ul className="mt-6 grid gap-6 md:mt-10 md:grid-cols-2 md:gap-10">
           {rest.map((p) => (
             <li key={p.slug} className="border-t border-line">
-              <Link href={`/blog/${p.slug}`} className="group grid grid-cols-[2.5rem_1fr] gap-5 pt-6 outline-offset-4 md:grid-cols-[3.5rem_1fr] md:pt-8">
-                <DotCapsule color={layerColor(p.layer)} className="h-[4.5rem] w-10 md:h-24 md:w-14" />
+              <Link href={`/blog/${p.slug}`} className="group grid grid-cols-[2.5rem_1fr] items-start gap-5 pt-6 outline-offset-4 md:grid-cols-[3.5rem_1fr] md:pt-8">
+                <DotGlyph layer={p.layer} className="size-10 md:size-14" />
                 <div className="min-w-0">
                   <Meta p={p} />
                   <h2 className="mt-2 text-[22px] leading-snug font-bold text-ink transition-colors duration-[var(--dur-base)] group-hover:text-accent md:text-[25px]">

@@ -167,78 +167,108 @@ const FLY: Record<Action, string> = {
 };
 
 function SwipeCard({ post, onAction, reduced, last }: { post: Post; onAction: (a: Action) => void; reduced: boolean; last: boolean }) {
-  const start = useRef<{ x: number; y: number } | null>(null);
-  const [drag, setDrag] = useState({ x: 0, y: 0 });
-  const [fly, setFly] = useState<Action | null>(null);
-  const [dragging, setDragging] = useState(false);
+  // Чирэлтийг React state-ээр биш, DOM-ийг шууд (кадр бүрт нэг удаа) шинэчилнэ: хуруу дагаж жигд хөдөлнө
+  const card = useRef<HTMLElement>(null);
+  const stamp = useRef<HTMLSpanElement>(null);
+  const drag = useRef<{ x0: number; y0: number; x: number; y: number; t: number; vx: number; vy: number } | null>(null);
+  const raf = useRef(0);
+  const done = useRef(false);
+
+  const paint = (x: number, y: number) => {
+    const el = card.current;
+    if (!el) return;
+    el.style.transform = `translate3d(${x}px, ${Math.min(y, 0) * 0.6}px, 0) rotate(${x * 0.05}deg)`;
+    const up = -y > Math.abs(x);
+    const st = stamp.current;
+    if (st) {
+      st.textContent = up ? "Хуваалцах" : x > 0 ? "Like" : "Алгасах";
+      st.style.opacity = String(Math.min(1, Math.max(0, (Math.max(Math.abs(x), -y) - 12) / 78)));
+    }
+  };
+
+  const settle = (transform: string, opacity = "1", ms = 320) => {
+    const el = card.current;
+    if (!el) return;
+    el.style.transition = reduced ? "none" : `transform ${ms}ms var(--ease-out-expo), opacity ${ms}ms ease`;
+    el.style.transform = transform;
+    el.style.opacity = opacity;
+    if (stamp.current && opacity === "1") stamp.current.style.opacity = "0";
+  };
 
   const commit = (a: Action) => {
-    if (fly) return;
-    setFly(a);
-    setTimeout(() => onAction(a), reduced ? 0 : 220);
-  };
-  const decide = () => {
-    const { x, y } = drag;
-    if (-y > 90 && -y > Math.abs(x)) commit("share");
-    else if (x > 90) commit("like");
-    else if (x < -90) commit("skip");
-    else setDrag({ x: 0, y: 0 });
+    if (done.current) return;
+    done.current = true;
+    settle(FLY[a], "0", 340);
+    // Карт нисэж дууссаны дараа дараагийн пост гарна
+    setTimeout(() => onAction(a), reduced ? 0 : 300);
   };
 
-  const transform = fly ? FLY[fly] : `translate(${drag.x}px, ${Math.min(drag.y, 0) * 0.6}px) rotate(${drag.x * 0.05}deg)`;
-  // Чирэх чиглэлийн тэмдэг (Like / Алгасах / Хуваалцах)
-  const up = -drag.y > Math.abs(drag.x);
-  const stamp = up ? { t: "Хуваалцах", o: -drag.y / 90 } : drag.x > 0 ? { t: "Like", o: drag.x / 90 } : { t: "Алгасах", o: -drag.x / 90 };
+  useEffect(() => () => cancelAnimationFrame(raf.current), []);
 
   return (
     <div className="relative">
       {/* Ард нь дараагийн пост хүлээж байгаа мэт: feed-ийн гүн */}
       {!last && <div aria-hidden className="absolute inset-x-3 top-3 bottom-[-0.5rem] rounded-2xl bg-surface/50" />}
-      <article
-        onPointerDown={(e) => {
-          if (fly) return;
-          (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-          start.current = { x: e.clientX, y: e.clientY };
-          setDragging(true);
-        }}
-        onPointerMove={(e) => start.current && setDrag({ x: e.clientX - start.current.x, y: e.clientY - start.current.y })}
-        onPointerUp={() => {
-          start.current = null;
-          setDragging(false);
-          decide();
-        }}
-        onPointerCancel={() => {
-          start.current = null;
-          setDragging(false);
-          setDrag({ x: 0, y: 0 });
-        }}
-        style={{
-          transform,
-          transition: dragging ? "none" : reduced ? "none" : "transform 260ms var(--ease-out-expo), opacity 260ms",
-          opacity: fly ? 0 : 1,
-          touchAction: "none",
-        }}
-        className="relative animate-[postIn_.4s_var(--ease-out-expo)] cursor-grab touch-none rounded-2xl bg-surface p-4 shadow-1 select-none active:cursor-grabbing md:p-5"
-      >
-        <header className="flex items-center gap-3">
-          <span aria-hidden className="size-10 shrink-0 rounded-full" style={{ background: CATEGORIES[post.category].color }} />
-          <div className="min-w-0">
-            <p className="truncate font-semibold text-ink">{post.author}</p>
-            <p className="text-[12.8px] text-ink-2">Зохиомол хуудас</p>
-          </div>
-        </header>
-        <p className="mt-3 min-h-[4.5rem] text-[15px] leading-relaxed text-ink md:mt-4 md:min-h-[6.5rem] md:text-[1.05rem]">{post.text}</p>
-        <p className="mt-3 text-[12.8px] text-ink-2 tnum">{post.reactions.toLocaleString("mn-MN")} хариу үйлдэл</p>
-        {!fly && Math.max(Math.abs(drag.x), -drag.y) > 12 && (
+      {/* Шинэ пост ард байгаа картын байрнаас урагш гарч ирнэ (animation нь гаднах div дээр: чирэлтэд саад болохгүй) */}
+      <div className="motion-safe:animate-[cardIn_.42s_var(--ease-out-expo)]">
+        <article
+          ref={card}
+          onPointerDown={(e) => {
+            if (done.current) return;
+            e.currentTarget.setPointerCapture(e.pointerId);
+            e.currentTarget.style.transition = "none";
+            drag.current = { x0: e.clientX, y0: e.clientY, x: 0, y: 0, t: e.timeStamp, vx: 0, vy: 0 };
+          }}
+          onPointerMove={(e) => {
+            const d = drag.current;
+            if (!d) return;
+            const x = e.clientX - d.x0, y = e.clientY - d.y0, dt = Math.max(1, e.timeStamp - d.t);
+            // Хурдыг зөөлрүүлж хадгална (шидэх хөдөлгөөнийг танихад)
+            d.vx = d.vx * 0.6 + ((x - d.x) / dt) * 0.4;
+            d.vy = d.vy * 0.6 + ((y - d.y) / dt) * 0.4;
+            d.x = x;
+            d.y = y;
+            d.t = e.timeStamp;
+            cancelAnimationFrame(raf.current);
+            raf.current = requestAnimationFrame(() => paint(x, y));
+          }}
+          onPointerUp={() => {
+            const d = drag.current;
+            drag.current = null;
+            if (!d) return;
+            const { x, y, vx, vy } = d;
+            // Зай (90px) эсвэл хурдан шидэлт (0.5px/мс, 30px-ээс дээш)
+            const flickX = Math.abs(vx) > 0.5 && Math.abs(x) > 30;
+            const flickUp = vy < -0.5 && -y > 30;
+            if ((-y > 90 || flickUp) && -y > Math.abs(x)) commit("share");
+            else if (x > 90 || (flickX && vx > 0)) commit("like");
+            else if (x < -90 || (flickX && vx < 0)) commit("skip");
+            else settle("translate3d(0,0,0)");
+          }}
+          onPointerCancel={() => {
+            drag.current = null;
+            settle("translate3d(0,0,0)");
+          }}
+          style={{ touchAction: "none" }}
+          className="relative cursor-grab touch-none rounded-2xl bg-surface p-4 shadow-1 will-change-transform select-none active:cursor-grabbing md:p-5"
+        >
+          <header className="flex items-center gap-3">
+            <span aria-hidden className="size-10 shrink-0 rounded-full" style={{ background: CATEGORIES[post.category].color }} />
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-ink">{post.author}</p>
+              <p className="text-[12.8px] text-ink-2">Зохиомол хуудас</p>
+            </div>
+          </header>
+          <p className="mt-3 min-h-[4.5rem] text-[15px] leading-relaxed text-ink md:mt-4 md:min-h-[6.5rem] md:text-[1.05rem]">{post.text}</p>
+          <p className="mt-3 text-[12.8px] text-ink-2 tnum">{post.reactions.toLocaleString("mn-MN")} хариу үйлдэл</p>
+          {/* Чирэх чиглэлийн тэмдэг (Like / Алгасах / Хуваалцах) */}
           <span
+            ref={stamp}
             aria-hidden
-            className="pointer-events-none absolute top-4 right-4 rounded-full border-2 border-accent px-3 py-1 text-sm font-semibold text-accent"
-            style={{ opacity: Math.min(1, stamp.o) }}
-          >
-            {stamp.t}
-          </span>
-        )}
-      </article>
+            className="pointer-events-none absolute top-4 right-4 rounded-full border-2 border-accent px-3 py-1 text-sm font-semibold text-accent opacity-0"
+          />
+        </article>
+      </div>
 
       <div className="relative mt-3 grid grid-cols-3 gap-2 md:mt-4">
         <GameButton onClick={() => commit("like")} icon={<Heart className="size-4" />} label="Like" />

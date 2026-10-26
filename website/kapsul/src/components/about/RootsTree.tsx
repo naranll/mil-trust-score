@@ -1,14 +1,12 @@
 "use client";
 
-// «Бид навч биш, үндсийг хардаг»: цэгэн мод. Газрын дээрх титэм бүдэг (навч = нэг пост),
-// газрын доорх үндэс (систем) мод харагдах үед цэг цэгээр ургана. Хөдөлгөөн багасгасан үед бүтэн харагдана.
-import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+// «Бид навч биш, үндсийг хардаг» модны хүрээ. WebGL байвал жижиг цэгүүдээс бүтсэн хөдөлгөөнтэй мод (RootsCloud),
+// хөдөлгөөн багасгасан эсвэл WebGL байхгүй үед хөдөлгөөнгүй SVG мод (доорх).
+import dynamic from "next/dynamic";
+import { useRenderMode } from "@/lib/render-mode";
 import { LAYERS } from "@/data/layers";
 
-gsap.registerPlugin(useGSAP, ScrollTrigger);
+const RootsCloud = dynamic(() => import("./RootsCloud"), { ssr: false });
 
 type Dot = { x: number; y: number; r: number; c: string; depth: number };
 
@@ -44,39 +42,24 @@ const { canopy, roots } = (() => {
 })();
 
 export function RootsTree({ className = "" }: { className?: string }) {
-  const ref = useRef<SVGSVGElement>(null);
-
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // Гол үндэсний эхлэл анхнаасаа харагдана; үлдсэн нь мод харагдах үед цэг цэгээр ургана
-        gsap.fromTo(
-          ref.current!.querySelectorAll("[data-root]"),
-          { opacity: 0, scale: 0, transformOrigin: "50% 50%" },
-          {
-            opacity: 1,
-            scale: 1,
-            duration: 0.5,
-            ease: "power2.out",
-            stagger: { amount: 2.6 },
-            delay: 0.3,
-            scrollTrigger: { trigger: ref.current, start: "top 85%", once: true },
-          },
-        );
-      });
-    },
-    { scope: ref },
-  );
-
+  const mode = useRenderMode();
   return (
-    <svg ref={ref} viewBox="0 0 400 470" aria-hidden className={className}>
+    <div className={`relative aspect-[440/440] ${className}`}>
+      {mode === "anim" && <RootsCloud reduced={false} />}
+      {mode === "static" && <StaticTree />}
+    </div>
+  );
+}
+
+function StaticTree() {
+  return (
+    <svg viewBox="0 0 400 470" aria-hidden className="absolute inset-0 h-full w-full">
       {canopy.map((d, i) => (
         <circle key={`c${i}`} cx={d.x} cy={d.y} r={d.r} fill={d.c} opacity={0.55} />
       ))}
       <line x1="10" x2="390" y1={GROUND} y2={GROUND} stroke="var(--border-control)" strokeWidth="1" strokeDasharray="2 5" />
       {roots.map((d, i) => (
-        <circle key={`r${i}`} data-root={d.depth >= 0.35 ? "" : undefined} cx={d.x} cy={d.y} r={d.r} fill={d.c} />
+        <circle key={`r${i}`} cx={d.x} cy={d.y} r={d.r} fill={d.c} />
       ))}
     </svg>
   );

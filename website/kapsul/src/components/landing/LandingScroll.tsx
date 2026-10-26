@@ -227,13 +227,17 @@ export function LandingScroll() {
                   ))}
                 </span>
               </h1>
-              <p data-caption="0" className="max-w-md text-lg text-ink-2 [text-shadow:0_0_16px_var(--bg)] md:text-xl">
+              {/* Цэгүүдийн дээр уншигдахаар: үндсэн өнгө + фоны өнгөтэй хүрээ */}
+              <p
+                data-caption="0"
+                className="max-w-md text-lg font-medium text-ink [text-shadow:0_0_2px_var(--bg),0_0_10px_var(--bg),0_0_24px_var(--bg)] md:text-xl"
+              >
                 Таны Facebook feed-ийг хэн сонгодог вэ?
               </p>
             </div>
 
             {/* 1–2: бичвэрийн багана (зүүн; утсан дээр дээд хэсэгт). Нэг нүдэнд давхцана. */}
-            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 grid md:inset-y-0 md:right-auto md:w-[46%] md:content-center [&>*]:[grid-area:1/1] group-data-[mode=static]:hidden motion-reduce:hidden">
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 grid md:inset-y-0 md:right-auto md:w-[46%] md:content-center [text-shadow:0_0_2px_var(--bg),0_0_10px_var(--bg),0_0_24px_var(--bg)] [&>*]:[grid-area:1/1] group-data-[mode=static]:hidden motion-reduce:hidden">
               <div data-caption="1" className="flex max-w-md flex-col gap-3 text-xl leading-snug md:text-[25px]">
                 <p className="font-semibold text-ink">Таны харж буй пост бүрийг алгоритм сонгодог.</p>
                 <p className="text-ink-2">Хамгийн их сэтгэл хөдлөл төрүүлдэг нь хамгийн хурдан тархдаг.</p>

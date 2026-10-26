@@ -47,17 +47,17 @@
 #mv-viz .wrap {
   max-width: none; /* бүтэн өргөн: хуудас бүр хоёр талдаа хоосон зайгүй */
   margin: 0 auto;
-  padding: 28px 0 32px; /* хажуугийн зайг хуудас өгнө: гарчигтай нэг ирмэгт */
+  padding: 12px 0 8px; /* хажуугийн зайг хуудас өгнө: гарчигтай нэг ирмэгт */
 }
 @media (min-width: 768px) {
   #mv-viz .wrap {
-    padding: 40px 0;
+    padding: 16px 0 8px;
   }
 }
 #mv-viz .plate {
   display: grid;
   gap: 22px;
-  padding-block: clamp(44px, 8vw, 92px);
+  padding-block: clamp(28px, 4vw, 56px);
   border-top: 1px solid var(--rule);
 }
 #mv-viz .plate:first-of-type {

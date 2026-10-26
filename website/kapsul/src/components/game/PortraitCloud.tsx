@@ -160,6 +160,9 @@ function Cloud({ driveRef, count, colors }: { driveRef: RefObject<PortraitDrive>
   const points = useRef<THREE.Points>(null);
   const shares = useRef([1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6]);
   const rot = useRef(0);
+  // Байрлалыг шууд биш, зөөлөн дагана: самбарын хэмжээ солигдох, багана ургахад үсрэлтгүй
+  const sm = useRef<{ cx: number; cy: number; h: number; colW: number; slots: number[]; radii: number[] } | null>(null);
+  const env = useRef(0); // pulse-ийн зөөлөн дугтуй: гэнэт үсрэхгүй, ~100мс-д өсөөд аажим унтарна
 
   useFrame((state, delta) => {
     if (!points.current) return;
@@ -177,23 +180,32 @@ function Cloud({ driveRef, count, colors }: { driveRef: RefObject<PortraitDrive>
     }
     for (let i = 0; i < 6; i++) cum[i] /= acc || 1;
     d.pulse *= Math.exp(-delta * 2.5);
+    env.current += (d.pulse - env.current) * Math.min(1, delta * 10);
     rot.current += delta * 0.15 * d.motion;
     u.uTime.value = state.clock.elapsedTime;
     u.uKnown.value = d.known;
     u.uSplit.value = d.split;
-    u.uPulse.value = d.pulse;
+    u.uPulse.value = env.current;
     u.uPulseCat.value = d.pulseCat;
     u.uRotY.value = rot.current;
     u.uMotion.value = d.motion;
     u.uDpr.value = gl.getPixelRatio();
-    u.uH.value = L.h;
-    u.uColW.value = L.colW;
-    (u.uCenter.value as THREE.Vector3).set(L.cx, L.cy, 0);
+    const m = (sm.current ??= { cx: L.cx, cy: L.cy, h: L.h, colW: L.colW, slots: [...L.slots], radii: [...L.radii] });
+    const kl = d.motion ? Math.min(1, delta * 6) : 1;
+    m.cx += (L.cx - m.cx) * kl;
+    m.cy += (L.cy - m.cy) * kl;
+    m.h += (L.h - m.h) * kl;
+    m.colW += (L.colW - m.colW) * kl;
+    u.uH.value = m.h;
+    u.uColW.value = m.colW;
+    (u.uCenter.value as THREE.Vector3).set(m.cx, m.cy, 0);
     const slots = u.uSlots.value as THREE.Vector3[];
     const radii = u.uRadii.value as number[];
     for (let i = 0; i < 6; i++) {
-      slots[i].set(L.slots[i * 2] ?? 0, L.slots[i * 2 + 1] ?? 0, 0);
-      radii[i] = L.radii[i] ?? 0;
+      for (const j of [i * 2, i * 2 + 1]) m.slots[j] = (m.slots[j] ?? 0) + ((L.slots[j] ?? 0) - (m.slots[j] ?? 0)) * kl;
+      m.radii[i] = (m.radii[i] ?? 0) + ((L.radii[i] ?? 0) - (m.radii[i] ?? 0)) * kl * 0.6;
+      slots[i].set(m.slots[i * 2], m.slots[i * 2 + 1], 0);
+      radii[i] = m.radii[i];
     }
   });
 

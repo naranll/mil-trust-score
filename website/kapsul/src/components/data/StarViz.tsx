@@ -105,7 +105,6 @@ export function StarViz() {
           </p>
         </section>
 
-        <footer>Хакмил 2026 · Өгөгдлийг амь оруулах, амьдруулах</footer>
       </div>
     </section>
   );

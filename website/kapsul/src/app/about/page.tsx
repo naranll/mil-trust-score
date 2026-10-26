@@ -7,7 +7,7 @@ import { LAYERS } from "@/data/layers";
 import { SITE, TEAM } from "@/data/site";
 import { H1, PAGE } from "@/components/ui/PageTitle";
 
-export const metadata: Metadata = { title: "Бидний тухай", description: "Cure from the Core баг, HACKMIL 2026." };
+export const metadata: Metadata = { title: "Бидний тухай", description: "Todruulii баг, HACKMIL 2026." };
 
 const WONT = ["Худал мэдээг «шийднэ» гэж амлахгүй", "Хүнд оноо, шошго наахгүй", "Хувийн мэдээлэл цуглуулахгүй", "Улс төрийн тал баримтлахгүй"];
 
@@ -38,10 +38,10 @@ export default function About() {
           </ul>
           <p className="mt-8 text-[15px] text-ink-3">{SITE.hackathon}-д оролцож буй 4 оюутан</p>
         </div>
-        <RootsTree className="mx-auto w-full max-w-[22rem] lg:max-w-none" />
+        <RootsTree className="mx-auto w-full max-w-[24rem] lg:max-w-none" />
       </section>
 
-      <section aria-labelledby="team-title" className="mt-20 md:mt-28">
+      <section aria-labelledby="team-title" className="mt-14 md:mt-20">
         <h2 id="team-title" className={H2}>
           Баг
         </h2>
@@ -56,14 +56,14 @@ export default function About() {
         </ul>
       </section>
 
-      <section id="map" aria-labelledby="map-title" className="mt-20 scroll-mt-24 md:mt-28">
+      <section id="map" aria-labelledby="map-title" className="mt-14 scroll-mt-24 md:mt-20">
         <h2 id="map-title" className={`mb-6 ${H2}`}>
           Мэдлэг хэрхэн тархаж байна
         </h2>
         <LightMap />
       </section>
 
-      <section aria-labelledby="wont-title" className="mt-20 grid gap-6 md:mt-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-16">
+      <section aria-labelledby="wont-title" className="mt-14 grid gap-6 md:mt-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-16">
         <h2 id="wont-title" className={H2}>
           Бидний хийхгүй зүйл
         </h2>
@@ -77,7 +77,7 @@ export default function About() {
         </ul>
       </section>
 
-      <section className="mt-20 flex flex-col items-start gap-6 border-t border-line pt-10 md:mt-28 md:flex-row md:items-center md:justify-between">
+      <section className="mt-14 flex flex-col items-start gap-6 border-t border-line pt-10 md:mt-20 md:flex-row md:items-center md:justify-between">
         <p className="text-[20px] font-semibold text-ink md:text-[25px]">Тоо бүрийн эх сурвалж нээлттэй</p>
         <PillLink href="/data" tone="secondary">
           Өгөгдөл үзэх

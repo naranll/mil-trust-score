@@ -18,7 +18,7 @@ export default async function DataPage() {
       </PageTitle>
 
       {/* Хэвлэлийн хүрээлэнгийн өгөгдөл: хаана, юу уншдаг вэ, хиймэл оюун */}
-      <section aria-label="Хэвлэл мэдээллийн хэрэглээ" className="mt-10">
+      <section aria-label="Хэвлэл мэдээллийн хэрэглээ" className="mt-6 md:mt-8">
         <StarViz />
       </section>
     </div>

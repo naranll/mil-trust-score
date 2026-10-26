@@ -16,7 +16,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="mn" className="h-full">
+    <html lang="mn" className="h-full" data-scroll-behavior="smooth">
       <body className="stardust relative isolate flex min-h-full flex-col overflow-x-clip">
         <a
           href="#main"
@@ -29,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         {/* Footer: minimal, зөвхөн холбогдох мэдээлэл (цэс нь header-т). Имэйл нь SITE.email бөглөгдсөн үед л. */}
-        <footer className="mt-24 border-t border-(--rule)">
+        <footer className="mt-10 border-t md:mt-14 border-(--rule)">
           <div className="flex w-full flex-col gap-2 px-5 py-6 text-[14px] text-ink-3 sm:flex-row sm:items-center sm:justify-between md:px-10 xl:px-16">
             <p>
               Todruulii баг {SITE.hackathon}
