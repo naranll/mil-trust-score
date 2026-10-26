@@ -10,7 +10,9 @@ from pathlib import Path
 from typing import List, Optional
 from urllib.parse import urlparse
 
-WHITELIST_PATH = Path(__file__).parent.parent / "data" / "whitelist.json"
+from ..config import REFERENCE_DIR
+
+WHITELIST_PATH = REFERENCE_DIR / "whitelist.json"
 WHITELIST: List[str] = json.loads(WHITELIST_PATH.read_text(encoding="utf-8"))["registered_outlets"]
 
 CONTACT_HINTS = ("about", "contact", "бидний тухай", "холбоо барих", "холбоо", "tuhai", "holboo")

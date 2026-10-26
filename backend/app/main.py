@@ -1,10 +1,12 @@
 import json
 import time
-from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
+from . import model_adapter, posts
+from .config import EXTENSION_DIR, feedback_dir
 from .schemas import FeedbackRequest, ScoreRequest, ScoreResponse
 from .scorecard import score_page
 
@@ -18,12 +20,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-FEEDBACK_FILE = Path(__file__).parent / "data" / "feedback.jsonl"
+app.include_router(posts.router)
 
 
 @app.get("/health")
 def health():
-    return {"ok": True}
+    m = model_adapter.status()
+    return {"ok": True, "model": "scorecard v3.1" if m["loaded"] else "unavailable", "model_error": m["error"]}
+
+
+@app.get("/demo", include_in_schema=False)
+def demo():
+    """Facebook-free demo page for the extension (extension/demo/demo.html)."""
+    return FileResponse(EXTENSION_DIR / "demo" / "demo.html")
 
 
 @app.post("/score", response_model=ScoreResponse)
@@ -67,6 +76,6 @@ def feedback(fb: FeedbackRequest):
     """'This score is wrong' button. Becomes labelled data later. No user identifiers stored."""
     row = fb.model_dump()
     row["ts"] = int(time.time())
-    with FEEDBACK_FILE.open("a", encoding="utf-8") as f:
+    with (feedback_dir() / "page_feedback.jsonl").open("a", encoding="utf-8") as f:
         f.write(json.dumps(row, ensure_ascii=False) + "\n")
     return {"saved": True}

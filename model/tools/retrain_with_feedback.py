@@ -5,10 +5,10 @@ Facebook-ийн санал хүсэлтээр (feedback.csv) загварыг д
 Загвар одоо зөвхөн мэдээний сайтын текстээр сурсан тул Facebook-ийн бичих хэлбэрийг мэддэггүй —
 энэ өгөгдөл яг тэр цоорхойг нөхнө.
 
-Ажиллуулах (backend хавтаснаас):
-    python ../tools/retrain_with_feedback.py
+Ажиллуулах (repo-ийн үндэс хавтаснаас):
+    python model/tools/retrain_with_feedback.py
 Гаралт:
-    hackmil_scorecard.joblib (хуучин нь hackmil_scorecard.bak.joblib болж хадгалагдана)
+    model/artifacts/hackmil_scorecard.joblib (хуучин нь hackmil_scorecard.bak.joblib болж хадгалагдана, git-д орохгүй)
     Facebook-ийн test дээр ӨМНӨ / ДАРАА үр дүн
 """
 import argparse
@@ -26,14 +26,16 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GroupKFold, cross_val_predict, train_test_split
 from sklearn.pipeline import Pipeline
 
-BACKEND = Path(__file__).resolve().parent.parent / "backend"
-sys.path.insert(0, str(BACKEND))
+MODEL = Path(__file__).resolve().parent.parent          # model/
+REPO = MODEL.parent
+ARTIFACTS = MODEL / "artifacts"
+sys.path.insert(0, str(MODEL))
 import hm_core  # noqa: E402  — clean(), signals(), хуучин загвар
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--data", default=str(BACKEND.parent / "data" / "HACKMIL_dataset_v31_"),
-                help="train/val/test csv-ийн угтвар (анхдагч: hackmil_extension/data/ доторх)")
-ap.add_argument("--feedback", default=str(BACKEND / "feedback.csv"))
+ap.add_argument("--data", default=str(REPO / "data" / "datasets" / "HACKMIL_dataset_v31_"),
+                help="train/val/test csv-ийн угтвар (анхдагч: data/datasets/ доторх)")
+ap.add_argument("--feedback", default=str(REPO / "data" / "feedback" / "feedback.csv"))
 ap.add_argument("--fb-test", type=float, default=0.3, help="Facebook өгөгдлийн хэдэн хувийг test болгох")
 ap.add_argument("--repeat", type=int, default=3, help="Facebook мөр бүрийг train-д хэдэн удаа давтах (жин)")
 args = ap.parse_args()
@@ -128,8 +130,8 @@ report("Facebook test", fb_te, model, tm)
 # ---------------------------------------------------------------------------
 # 4. Хадгалах
 # ---------------------------------------------------------------------------
-out = BACKEND / "hackmil_scorecard.joblib"
-shutil.copy(out, BACKEND / "hackmil_scorecard.bak.joblib")
+out = ARTIFACTS / "hackmil_scorecard.joblib"
+shutil.copy(out, ARTIFACTS / "hackmil_scorecard.bak.joblib")
 joblib.dump({"model": model, "explainer": explainer, "text_model": tm, "cols": COLS,
              "signals": SIGNALS, "extra": EXTRA, "whitelist": hm_core.WHITELIST}, out)
 print(f"\n💾 {out.name} шинэчлэгдлээ (хуучин нь hackmil_scorecard.bak.joblib). Серверээ дахин асаана уу.")

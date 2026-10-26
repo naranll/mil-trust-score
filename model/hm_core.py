@@ -17,6 +17,16 @@ import numpy as np
 import pandas as pd
 
 # ---------------------------------------------------------------------------
+# Файлын байршил (repo-ийн бүтэц: model/artifacts, data/reference). Орчны хувьсагчаар солих боломжтой.
+# ---------------------------------------------------------------------------
+import os
+
+MODEL_DIR = Path(__file__).resolve().parent
+REPO_ROOT = MODEL_DIR.parent
+ARTIFACTS_DIR = Path(os.getenv("HM_ARTIFACTS_DIR", MODEL_DIR / "artifacts"))
+REFERENCE_DIR = Path(os.getenv("HM_REFERENCE_DIR", REPO_ROOT / "data" / "reference"))
+
+# ---------------------------------------------------------------------------
 # 1. Цэвэрлэгээ — build_dataset.py-ийн clean()-тэй ижил (өөр байвал загвар төөрнө)
 # ---------------------------------------------------------------------------
 MAX_WORDS = 60
@@ -58,7 +68,7 @@ def cyrillic_ratio(t):
 # 2. Загвар ачаалах
 # ---------------------------------------------------------------------------
 # Path ашигласнаар Windows (\) ба Mac/Linux (/) аль алинд нь зөв зам гарна
-B = joblib.load(Path(__file__).resolve().parent / "hackmil_scorecard.joblib")
+B = joblib.load(ARTIFACTS_DIR / "hackmil_scorecard.joblib")
 MODEL, EXPLAINER, TM, COLS = B["model"], B["explainer"], B["text_model"], B["cols"]
 SIGNALS, EXTRA, WHITELIST = B["signals"], B["extra"], B["whitelist"]
 MONO = {**{k: v[1] for k, v in SIGNALS.items()}, **{k: v[0] for k, v in EXTRA.items()}, "text_model": +1}
@@ -212,7 +222,7 @@ def zone(trust):
 # ---------------------------------------------------------------------------
 import json
 
-PAGES_FILE = Path(__file__).resolve().parent / "trusted_pages.json"
+PAGES_FILE = REFERENCE_DIR / "trusted_pages.json"
 
 
 def norm_name(s):
@@ -272,7 +282,7 @@ def source_adjust(author, author_url, verified):
 # ---------------------------------------------------------------------------
 from sklearn.metrics.pairwise import cosine_similarity
 
-FC_FILE = Path(__file__).resolve().parent / "factcheck_index.joblib"
+FC_FILE = ARTIFACTS_DIR / "factcheck_index.joblib"
 FC = joblib.load(FC_FILE) if FC_FILE.exists() else None
 # Босго: үнэн мэдээний 0.1%-ийг л буруу таардаг, өөрөөр бичсэн (paraphrase) худлын ~2/3-ийг олдог
 FC_STRONG, FC_WEAK = 0.45, 0.38

@@ -1,6 +1,8 @@
-fastapi
-uvicorn
-pydantic
-python-whois
-httpx
+# Scoring API. Includes the model dependencies because POST /score/posts runs model/hm_core.py.
+-r ../model/requirements.txt
+fastapi>=0.110
+uvicorn>=0.29
+pydantic>=2
+python-whois      # optional at runtime: WHOIS_ENABLED=0 disables it
+httpx             # tests (fastapi TestClient)
 pytest

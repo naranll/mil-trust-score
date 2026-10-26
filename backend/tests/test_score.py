@@ -19,7 +19,7 @@ BAD_TEXT = (
 
 
 def test_health():
-    assert client.get("/health").json() == {"ok": True}
+    assert client.get("/health").json()["ok"] is True
 
 
 def test_registered_outlet_is_green():
@@ -53,8 +53,10 @@ def test_unknown_features_do_not_punish():
     assert r.json()["score"] == 60
 
 
-def test_mock_and_feedback(tmp_path):
+def test_mock_and_feedback(tmp_path, monkeypatch):
+    monkeypatch.setenv("HM_FEEDBACK_DIR", str(tmp_path))  # never write into the real data/feedback
     for z in ("red", "yellow", "green"):
         assert client.get(f"/score/mock?zone={z}").json()["zone"] == z
     r = client.post("/feedback", json={"url": "https://x.mn", "score_shown": 20, "user_says": "too_low"})
     assert r.json() == {"saved": True}
+    assert (tmp_path / "page_feedback.jsonl").exists()

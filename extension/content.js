@@ -238,7 +238,7 @@
     // Санал хүсэлт: хэрэглэгчийн шошгыг сервер feedback.csv-д хадгална → дараа нь загварыг дахин сургана
     box.querySelectorAll(".hm-fb button").forEach((b) => b.addEventListener("click", () => {
       chrome.runtime.sendMessage({ type: "feedback", item: {
-        text: p.text, image_text: p.imageText || null, url: p.url, author: p.author, author_url: p.author_url,
+        text: p.text, image_text: p.imageText || null, url: p.url,   // author is deliberately not sent (privacy)
         user_label: b.dataset.v, trust: ok ? r.trust : null, zone: ok ? r.zone : "media",
       } }, (resp) => {
         box.querySelector(".hm-fb").innerHTML = resp && resp.ok ? `🙏 Баярлалаа! (нийт ${resp.count} санал)` : "⚠️ Хадгалж чадсангүй";

@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type === "score") {
     (async () => {
       try {
-        const res = await fetch(`${await getApi()}/score`, {
+        const res = await fetch(`${await getApi()}/score/posts`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ items: msg.items }),
@@ -28,7 +28,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type === "feedback") {
     (async () => {
       try {
-        const res = await fetch(`${await getApi()}/feedback`, {
+        const res = await fetch(`${await getApi()}/feedback/posts`, {
           method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(msg.item),
         });
         sendResponse(await res.json());
