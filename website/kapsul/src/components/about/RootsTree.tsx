@@ -44,7 +44,7 @@ const { canopy, roots } = (() => {
 export function RootsTree({ className = "" }: { className?: string }) {
   const mode = useRenderMode();
   return (
-    <div className={`relative aspect-[400/440] ${className}`}>
+    <div className={`relative aspect-[400/395] ${className}`}>
       {mode === "anim" && <RootsCloud reduced={false} />}
       {mode === "static" && <StaticTree />}
     </div>

@@ -10,10 +10,10 @@ import gsap from "gsap";
 import * as THREE from "three";
 import { LAYERS } from "@/data/layers";
 
-// Модны орон зай (px): газар y = 0, дээш эерэг. Титэм ~ +270 хүртэл, үндэс ~ -150 хүртэл.
+// Модны орон зай (px): газар y = 0, дээш эерэг. Титэм ~ +270 хүртэл, үндэс ~ -105 хүртэл.
 const W = 400;
-const H = 440;
-const MID_Y = 60; // модны босоо төв
+const H = 395;
+const MID_Y = 82; // модны босоо төв
 
 const vertex = /* glsl */ `
 attribute vec3 aTarget;
@@ -176,7 +176,7 @@ function buildGeometry(count: number) {
       if (level < 3 && rnd() < 0.045) grow(x, y, z, ang + (rnd() < 0.5 ? -0.75 : 0.75), (rnd() - 0.5) * 0.6, len * 0.55, d, level + 1, k);
     }
   };
-  LAYERS.forEach((_, i) => grow(0, -2, 0, Math.PI / 2 + (i - 1.5) * 0.5, (i % 2 ? 1 : -1) * 0.25, 145, 0, 0, i));
+  LAYERS.forEach((_, i) => grow(0, -2, 0, Math.PI / 2 + (i - 1.5) * 0.5, (i % 2 ? 1 : -1) * 0.25, 100, 0, 0, i));
   const maxD = Math.max(...roots.map((r) => r.d));
   const nRoots = count - target.length / 3;
   for (let i = 0; i < nRoots; i++) {
