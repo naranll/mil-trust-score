@@ -1,0 +1,28 @@
+-- src/data/stats.ts-ээс автоматаар үүсгэсэн. Гараар бүү засаарай: node scripts/gen-seed.mjs
+insert into public.mil_stats (key, dataset, label, value, unit, period, source_name, source_url) values
+('fraud_2025', 'mn_fraud', 'Залилах гэмт хэрэг', 16906, 'count', '2025', 'ЦЕГ / gogo.mn', 'https://gogo.mn/r/7kx0j4'),
+('fraud_share_all', 'mn_fraud', 'Нийт гэмт хэрэгт эзлэх хувь', 35.6, '%', '2025', 'ЦЕГ / gogo.mn', 'https://gogo.mn/r/7kx0j4'),
+('fraud_online_2025', 'mn_fraud', 'Цахим орчинд үйлдэгдсэн залилан', 72.3, '%', '2025', 'ЦЕГ / ikon.mn', 'https://ikon.mn/n/3lqp'),
+('fraud_loss_2025', 'mn_fraud', 'Иргэдэд учирсан хохирол', 694.4, 'mnt_bn', '2025', 'ЦЕГ / ikon.mn', 'https://ikon.mn/n/3lqp'),
+('fraud_recovered_2025', 'mn_fraud', 'Нөхөн төлүүлсэн', 281.7, 'mnt_bn', '2025', 'ЦЕГ / ikon.mn', 'https://ikon.mn/n/3lqp'),
+('fraud_growth_9m', 'mn_fraud', 'Өмнөх оны мөн үеэс өссөн', 33.6, '%', '2025 эхний 9 сар', 'ЦЕГ / ikon.mn', 'https://ikon.mn/n/3iw8'),
+('online_crime_fraud', 'mn_fraud', 'Цахим гэмт хэргийн дотор залилангийн хувь', 85.6, '%', '2025 эхний 9 сар', 'ЦЕГ / ikon.mn', 'https://ikon.mn/n/3ibv'),
+('fb_users_mn', 'mn_facebook', 'Facebook хэрэглэгч', 3042300, 'people', '2026.09', 'NapoleonCat', 'https://napoleoncat.com/stats/facebook-users-in-mongolia/'),
+('fb_pop_share', 'mn_facebook', 'Хүн амд эзлэх хувь', 88.5, '%', '2026.09', 'NapoleonCat', 'https://napoleoncat.com/stats/facebook-users-in-mongolia/'),
+('fb_age_18_24', 'mn_facebook', '18–24', 21.0, '%', '2026.09', 'NapoleonCat', 'https://napoleoncat.com/stats/facebook-users-in-mongolia/'),
+('fb_age_25_34', 'mn_facebook', '25–34', 30.4, '%', '2026.09', 'NapoleonCat', 'https://napoleoncat.com/stats/facebook-users-in-mongolia/'),
+('fb_age_35_44', 'mn_facebook', '35–44', 21.2, '%', '2026.09', 'NapoleonCat', 'https://napoleoncat.com/stats/facebook-users-in-mongolia/'),
+('fb_age_45_54', 'mn_facebook', '45–54', 13.1, '%', '2026.09', 'NapoleonCat', 'https://napoleoncat.com/stats/facebook-users-in-mongolia/'),
+('fb_age_55_64', 'mn_facebook', '55–64', 8.7, '%', '2026.09', 'NapoleonCat', 'https://napoleoncat.com/stats/facebook-users-in-mongolia/'),
+('fb_age_65', 'mn_facebook', '65+', 5.6, '%', '2026.09', 'NapoleonCat', 'https://napoleoncat.com/stats/facebook-users-in-mongolia/'),
+('social_ids_mn', 'mn_facebook', 'Идэвхтэй сошиал хэрэглэгч', 2700000, 'people', '2025.10', 'DataReportal 2026', 'https://datareportal.com/reports/digital-2026-mongolia'),
+('dnr_concern', 'global_news', 'Онлайн мэдээний үнэн, худлыг ялгахад санаа зовдог', 62, '%', '2026', 'Reuters Institute DNR 2026', 'https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2026/dnr-executive-summary'),
+('dnr_social', 'global_news', 'Мэдээг голчлон сошиал, видеогоор авдаг', 54, '%', '2026', 'Reuters Institute DNR 2026', 'https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2026/dnr-executive-summary'),
+('dnr_avoid', 'global_news', 'Мэдээнээс заримдаа зайлсхийдэг', 42, '%', '2026', 'Reuters Institute DNR 2026', 'https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2026/dnr-executive-summary'),
+('dnr_trust', 'global_news', 'Мэдээнд итгэдэг', 37, '%', '2026', 'Reuters Institute DNR 2026', 'https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2026/dnr-executive-summary'),
+('dnr_ai', 'global_news', 'AI чатботоор долоо хоног бүр мэдээ авдаг', 10, '%', '2026', 'Reuters Institute DNR 2026', 'https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2026/dnr-executive-summary'),
+('num_students', 'mn_mil', 'Судалгаанд хамрагдсан оюутан (22 сургууль)', 560, 'count', 'МУИС судалгаа', 'МУИС, Сэтгүүл зүй', 'https://journal.num.edu.mn/journalism/article/view/7029'),
+('press_ethics_2015', 'mn_mil', 'Хэвлэл ёс зүйтэй гэж үзсэн иргэд', 57, '%', '2015', 'Хэвлэлийн хүрээлэн', 'https://pressinst.org.mn/en/?p=933'),
+('press_ethics_2017', 'mn_mil', 'Хэвлэл ёс зүйтэй гэж үзсэн иргэд', 49, '%', '2017', 'Хэвлэлийн хүрээлэн', 'https://pressinst.org.mn/en/?p=933'),
+('press_critical_youth', 'mn_mil', 'Мэдээнд шүүмжлэлтэй ханддаг ахлах ангийнхан', 40, '%', '2019', 'Хэвлэлийн хүрээлэн', 'https://pressinst.org.mn/en/?p=933')
+on conflict (key) do update set dataset = excluded.dataset, label = excluded.label, value = excluded.value, unit = excluded.unit, period = excluded.period, source_name = excluded.source_name, source_url = excluded.source_url;

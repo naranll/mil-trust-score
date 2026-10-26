@@ -1,0 +1,61 @@
+"use client";
+
+// Тоглоом дуусахад гарна: аймгаа сонгоод газрын зураг дээр гэрлээ асаана.
+import Link from "next/link";
+import { useState } from "react";
+import { AIMAG_BY_ID } from "@/data/aimags";
+import { addLight } from "@/lib/lights";
+import { AimagPicker } from "./AimagPicker";
+import { CapsuleMark } from "@/components/ui/Wordmark";
+
+export function LightPrompt() {
+  const [state, setState] = useState<"idle" | "busy" | "done" | "error">("idle");
+  const [msg, setMsg] = useState("");
+
+  const light = async (aimag: string) => {
+    setState("busy");
+    try {
+      await addLight("game", aimag);
+      setMsg(`${AIMAG_BY_ID[aimag]?.name} дээр таны гэрэл асчээ.`);
+      setState("done");
+    } catch (e) {
+      setMsg((e as Error).message);
+      setState("error");
+    }
+  };
+
+  return (
+    <section aria-labelledby="light-title" className="rounded-2xl bg-surface p-6 shadow-1 ring-1 ring-line/20 md:p-8">
+      <div className="flex items-start gap-4">
+        <CapsuleMark className="mt-1.5 h-4 w-8 shrink-0 text-accent" />
+        <div className="min-w-0 flex-1">
+          <h2 id="light-title" className="text-[25px] leading-tight font-bold text-ink">
+            Монголын газрын зураг дээр гэрлээ асаа
+          </h2>
+          <p className="mt-2 max-w-xl text-base leading-relaxed text-ink-2">
+            Feed-ээ задалсан хүн бүр нэг гэрэл болно. Хэдэн аймагт гэрэл асаж байгааг бүгдээрээ харна.
+          </p>
+          <div className="mt-5">
+            {state === "done" ? (
+              <p role="status" className="text-base text-ink">
+                {msg}{" "}
+                <Link href="/data#map" className="link-accent font-semibold">
+                  Газрын зураг дээр харах
+                </Link>
+              </p>
+            ) : (
+              <>
+                <AimagPicker onPick={light} busy={state === "busy"} />
+                {state === "error" && (
+                  <p role="alert" className="mt-3 text-[15px] text-false">
+                    {msg}
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
