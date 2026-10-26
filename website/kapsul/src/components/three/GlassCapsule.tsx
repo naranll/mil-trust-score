@@ -98,8 +98,8 @@ function Model({ open, selected, onOpen, onSelect, onHover, still }: Props) {
       thickness={0.35}
       roughness={0.06}
       ior={1.4}
-      color="#eaf4fb"
-      attenuationColor="#cfe6f5"
+      color="#c4ceff"
+      attenuationColor="#6f86ff"
       attenuationDistance={2}
       clearcoat={1}
       clearcoatRoughness={0.1}
@@ -176,9 +176,9 @@ export default function GlassCapsule(props: Props & { label: string }) {
       <directionalLight position={[3, 5, 4]} intensity={1.6} />
       {/* Шилэнд тусах гэрэл: сүлжээнээс юу ч татахгүй, дотроо үүсгэнэ */}
       <Environment resolution={256}>
-        <Lightformer intensity={2.4} position={[0, 4, -6]} scale={[12, 4, 1]} />
-        <Lightformer intensity={1.2} position={[-6, 1, 2]} rotation-y={Math.PI / 2} scale={[8, 3, 1]} color="#e6f1f8" />
-        <Lightformer intensity={1.2} position={[6, -1, 2]} rotation-y={-Math.PI / 2} scale={[8, 3, 1]} color="#fff4dc" />
+        <Lightformer intensity={1.6} position={[0, 4, -6]} scale={[12, 4, 1]} color="#dce3ff" />
+        <Lightformer intensity={1.2} position={[-6, 1, 2]} rotation-y={Math.PI / 2} scale={[8, 3, 1]} color="#6f86ff" />
+        <Lightformer intensity={1.2} position={[6, -1, 2]} rotation-y={-Math.PI / 2} scale={[8, 3, 1]} color="#ffb547" />
       </Environment>
       <Model {...props} />
     </Canvas>

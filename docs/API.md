@@ -1,78 +1,96 @@
 # API contract
 
 Base URL in development: `http://127.0.0.1:8000`. Interactive docs when the server is running: `/docs`.
+CORS allows only the Chrome extension (`chrome-extension://…`) and local dev pages (`http://localhost:*`,
+`http://127.0.0.1:*`), so no random web page can post fake feedback. A deployed website must be listed in the
+`HM_CORS_ORIGINS` environment variable (comma separated origins).
 
-**Signals, not verdicts.** No endpoint returns a score, a zone, a true/false label or any composite number.
-`tests/test_check.py::test_no_score_or_verdict_anywhere` fails if one comes back.
+All user-facing strings (`label`, `risks`, `summary`, …) are Mongolian (Cyrillic).
 
-CORS allows the Chrome extension (`chrome-extension://<32-letter id>`, narrowed with `HM_EXTENSION_IDS`) and local
-dev pages (`http://localhost:*`, `http://127.0.0.1:*`). A deployed website goes in `HM_CORS_ORIGINS`.
-Every client sends `X-Install-Id` (random UUID made once by the extension, no account). Rate limits count by it.
+## POST `/score` — one page (websites, news articles)
 
-## POST `/api/check`: "send for deeper check" (Facebook posts)
-
-Called **only** after the user presses the button in the side panel. Up to 20 items per call.
-
+Request
 ```json
-{ "items": [ { "id": "hm1", "text": "post text", "image_text": "", "url": null,
-               "author": "Page name", "author_url": "https://www.facebook.com/slug", "verified": false,
+{ "url": "https://example.mn/a", "title": "…", "text": "…", "links": ["https://…"],
+  "images": [], "author": "optional", "published_date": "2026-10-20" }
+```
+Response
+```json
+{ "score": 22, "zone": "red",
+  "reasons": [ { "code": "domain_lookalike", "label": "Алдартай мэдээллийн сайтыг дуурайсан нэртэй", "points": -25 } ],
+  "disclaimer": "Энэ оноо бүрэн найдвартай биш. Эх сурвалжийг өөрөө шалгаарай." }
+```
+`reasons` has at most 3 items. `code` is stable and is also the MIL card id. `points` is the contribution to
+the score (negative lowers it). Score = clamp(60 + Σ weight·strength, 0, 100).
+
+## POST `/score/posts` — a batch of Facebook posts (trained model)
+
+Request (up to 50 items per call)
+```json
+{ "items": [ { "id": "hm1", "text": "post text", "url": null, "author": "Page name",
+               "author_url": "https://www.facebook.com/slug", "verified": false, "image_text": "",
                "sponsored": false, "has_cta": false, "link_title": null, "image_url": null } ] }
 ```
-`author`/`author_url` only match the registered-pages list; they are never stored or logged. `image_url` is used only
-by the Claude reader (when enabled).
+`author`/`author_url` are used only to match the trusted-pages list and are never stored. `sponsored`, `has_cta`
+(ad buttons) and `link_title` (link preview title) help the post-type classifier and the caption-vs-link check.
 
-Response: one result per item.
+Each post is first classified (`post_type`): **claim**, **ad**, **commerce** or **personal**. The response shape
+depends on it. Every result has `id`, `status` and (when classified) `post_type`.
+
+**claim** → trust score from the trained scorecard
 ```json
-{ "id": "hm1",
-  "state": "signals | factcheck | not_assessed",
-  "checked": true,
-  "why_not": "no_signals_found | too_short | not_mongolian | personal_post | no_text | could_not_check",
-  "post_type": "claim | ad | commerce | personal",
-  "scorer": "rules+model | llm",
-  "signals": [ { "id": "urgency", "text": "Яаруулж, тараахыг шахаж байна", "found": "ЯАРАЛТАЙ",
-                 "why": "…", "model_guess": false } ],
-  "context": [ { "id": "page_registered" } ],
-  "factcheck": { "publisher": "MFCC", "headline": "publisher's own headline, verbatim", "claim": "…",
-                 "url": "https://mfcc.mn/…", "date": "2021-01-20", "match": "close" },
-  "notes": ["llm_unvalidated", "translit", "from_image"],
-  "reflect": { "ask": "…" }, "check_links": [ { "title": "…", "url": "…" } ], "laws": [ "verified rows only" ] }
+{ "id": "hm1", "status": "ok", "post_type": "claim", "trust": 98, "zone": "green", "summary": "…",
+  "risks": ["…"], "trust_signals": ["…"], "card": "MIL card title", "guardrail": false,
+  "source": "trusted|lookalike|verified|unknown", "source_unverified": false,
+  "text_only_trust": 98, "factcheck": null }
 ```
+When `ANTHROPIC_API_KEY` is set the batch is scored by Claude first (text + `image_url`), and results carry
+`"scorer": "llm"`, `"model"`, and `trust` on ad results too; evidence items keep a post-specific `why`.
+Posts Claude could not score fall back to the trained scorecard. Details: `extension/backend/README.md` → LLM scoring.
 
-- `signals`: at most 3, each with the exact words found (`found`) when the signal is about wording.
-  `model_guess: true` marks the text classifier's guess; it is listed last and never sets the state on its own.
-- `factcheck`: set when the post closely matches a claim checked by MFCC or factcheck.mn (local index). `headline`
-  is the publisher's own words; we do not show our own label for it. `match` describes text similarity only.
-- `not_assessed` with `checked: true` means we looked at the wording and found nothing to point at.
-  It is **not** a clean result.
+Green needs a verified source (registered page, or a registered site's link that matches the caption). Clean text
+from an unknown source is capped at yellow 69 (`source_unverified: true`).
 
-## POST `/api/check/page`: rule signals for a news article / web page
-
+**ad / commerce** → no 0–100 score; a scam-signal check instead
 ```json
-{ "url": "https://example.mn/a", "title": "…", "text": "…", "links": ["https://…"], "author": null, "published_date": "2026-10-20" }
+{ "id": "x", "status": "ok", "post_type": "ad", "type_why": "…", "zone": "ad_scam|ad_check|ad_ok",
+  "summary": "…", "scam": [{"id": "ad_prepay", "found": "…", "text": "…"}], "legit": [{"id": "…", "text": "…"}],
+  "factcheck": null, "source": "unknown" }
 ```
-→ `{ "state": "signals | not_assessed", "signals": [{"code", "label"}], "context": [{"code", "label"}], "disclaimer": "…" }`
+**personal** → `{"status": "skip", "post_type": "personal", "why": "…"}`: show nothing.
 
-## Proxy (context cards)
+`status` is `ok`, `skip` (too short / not Cyrillic / not a claim: show nothing) or `error` (show nothing, never
+block the user). When `factcheck` is set it holds `{claim, url, verdict, date, by, strong}`: the post resembles a
+claim already refuted by `by` (MFCC or factcheck.mn); link to `url`. Results may also carry knowledge-base fields
+added by `kb.enrich` (explanations, "how to check" links) from `data/reference/knowledge.json`.
 
-All return HTTP 200 with `ok`. On failure: `{ "ok": false, "reason": "…", "fallback_url": "…" }` so the client can
-show a plain link instead of an error. Header `X-Cache: HIT | MISS`. Upstream timeout 5 s.
+## Feedback
+
+- `POST /feedback` `{url, score_shown, user_says: too_low|too_high|wrong_reason, comment?}` → `{"saved": true}`
+- `POST /feedback/posts` `{text, image_text?, url?, user_label: true|false|not_claim|unsure|wrong_type, trust?,
+  zone?, post_type?}` → `{"ok": true, "count": n}`. Extra fields (e.g. author) are ignored and not stored.
+
+## Tools tab proxy (extension «Хэрэгсэл» tab)
+
+Called by the extension's service worker only when the user presses «Хайж үзэх». Every answer is JSON with `ok`;
+on failure it carries `reason` and `fallback_url` (a plain link), never an error wall. Responses carry `X-Cache: HIT|MISS`.
+Rate limit by anonymous `X-Install-Id` (not IP). URLs must be http/https and must not point at private addresses.
 
 | Endpoint | Upstream | Cache | Notes |
 |---|---|---|---|
-| `GET /api/wayback?url=` | archive.org availability API (2 calls: latest, earliest) | 1 h | http/https only, private IPs refused. After a 429 it backs off 1→16 min. |
-| `GET /api/rdap?domain=` | rdap.org | 24 h | `.mn` has no RDAP record there: `reason: no_rdap_for_tld` + WHOIS link. |
-| `GET /api/registry` | `registry/*.json` | none | Data only. |
-
-## Feedback (off by default)
-
-`POST /feedback/posts` `{text, image_text?, url?, user_label: true|false|not_claim|unsure|wrong_type, state?, post_type?}`
-is disabled unless `HM_FEEDBACK=1` (e.g. a team labelling session). Author names are never stored.
+| `GET /api/wayback?url=` | Internet Archive availability API | 1 h | first and latest snapshot; after a 429 it backs off 1, 2, 4 … 16 min |
+| `GET /api/rdap?domain=` | rdap.org | 24 h | registrar, registered, expires; `.mn` usually has no RDAP (`reason: no_rdap_for_tld`, link to WHOIS) |
+| `GET /api/registry` | `registry/*.json` | none | tools, Mongolia sources, lessons as data |
 
 ## Other
 
-- `GET /health` → `{ ok, model, model_error, llm, feedback }`
-- `GET /demo`, `GET /demo/fb` → demo feed pages for the extension
+- `GET /health` → `{"ok": true, "model": "scorecard v4" | "unavailable", "model_error": null | "…"}`
+- `GET /score/mock?zone=red|yellow|green` → a fixed `/score` response, for frontend work without the model
+- `GET /demo` → demo Facebook feed page; `GET /demo/fb` → test page mimicking Facebook's real DOM structure
 
-Removed in 0.3: `POST /score`, `POST /score/posts`, `GET /score/mock`, `POST /feedback` (all returned scores).
-Not used (team decision 2026-10-26): the Google Fact Check Tools API. Fact-check matches come from the local
-MFCC / factcheck.mn index in `/api/check`; the sidebar links to Fact Check Explorer for anything else.
+## Planned (not implemented yet)
+
+`POST /score/image` (screenshot scanner, OCR + text analysis), `GET /sources` (curated outlet directory),
+`GET /stats` (anonymous aggregates for Data Viz, only after the logging design is approved),
+an `explanation` field on reasons (psychological meaning), and `zone_label_mn` / `zone_icon` helpers so every
+client renders label + icon + color from one place.

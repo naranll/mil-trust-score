@@ -1,119 +1,96 @@
 @import "tailwindcss";
 @import "@fontsource-variable/golos-text";
 
-/* ===== HACKMIL 2026 Design system v3 =====
-   Okabe Ito: UI ба дүгнэлтийн өнгө, Paul Tol: графикийн шатлал, Golos Text: бүх бичвэр.
-   Light/dark горим нь браузерын тохиргоог дагана. */
+/* ===== HACKMIL 2026 Design system v3 · «Гэрэлтэх өгөгдөл» theme =====
+   Бүтэц, компонент, дүгнэлтийн өнгө: Design system v3 (Sheet 1–3, dark багана).
+   Өнгөний уур амьсгал: одтой data viz-ийн шөнийн хөх тэнгэр. Сайт үргэлж харанхуй горимтой.
+   Golos Text: бүх бичвэр. Өнгө хэзээ ч дангаараа утга илэрхийлэхгүй. */
 :root {
-  /* Суурь өнгө (light) */
-  --bg: #f6f7f9;
-  --surface: #ffffff;
-  --subtle: #eef0f3;
-  --text-primary: #1b1d21;
-  --text-secondary: #4f5560;
-  --text-tertiary: #6a707a;
-  --border-control: #80868f;
-  --accent: #0072b2;
-  --accent-strong: #005b8f;
-  --accent-tint: #e6f1f8;
-  --on-accent: #ffffff;
+  color-scheme: dark;
+  /* Суурь */
+  --bg: #0a1024;
+  --surface: #111a36;
+  --subtle: #1a2446;
+  --text-primary: #e9edf7; /* bg дээр 16.4:1 */
+  --text-secondary: #9aa2ba; /* 7.6:1 */
+  --text-tertiary: #7d86a3; /* 5.1:1 */
+  --border-control: #6b7596; /* 4.2:1, контрол 3:1-ээс дээш */
+  --rule: rgba(165, 182, 225, 0.16);
+  --accent: #6f86ff; /* 5.6:1 */
+  --accent-strong: #97a8ff;
+  --accent-tint: #1c2756;
+  --on-accent: #0a1024;
   --highlight: #f0e442;
-  --inverse: #1b1d21;
-  --on-inverse: #ffffff;
-  --on-inverse-2: #c9ced6;
+  --inverse: #e9edf7;
+  --on-inverse: #0a1024;
+  --on-inverse-2: #3a4466;
+  --star: #dce3ff;
 
-  /* Дүгнэлтийн өнгө (Okabe Ito): үндсэн / тод / цайвар */
-  --true: #0072b2;
-  --true-strong: #005b8f;
-  --true-tint: #e6f1f8;
-  --false: #d55e00;
-  --false-strong: #a34700;
-  --false-tint: #fbece3;
+  /* Дүгнэлтийн өнгө (Okabe Ito, dark): үндсэн / тод / цайвар */
+  --true: #56b4e9;
+  --true-strong: #8ccbef;
+  --true-tint: #17354a;
+  --false: #f08a4b;
+  --false-strong: #f5a979;
+  --false-tint: #3a2418;
   --mislead: #e69f00;
-  --mislead-strong: #8a5a00;
-  --mislead-tint: #fdf3dc;
-  --info: #cc79a7;
-  --info-strong: #8e4470;
-  --info-tint: #f7eaf2;
-  --unchecked: #6a707a;
-  --unchecked-strong: #5e646e;
-  --unchecked-tint: #eef0f3;
+  --mislead-strong: #f2bd4d;
+  --mislead-tint: #3a2e12;
+  --info: #d99bc0;
+  --info-strong: #e8bdd6;
+  --info-tint: #36222e;
+  --unchecked: #80868f;
+  --unchecked-strong: #a9afb8;
+  --unchecked-tint: #262a30;
 
-  /* Графикийн ангилал (Okabe Ito, энэ дарааллаар) */
-  --chart-cat-1: #0072b2;
-  --chart-cat-2: #e69f00;
-  --chart-cat-3: #009e73;
-  --chart-cat-4: #cc79a7;
+  /* Графикийн ангилал: viz-ийн цэнхэр, шар + Okabe Ito */
+  --chart-cat-1: #6f86ff;
+  --chart-cat-2: #ffb547;
+  --chart-cat-3: #2fbf8f;
+  --chart-cat-4: #d99bc0;
   --chart-cat-5: #56b4e9;
 
-  /* Сүүдэр, хөдөлгөөн */
-  --shadow-1: 0 1px 2px rgba(27, 29, 33, 0.06), 0 2px 8px rgba(27, 29, 33, 0.06);
-  --shadow-2: 0 4px 12px rgba(27, 29, 33, 0.08), 0 12px 32px rgba(27, 29, 33, 0.1);
+  /* Сайтын 5 хэсгийн accent = нүүрний 5 эм (src/data/sections.ts-тэй ижил). Okabe-Ito. */
+  --sec-extension: #d55e00;
+  --sec-data: #0072b2;
+  --sec-game: #e69f00;
+  --sec-blog: #009e73;
+  --sec-about: #cc79a7;
+
+  /* Сүүдэр (харанхуйд хүрээ голлоно), хөдөлгөөн */
+  --shadow-1: 0 0 0 1px var(--rule);
+  --shadow-2: 0 0 0 1px var(--rule), 0 12px 40px rgba(0, 0, 0, 0.45);
   --dur-fast: 150ms;
   --dur-base: 250ms;
   --dur-slow: 400ms;
 }
 
-/* Dark горим */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #121417;
-    --surface: #1b1e23;
-    --subtle: #262a30;
-    --text-primary: #eceef1;
-    --text-secondary: #a9afb8;
-    --text-tertiary: #8a919b;
-    --border-control: #737a84;
-    --accent: #56b4e9;
-    --accent-strong: #8ccbef;
-    --accent-tint: #17354a;
-    --on-accent: #121417;
-    --inverse: #262a30;
-    --on-inverse: #eceef1;
-    --on-inverse-2: #a9afb8;
-    --true: #56b4e9;
-    --true-tint: #17354a;
-    --false: #f08a4b;
-    --false-tint: #3a2418;
-    --mislead: #e69f00;
-    --mislead-tint: #3a2e12;
-    --info: #d99bc0;
-    --info-tint: #36222e;
-    --unchecked: #80868f;
-    --unchecked-tint: #262a30;
-    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-2: 0 8px 28px rgba(0, 0, 0, 0.5);
-  }
+/* Хуучин нэр: газрын зураг зэрэг үргэлж харанхуй хэсэг. Одоо бүх сайт ийм тул ижил. */
+.theme-dark {
+  color-scheme: dark;
 }
 
-/* Газрын зургийн самбар: горимоос үл хамааран харанхуй (шөнийн тэнгэр) */
-.theme-dark {
-    --bg: #121417;
-    --surface: #1b1e23;
-    --subtle: #262a30;
-    --text-primary: #eceef1;
-    --text-secondary: #a9afb8;
-    --text-tertiary: #8a919b;
-    --border-control: #737a84;
-    --accent: #56b4e9;
-    --accent-strong: #8ccbef;
-    --accent-tint: #17354a;
-    --on-accent: #121417;
-    --inverse: #262a30;
-    --on-inverse: #eceef1;
-    --on-inverse-2: #a9afb8;
-    --true: #56b4e9;
-    --true-tint: #17354a;
-    --false: #f08a4b;
-    --false-tint: #3a2418;
-    --mislead: #e69f00;
-    --mislead-tint: #3a2e12;
-    --info: #d99bc0;
-    --info-tint: #36222e;
-    --unchecked: #80868f;
-    --unchecked-tint: #262a30;
-    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-2: 0 8px 28px rgba(0, 0, 0, 0.5);
+/* Үсгийн хэмжээний нэгдсэн шатлал: бүх хуудас ижил хэмжээ хэрэглэнэ (text-caption … text-h1).
+   @theme (inline биш) тул CSS хувьсагч болж гарна: star-viz.css гэх мэт энгийн CSS-д var(--text-h2) ашиглаж болно. */
+@theme {
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.45;
+  --text-small: 0.9375rem;
+  --text-small--line-height: 1.55;
+  --text-body: 1rem;
+  --text-body--line-height: 1.65;
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.6;
+  --text-intro: 1.25rem; /* хуудасны гарчгийн доорх тайлбар */
+  --text-intro--line-height: 1.6;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.35;
+  --text-h2: clamp(1.5625rem, 1.2rem + 1.2vw, 1.953rem); /* 25 → 31px */
+  --text-h2--line-height: 1.15;
+  --text-stat: 2.441rem; /* том тоо (39px) */
+  --text-stat--line-height: 1.15;
+  --text-h1: clamp(2.4rem, 6vw, 4.25rem); /* хуудасны гарчиг: 38 → 68px */
+  --text-h1--line-height: 1.02;
 }
 
 @theme inline {
@@ -147,16 +124,25 @@
   --color-cat-3: var(--chart-cat-3);
   --color-cat-4: var(--chart-cat-4);
   --color-cat-5: var(--chart-cat-5);
+  --color-sec-extension: var(--sec-extension);
+  --color-sec-data: var(--sec-data);
+  --color-sec-game: var(--sec-game);
+  --color-sec-blog: var(--sec-blog);
+  --color-sec-about: var(--sec-about);
   --font-display: "Golos Text Variable", "Golos Text", system-ui, sans-serif;
   --font-sans: "Golos Text Variable", "Golos Text", system-ui, sans-serif;
   --shadow-1: var(--shadow-1);
   --shadow-2: var(--shadow-2);
   --ease-out-expo: cubic-bezier(0.2, 0, 0, 1);
+  /* Албан, уншихад амар: тод = 600 (700 биш), шахуу зай бага */
+  --font-weight-bold: 600;
+  --tracking-tight: -0.01em;
   --ease-in-out-std: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html {
   overflow-x: clip;
+  scrollbar-gutter: stable; /* гүйлгэгддэггүй хуудсанд ч header-ийн байрлал ижил */
   background: var(--bg);
   color: var(--text-primary);
   scroll-behavior: smooth;
@@ -169,14 +155,14 @@ body {
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
 /* Браузерын гадаргууг ч мөн палитраар */
 ::selection {
-  background: var(--accent-tint);
-  color: var(--text-primary);
+  background: var(--accent);
+  color: var(--bg);
 }
 :focus-visible {
   outline: 3px solid var(--accent);
@@ -232,7 +218,7 @@ a.link-accent:hover {
 .prose-capsule h2 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.5625rem;
+  font-size: var(--text-h2);
   line-height: 1.25;
   margin: 2.75rem 0 0.75rem;
 }
@@ -289,6 +275,29 @@ a.link-accent:hover {
   }
 }
 
+/* Шинэ карт ард байгаа картын байрлалаас (бага зэрэг доор, жижиг) урагш гарна */
+@keyframes cardIn {
+  from {
+    opacity: 0.4;
+    transform: translateY(12px) scale(0.955);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Блогийн цэгэн дүрсний зөөлөн анивчилт */
+@keyframes dotTwinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
 /* Range slider-ийг палитраар */
 input[type="range"]::-webkit-slider-thumb {
   appearance: none;
@@ -297,7 +306,7 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 999px;
   background: var(--accent);
   border: 4px solid var(--surface);
-  box-shadow: 0 2px 8px rgba(42, 7, 21, 0.3);
+  box-shadow: var(--shadow-1);
 }
 input[type="range"]::-moz-range-thumb {
   width: 22px;
@@ -307,23 +316,136 @@ input[type="range"]::-moz-range-thumb {
   border: 4px solid var(--surface);
 }
 
-/* ===== Шилэн (тунгалаг) гадаргуу ===== */
+/* ===== Гадаргуу (Design system v3) =====
+   Карт: цул surface, shadow-1, 16px. Header: 85% surface + 12px blur, дэмжихгүй бол цул. */
 .glass {
-  background: color-mix(in srgb, var(--surface) 55%, transparent);
-  -webkit-backdrop-filter: blur(22px) saturate(1.5);
-  backdrop-filter: blur(22px) saturate(1.5);
-  border: 1px solid color-mix(in srgb, var(--surface) 80%, transparent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 55%, transparent),
-    var(--shadow-1);
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: var(--shadow-1);
 }
-@media (prefers-color-scheme: dark) {
-  .glass {
-    border-color: color-mix(in srgb, white 10%, transparent);
-    box-shadow:
-      inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
-      var(--shadow-1);
+/* Шөнийн тэнгэрийн бүдэг тоос: хөдөлгөөнгүй, гэрэлтэлтгүй */
+.stardust {
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(201, 212, 242, 0.35), transparent 60%),
+    radial-gradient(1px 1px at 72% 9%, rgba(201, 212, 242, 0.25), transparent 60%),
+    radial-gradient(1.2px 1.2px at 38% 62%, rgba(201, 212, 242, 0.22), transparent 60%),
+    radial-gradient(1px 1px at 88% 44%, rgba(201, 212, 242, 0.3), transparent 60%),
+    radial-gradient(1px 1px at 22% 86%, rgba(201, 212, 242, 0.2), transparent 60%),
+    radial-gradient(1.2px 1.2px at 58% 30%, rgba(201, 212, 242, 0.18), transparent 60%),
+    radial-gradient(1px 1px at 5% 50%, rgba(201, 212, 242, 0.25), transparent 60%),
+    radial-gradient(1px 1px at 94% 78%, rgba(201, 212, 242, 0.22), transparent 60%);
+  background-size: 520px 520px;
+}
+.frost {
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+@supports (backdrop-filter: blur(12px)) {
+  .frost {
+    background: color-mix(in srgb, var(--surface) 85%, transparent);
+    backdrop-filter: blur(12px);
   }
+}
+
+/* ===== Товч: 44px, капсул, нэг дэлгэцэнд нэг primary ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-fast) var(--ease-out-expo),
+    color var(--dur-fast) var(--ease-out-expo);
+}
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  background: var(--subtle);
+  color: var(--text-tertiary);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-strong);
+}
+.btn-secondary {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--accent-tint);
+}
+.btn-quiet {
+  min-height: 44px;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+.btn-quiet:hover {
+  color: var(--accent-strong);
+}
+
+/* Сегмент (tabs): 44px товч, 52px зам */
+.seg {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--subtle);
+}
+.seg > button {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: background-color var(--dur-fast), color var(--dur-fast);
+}
+.seg > button[aria-selected="true"],
+.seg > button[aria-checked="true"] {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-1);
+}
+
+/* Сонсох горим: уншиж буй хэсэг */
+[data-listen-now] {
+  background: var(--highlight);
+  color: #1b1d21 !important;
+  border-radius: 6px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  outline: 4px solid var(--highlight);
+}
+[data-listen-now] * {
+  color: #1b1d21 !important;
+}
+
+/* Графикийн багана нэг удаа ургана, 400ms */
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.grow {
+  transform-origin: left center;
+  animation: grow var(--dur-slow) var(--ease-out-expo) both;
 }
 
 /* SVG цэг гарч ирэх, 3 секундын цаг */
@@ -344,4 +466,27 @@ input[type="range"]::-moz-range-thumb {
   to {
     transform: scaleX(0);
   }
+}
+
+/* ===== Нүүрний гүйлгээтэй түүх (components/landing) =====
+   Анхны төлөв = 0-р үе шат. JS ачаалахаас өмнө эцсийн дүр зураг гялсхийхгүйн тулд холбоос, төгсгөлийн
+   асуултыг нууна; GSAP autoAlpha-аар inline visibility тавьж харуулна.
+   Хөдөлгөөн багасгасан эсвэл WebGL байхгүй (data-mode="static") үед эцсийн төлөв шууд харагдана. */
+[data-landing] [data-caption]:not([data-caption="0"]) {
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-landing]:not([data-mode="static"]) [data-pill],
+  [data-landing]:not([data-mode="static"]) [data-final] {
+    visibility: hidden;
+  }
+}
+
+/* Апп маягийн хуудас (тоглоом): хуудас гүйлгэгдэхгүй, footer харагдахгүй. Агуулга дотроо гүйлгэгдэнэ.
+   data-app-mode-г AppMode тавина (зөвхөн хуудас идэвхтэй үед). */
+html[data-app-mode] {
+  overflow: hidden;
+}
+html[data-app-mode] body > footer {
+  display: none;
 }

@@ -10,7 +10,6 @@ Single source of truth for the side panel and the website hub. Data only: no cod
 | `buildLink.js` | `buildLink(tool, input)`: http/https only, max 2,048 chars, `encodeURIComponent`, homepage fallback. Also `detectInput`, `valueFor`. Works as a browser `<script>` (`HMRegistry`) and in Node. |
 | `mongolia.json` | Mongolia sources card (CLAUDE.md 5.2); `verified: false` items still need a human check |
 | `lessons.json` | SIFT (Mike Caulfield, CC BY 4.0), IFCN five commitments, 30-second tactic cards |
-| `measurement.json` | written by `model/tools/measure_signals.py`; quoted in "Why am I seeing this?" |
 
 ```bash
 node registry/linkcheck.mjs              # opens every deep-link template with a sample; writes status + lastVerified

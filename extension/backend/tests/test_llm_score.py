@@ -1,6 +1,7 @@
-"""Tests for the Claude reader's plumbing. No network: the Claude call is replaced by a canned answer."""
+"""Tests for the LLM scorer's plumbing. No network: the Claude call is replaced by a canned answer."""
+import pytest
+
 from extension.backend.app import llm_score
-from extension.backend.app.signals import to_signals
 
 POST = {"id": "p1", "text": "ЭМЧ НАР НУУЖ БАЙНА! Энэ ундааг 7 хоног уувал хорт хавдар 100% эдгэрнэ",
         "image_text": None, "image_url": None, "link_domain": None, "link_title": None,
@@ -8,23 +9,18 @@ POST = {"id": "p1", "text": "ЭМЧ НАР НУУЖ БАЙНА! Энэ унда�
 
 
 def raw(**kw):
-    base = {"id": "p1", "kind": "claim",
+    base = {"id": "p1", "kind": "claim", "trust": 12, "summary": "Хэт амлалттай пост.",
             "reasons": [{"signal": "absolute", "found": "100% эдгэрнэ", "text": "Хэт итгэлтэй амлалт",
-                         "why": "Эмчилгээ 100% баталгаа өгдөггүй."}]}
+                         "why": "Эмчилгээ 100% баталгаа өгдөггүй."}],
+            "trust_signals": []}
     return {**base, **kw}
 
 
-def test_schema_has_no_score():
-    item = llm_score.SCHEMA["properties"]["results"]["items"]
-    assert set(item["required"]) == {"id", "kind", "reasons"}
-    assert "trust" not in item["properties"]
-
-
-def test_claim_maps_to_signals_with_verbatim_quote():
-    r = to_signals(llm_score.to_result(raw(), POST))
-    assert (r["state"], r["post_type"], r["scorer"]) == ("signals", "claim", "llm")
-    assert r["signals"][0]["found"] == "100% эдгэрнэ"
-    assert "llm_unvalidated" in r["notes"]
+def test_claim_maps_to_red_with_verbatim_quote():
+    r = llm_score.to_result(raw(), POST)
+    assert (r["status"], r["post_type"], r["zone"], r["trust"]) == ("ok", "claim", "red", 12)
+    assert r["evidence"][0]["found"] == "100% эдгэрнэ"
+    assert r["scorer"] == "llm"
 
 
 def test_quote_not_in_post_is_dropped():
@@ -33,22 +29,21 @@ def test_quote_not_in_post_is_dropped():
     assert "found" not in r["evidence"][0]
 
 
-def test_no_reasons_is_not_assessed():
-    r = to_signals(llm_score.to_result(raw(reasons=[]), {**POST, "source_kind": "trusted"}))
-    assert r["state"] == "not_assessed" and r["why_not"] == "no_signals_found"
+def test_green_needs_a_registered_source():
+    assert llm_score.to_result(raw(trust=95), POST)["zone"] == "yellow"
+    trusted = {**POST, "source_kind": "trusted"}
+    assert llm_score.to_result(raw(trust=95), trusted)["zone"] == "green"
 
 
-def test_strong_factcheck_match_sets_the_blue_state():
-    fc = {"strong": True, "claim": "…", "by": "MFCC", "url": "https://mfcc.mn/x", "date": "2026-01-01"}
-    r = to_signals(llm_score.to_result(raw(reasons=[]), {**POST, "factcheck": fc}))
-    assert r["state"] == "factcheck" and r["factcheck"]["publisher"] == "MFCC"
+def test_refuted_claim_stays_red():
+    fc = {**POST, "factcheck": {"strong": True, "claim": "…", "by": "MFCC"}}
+    assert llm_score.to_result(raw(trust=80), fc)["zone"] == "red"
 
 
 def test_ad_and_personal():
-    ad = to_signals(llm_score.to_result(raw(kind="ad"), POST))
-    assert (ad["post_type"], ad["state"]) == ("ad", "signals")
-    p = to_signals(llm_score.to_result(raw(kind="personal"), POST))
-    assert (p["state"], p["why_not"]) == ("not_assessed", "personal_post")
+    ad = llm_score.to_result(raw(kind="ad", trust=20), POST)
+    assert (ad["post_type"], ad["zone"]) == ("ad", "ad_scam")
+    assert llm_score.to_result(raw(kind="personal"), POST)["status"] == "skip"
 
 
 def test_score_batch_caches_and_survives_failure(monkeypatch):
@@ -69,7 +64,7 @@ def test_score_batch_caches_and_survives_failure(monkeypatch):
 
     llm_score._cache.clear()
     monkeypatch.setattr(llm_score, "_call", lambda posts, with_images: None)
-    assert llm_score.score_batch([POST]) == {}            # failure -> caller falls back to the rules
+    assert llm_score.score_batch([POST]) == {}            # failure -> caller falls back to the scorecard
 
 
 def test_disabled_without_key(monkeypatch):
@@ -80,16 +75,13 @@ def test_disabled_without_key(monkeypatch):
     assert llm_score.score_batch([POST]) == {}
 
 
-def test_check_without_llm_key_answers_from_rules(monkeypatch):
-    """No key (or HM_LLM=0): the deeper check still works, from the trained rules, and never carries a score."""
+def test_llm_endpoint_without_key(monkeypatch):
     from fastapi.testclient import TestClient
     from extension.backend.app.main import app
 
     monkeypatch.setenv("HM_LLM", "0")
-    body = TestClient(app).post("/api/check", json={"items": [{"id": "a", "text": POST["text"]}]}).json()
-    r = body["results"][0]
-    assert r["id"] == "a" and r["state"] in ("signals", "factcheck", "not_assessed")
-    assert r["scorer"] != "llm" and not {"trust", "zone", "score"} & set(r)
+    r = TestClient(app).post("/score/posts/llm", json={"items": [{"id": "a", "text": POST["text"]}]}).json()
+    assert r == {"results": [], "llm": False}
 
 
 def test_provider_follows_the_key(monkeypatch):

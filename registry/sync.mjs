@@ -7,7 +7,7 @@ import { createRequire } from "node:module";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const dest = join(here, "..", "extension", "registry");
-export const FILES = ["tools.json", "mongolia.json", "lessons.json", "measurement.json", "buildLink.js"];
+export const FILES = ["tools.json", "mongolia.json", "lessons.json", "buildLink.js"];
 
 const { validateRegistry } = createRequire(import.meta.url)("./validate.js");
 const errors = validateRegistry(JSON.parse(readFileSync(join(here, "tools.json"), "utf8")));

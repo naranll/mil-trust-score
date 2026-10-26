@@ -1,0 +1,90 @@
+/* Tools box (tools.js). Everything lives under .tb and uses the side panel's own tokens (sidepanel.css),
+   so it looks native but cannot clash with the main tab's classes. */
+
+.tb { display: flex; flex-direction: column; gap: 14px; padding: 14px; border-radius: 20px;
+      background: var(--surface); box-shadow: 0 0 0 1px var(--rule); }
+.tb-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tb-head strong { font-size: var(--text-small); font-weight: 700; letter-spacing: -0.01em; }
+.tb-lang { min-width: 40px; min-height: 32px; padding: 0 10px; border: 0; border-radius: 999px; background: var(--subtle);
+           color: var(--ink-2); font: inherit; font-size: 12px; font-weight: 700; letter-spacing: .04em; cursor: pointer; }
+.tb-lang:hover { color: var(--ink); }
+
+/* Sub navigation: segmented control */
+.tb-nav { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--subtle); }
+.tb-tab { flex: 1; min-height: 34px; padding: 0 8px; border: 0; border-radius: 999px; background: transparent; color: var(--ink-2);
+          font: inherit; font-size: var(--text-caption); font-weight: 600; cursor: pointer;
+          transition: background-color var(--dur-fast) var(--ease-out-expo), color var(--dur-fast) var(--ease-out-expo); }
+.tb-tab[aria-selected="true"] { background: var(--accent); color: var(--on-accent); }
+.tb-tab:not([aria-selected="true"]):hover { color: var(--ink); }
+
+.tb-body { display: flex; flex-direction: column; gap: 18px; }
+.tb-sec { display: flex; flex-direction: column; gap: 10px; }
+.tb-h { margin: 0; font-size: var(--text-small); font-weight: 650; }
+.tb-note { margin: 0; font-size: var(--text-caption); color: var(--ink-3); }
+.tb-lbl { font-size: var(--text-caption); color: var(--ink-2); font-weight: 600; }
+.tb-body textarea, .tb-search { width: 100%; padding: 10px 12px; border: 0; border-radius: 12px; background: var(--bg);
+                                box-shadow: inset 0 0 0 1px var(--rule); color: var(--ink); font: inherit; }
+.tb-body textarea { min-height: 64px; resize: vertical; }
+.tb-search { min-height: 40px; }
+.tb-body textarea:focus-visible, .tb-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Buttons and chips */
+.tb-row { display: flex; gap: 6px; }
+.tb-btn { min-height: 36px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--subtle); color: var(--ink);
+          font: inherit; font-size: var(--text-caption); font-weight: 600; cursor: pointer; }
+.tb-btn:hover { background: var(--accent-tint); }
+.tb-btn:disabled { opacity: .55; cursor: default; }
+.tb-pill { min-height: 30px; padding: 0 12px; }
+.tb-pill[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.tb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.tb-chip { display: inline-flex; align-items: center; align-self: flex-start; min-height: 24px; padding: 0 9px; border-radius: 999px;
+           background: var(--subtle); color: var(--ink-2); font-size: 12px; font-weight: 600; }
+
+/* Tool cards */
+.tb-tools { display: flex; flex-direction: column; gap: 10px; }
+.tb-tool, .tb-card { display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 16px; background: var(--bg);
+                     box-shadow: inset 0 0 0 1px var(--rule); }
+.tb-tool-top { display: flex; align-items: flex-start; gap: 10px; }
+.tb-tool-name { flex: 1; min-width: 0; font-weight: 650; }
+.tb-sub { font-size: 12px; color: var(--ink-3); font-weight: 400; }
+.tb-desc { margin: 0; font-size: var(--text-caption); color: var(--ink-2); }
+.tb-lim { margin: 0; font-size: var(--text-caption); color: var(--ink-3); }
+.tb-lim b { color: var(--ink-2); font-weight: 600; }
+.tb-open { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 12px; border: 0; border-radius: 999px;
+           background: var(--accent); color: var(--on-accent); text-decoration: none; font: inherit; font-size: var(--text-caption);
+           font-weight: 700; white-space: nowrap; cursor: pointer; }
+.tb-open:hover { background: var(--accent-strong); color: var(--on-accent); }
+.tb-open svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tb-link { display: inline-flex; align-items: center; gap: 4px; min-height: 28px; color: var(--accent); font-size: var(--text-caption);
+           font-weight: 600; text-underline-offset: 4px; }
+.tb-link svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.tb-copy { display: flex; gap: 6px; align-items: center; }
+.tb-copy code { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 4px 8px; border-radius: 8px;
+                background: var(--subtle); font-size: 12px; }
+
+/* Context cards */
+.tb-card h3, .tb-card h4 { margin: 0; font-size: var(--text-small); font-weight: 650; }
+.tb-kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 0; font-size: var(--text-caption); }
+.tb-kv dt { color: var(--ink-3); } .tb-kv dd { margin: 0; overflow-wrap: anywhere; }
+.tb-cached { align-self: flex-start; padding: 1px 8px; border-radius: 999px; background: var(--mislead); color: var(--on-accent);
+             font-size: 11.5px; font-weight: 700; }
+
+/* Habits */
+.tb-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.tb-steps li { display: flex; gap: 12px; font-size: var(--text-caption); }
+.tb-k { width: 28px; height: 28px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px;
+        background: var(--accent); color: var(--on-accent); font-weight: 800; }
+.tb-quote { margin: 0; padding-left: 10px; border-left: 3px solid var(--accent); font-weight: 600; }
+.tb-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: var(--text-caption); }
+
+.tb a:focus-visible, .tb button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Tab strip under the panel header: main tab (teammate's post panel) | tools box */
+.pn-tabs { position: sticky; top: 56px; z-index: 1; display: flex; gap: 4px; padding: 8px 16px;
+           background: color-mix(in srgb, var(--surface) 85%, transparent); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--rule); }
+.pn-tab { flex: 1; min-height: 36px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--ink-2);
+          font: inherit; font-size: var(--text-caption); font-weight: 650; cursor: pointer;
+          transition: background-color var(--dur-fast) var(--ease-out-expo), color var(--dur-fast) var(--ease-out-expo); }
+.pn-tab:hover { color: var(--ink); }
+.pn-tab[aria-selected="true"] { background: var(--accent-tint); color: var(--accent-strong); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
+.pn-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

@@ -14,6 +14,7 @@
       badge_none_tip: "Бид энэ постыг шалгаагүй. Энэ нь үнэн эсэхийн талаар юу ч хэлэхгүй.",
       toast_panel_fail: "Самбар нээгдсэнгүй. Хаягийн мөрний баруун талын extension-ий тэмдэг дээр дарна уу.",
 
+      box_title: "Хэрэгслийн хайрцаг", from_post: "Сонгосон постоос", from_page: "Одоогийн хуудаснаас",
       tab_page: "Энэ хуудас", tab_tools: "Хэрэгсэл", tab_mongolia: "Монгол", tab_habits: "Дадал",
       lang_switch: "EN", lang_switch_aria: "Switch to English",
       settings: "Тохиргоо",
@@ -141,6 +142,7 @@
       badge_none_tip: "We have not checked this post. This says nothing about whether it is true.",
       toast_panel_fail: "Could not open the panel. Click the extension icon in the toolbar.",
 
+      box_title: "Tool box", from_post: "From the selected post", from_page: "From the current page",
       tab_page: "This page", tab_tools: "Tools", tab_mongolia: "Mongolia", tab_habits: "Habits",
       lang_switch: "MN", lang_switch_aria: "Монгол хэл рүү шилжих",
       settings: "Settings",

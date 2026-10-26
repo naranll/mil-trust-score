@@ -6,6 +6,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Line, OrbitControls } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import "@/lib/three-console";
 import { MONGOLIA_OUTLINE } from "@/data/mongolia-outline";
 import { AIMAGS, AIMAG_BY_ID } from "@/data/aimags";
 import { KIND_COLOR, type Light } from "@/lib/lights";
@@ -72,7 +73,7 @@ function Stars() {
   }, []);
   return (
     <points geometry={geo}>
-      <pointsMaterial color="#a9afb8" size={0.05} transparent opacity={0.6} sizeAttenuation />
+      <pointsMaterial color="#9aa2ba" size={0.05} transparent opacity={0.6} sizeAttenuation />
     </points>
   );
 }
@@ -96,37 +97,55 @@ function LandDots() {
   }, []);
   return (
     <points geometry={geo}>
-      <pointsMaterial color="#8a919b" size={0.026} transparent opacity={0.75} sizeAttenuation />
+      <pointsMaterial color="#7d86a3" size={0.026} transparent opacity={0.75} sizeAttenuation />
     </points>
   );
 }
 
 function Outline() {
   const pts = useMemo(() => MONGOLIA_OUTLINE.map(([lon, lat]) => new THREE.Vector3(...project(lon, lat), 0)), []);
-  return <Line points={pts} color="#56b4e9" lineWidth={1.5} transparent opacity={0.75} />;
+  return <Line points={pts} color="#6f86ff" lineWidth={1.5} transparent opacity={0.75} />;
 }
 
-// Нэг гэрэл: шинэ бол гялс гэж томроод тогтворжино
-function LightSprite({ light, glow, pos }: { light: Light; glow: THREE.Texture; pos: [number, number, number] }) {
-  const ref = useRef<THREE.Sprite>(null);
-  const born = useMemo(() => performance.now() - Math.max(0, Date.now() - new Date(light.created_at).getTime()), [light.created_at]);
-  const phase = useMemo(() => hash(light.id) * Math.PI * 2, [light.id]);
-  useFrame(() => {
-    if (!ref.current) return;
-    const age = (performance.now() - born) / 1000;
-    const flash = age < 2.2 ? Math.max(0, 1 - age / 2.2) : 0;
-    const twinkle = 1 + Math.sin(performance.now() / 900 + phase) * 0.08;
-    ref.current.scale.setScalar((0.2 + flash * 0.6) * twinkle);
-    (ref.current.material as THREE.SpriteMaterial).opacity = 0.55 + flash * 0.45;
-  });
-  return (
-    <sprite ref={ref} position={pos}>
-      <spriteMaterial map={glow} color={KIND_COLOR[light.kind]} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
-    </sprite>
-  );
-}
+// Бүх гэрэл нэг Points (нэг draw call): гэрэл бүр анивчина, шинэ гэрэл гялс гэж томроод тогтворжино.
+const lightVertex = /* glsl */ `
+attribute vec3 aColor;
+attribute float aPhase;
+attribute float aBorn; // performance.now()-ийн цагаар төрсөн мөч (сек)
+uniform float uNow, uDpr, uViewH;
+varying vec3 vColor;
+varying float vAlpha;
+void main() {
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float age = uNow - aBorn;
+  float flash = age < 2.2 ? max(0.0, 1.0 - age / 2.2) : 0.0;
+  float twinkle = 1.0 + sin(uNow / 0.9 + aPhase) * 0.08;
+  float world = (0.2 + flash * 0.6) * twinkle; // sprite-ийн хуучин хэмжээ (дэлхийн нэгж)
+  gl_PointSize = world * projectionMatrix[1][1] * uViewH * 0.5 / -mv.z;
+  vColor = aColor;
+  vAlpha = 0.75 + flash * 0.25;
+}`;
+const lightFragment = /* glsl */ `
+varying vec3 vColor;
+varying float vAlpha;
+void main() {
+  vec2 c = gl_PointCoord - 0.5;
+  float d = length(c) * 2.0;
+  // Хурц цөм + нарийн туяа + жижиг одны туяа. Alpha нь гэрэлтэлтээс хамаарна:
+  // 1.0 бичвэл тунгалаг canvas дээр цэг бүрийн дөрвөлжин хар хүрээ болж харагддаг.
+  float core = smoothstep(0.26, 0.08, d);
+  float halo = exp(-d * d * 9.0) * 0.45;
+  vec2 a = abs(c) * 2.0;
+  float rays = (exp(-a.x * 26.0) * exp(-a.y * 3.2) + exp(-a.y * 26.0) * exp(-a.x * 3.2)) * 0.5;
+  float g = clamp(core + halo + rays, 0.0, 1.0) * vAlpha;
+  if (g < 0.01) discard;
+  gl_FragColor = vec4(mix(vColor, vec3(1.0), core * 0.55), g);
+}`;
 
-function Lights({ lights, glow }: { lights: Light[]; glow: THREE.Texture }) {
+function Lights({ lights }: { lights: Light[] }) {
+  const gl = useThree((s) => s.gl);
+  const size = useThree((s) => s.size);
   // Гэрэл бүрийн байрлал: аймгийн төвөөс тогтвортой санамсаргүй зай
   const placed = useMemo(
     () =>
@@ -142,23 +161,62 @@ function Lights({ lights, glow }: { lights: Light[]; glow: THREE.Texture }) {
     [lights],
   );
 
-  // Нэг аймгийн гэрлүүдийг дарааллаар нь холбоно
+  const geometry = useMemo(() => {
+    const now = performance.now() / 1000;
+    const pos = new Float32Array(placed.length * 3);
+    const col = new Float32Array(placed.length * 3);
+    const phase = new Float32Array(placed.length);
+    const born = new Float32Array(placed.length);
+    const c = new THREE.Color();
+    placed.forEach((p, i) => {
+      pos.set(p.pos, i * 3);
+      c.set(KIND_COLOR[p.l.kind]);
+      col.set([c.r, c.g, c.b], i * 3);
+      phase[i] = hash(p.l.id) * Math.PI * 2;
+      born[i] = now - Math.max(0, Date.now() - new Date(p.l.created_at).getTime()) / 1000;
+    });
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    g.setAttribute("aColor", new THREE.BufferAttribute(col, 3));
+    g.setAttribute("aPhase", new THREE.BufferAttribute(phase, 1));
+    g.setAttribute("aBorn", new THREE.BufferAttribute(born, 1));
+    return g;
+  }, [placed]);
+  const material = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader: lightVertex,
+        fragmentShader: lightFragment,
+        uniforms: { uNow: { value: 0 }, uDpr: { value: 1 }, uViewH: { value: 1 } },
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    [],
+  );
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  useEffect(() => () => material.dispose(), [material]);
+  const points = useRef<THREE.Points>(null);
+  useFrame(() => {
+    const u = (points.current?.material as THREE.ShaderMaterial | undefined)?.uniforms;
+    if (!u) return;
+    u.uNow.value = performance.now() / 1000;
+    u.uViewH.value = size.height * gl.getPixelRatio();
+  });
+
+  // Нэг аймгийн гэрлүүдийг дарааллаар нь холбоно: бүх зураас нэг Line (segments)
   const links = useMemo(() => {
     const by: Record<string, [number, number, number][]> = {};
     for (const p of [...placed].reverse()) (by[p.l.aimag] ??= []).push(p.pos);
-    const segs: [number, number, number][][] = [];
-    for (const arr of Object.values(by)) for (let i = 1; i < arr.length && i < 14; i++) segs.push([arr[i - 1], arr[i]]);
+    const segs: [number, number, number][] = [];
+    for (const arr of Object.values(by)) for (let i = 1; i < arr.length && i < 14; i++) segs.push(arr[i - 1], arr[i]);
     return segs;
   }, [placed]);
 
   return (
     <>
-      {links.map((s, i) => (
-        <Line key={i} points={s} color="#56b4e9" lineWidth={0.8} transparent opacity={0.28} />
-      ))}
-      {placed.map((p) => (
-        <LightSprite key={p.l.id} light={p.l} glow={glow} pos={p.pos} />
-      ))}
+      {links.length > 1 && <Line points={links} segments color="#6f86ff" lineWidth={0.8} transparent opacity={0.28} />}
+      <points ref={points} geometry={geometry} material={material} frustumCulled={false} />
     </>
   );
 }
@@ -188,8 +246,11 @@ function LabelProjector({ items, refs }: { items: LabelItem[]; refs: React.RefOb
       // Газрын зураг -90° эргэсэн: (x, y, z) → (x, z, -y)
       v.set(it.x, 0.05, -(it.y - 0.2)).project(camera);
       const visible = v.z < 1;
-      el.style.transform = `translate(-50%, -50%) translate(${((v.x + 1) / 2) * size.width}px, ${((1 - v.y) / 2) * size.height}px)`;
-      el.style.opacity = visible ? "1" : "0";
+      // Камер хөдлөөгүй үед DOM-д бичихгүй (кадр бүрт style дахин тооцоолохгүй)
+      const t = `translate(-50%, -50%) translate(${(((v.x + 1) / 2) * size.width).toFixed(1)}px, ${(((1 - v.y) / 2) * size.height).toFixed(1)}px)`;
+      if (el.style.transform !== t) el.style.transform = t;
+      const o = visible ? "1" : "0";
+      if (el.style.opacity !== o) el.style.opacity = o;
     }
   });
   return null;
@@ -204,7 +265,7 @@ function Halos({ counts, glow }: { counts: Record<string, number>; glow: THREE.T
         const s = 0.45 + Math.sqrt(counts[a.id]) * 0.16;
         return (
           <sprite key={a.id} position={[x, y, 0.02]} scale={[s, s, s]}>
-            <spriteMaterial map={glow} color="#56b4e9" transparent opacity={0.16} depthWrite={false} blending={THREE.AdditiveBlending} />
+            <spriteMaterial map={glow} color="#6f86ff" transparent opacity={0.16} depthWrite={false} blending={THREE.AdditiveBlending} />
           </sprite>
         );
       })}
@@ -231,7 +292,7 @@ function Scene({ lights, counts }: { lights: Light[]; counts: Record<string, num
       <LandDots />
       <Outline />
       <Halos counts={counts} glow={glow} />
-      <Lights lights={lights} glow={glow} />
+      <Lights lights={lights} />
     </group>
   );
 }
@@ -247,10 +308,19 @@ export default function MapScene({ lights, counts }: { lights: Light[]; counts: 
     return () => window.removeEventListener("resize", on);
   }, []);
   const items = useMemo(() => pickLabels(counts, narrow), [counts, narrow]);
+  // Дэлгэцэн дээр байхгүй үед зурахаа зогсооно (хуудас гүйлгэхэд саад болохгүй)
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const el = wrap.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
     <div ref={wrap} className="relative h-full w-full">
-    <Canvas dpr={[1, 1.75]} camera={{ position: [0, 3.5, 3.4], fov: 42 }} gl={{ antialias: true, alpha: true }}>
+    <Canvas dpr={[1, 2]} frameloop={visible ? "always" : "never"} camera={{ position: [0, 3.5, 3.4], fov: 42 }} gl={{ antialias: true, alpha: true }}>
       <Stars />
       <FitCamera />
       <LabelProjector items={items} refs={refs} />
@@ -275,9 +345,9 @@ export default function MapScene({ lights, counts }: { lights: Light[]; counts: 
             ref={(el) => {
               refs.current[a.id] = el;
             }}
-            className="absolute top-0 left-0 rounded-md bg-[#1b1e23]/85 px-1.5 py-0.5 text-[12px] font-semibold whitespace-nowrap text-[#eceef1] opacity-0 ring-1 ring-[#737a84]/50"
+            className="absolute top-0 left-0 rounded-md bg-[#111a36]/90 px-1.5 py-0.5 text-caption font-semibold whitespace-nowrap text-[#e9edf7] opacity-0 ring-1 ring-[#6b7596]/50"
           >
-            {a.name} <span className="text-[#56b4e9] tnum">{a.n}</span>
+            {a.name} <span className="text-[#6f86ff] tnum">{a.n}</span>
           </span>
         ))}
       </div>

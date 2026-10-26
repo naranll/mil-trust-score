@@ -1,66 +1,81 @@
-# extension/backend/: checker + thin proxy (FastAPI)
+# backend/ — scoring API (FastAPI)
 
-**Owner: API member.** The one server the extension (and later the website) talks to. Signals, never a score:
-see [`CLAUDE.md`](../../CLAUDE.md) section 2. It imports [`model/`](../../model/README.md) and reads
-[`data/reference/`](../../data/README.md) and [`registry/`](../../registry/README.md).
+**Owner: API / mobile-scanner member.** The one server the extension and the website talk to. It does not hold
+model code or data itself: it imports [`model/hm_core.py`](../model/README.md) and reads
+[`data/reference/`](../data/README.md).
 
 ```
-app/
-├── main.py            app, CORS, /health, /demo, POST /api/check/page
-├── posts.py           POST /api/check (user pressed "send for deeper check"), /feedback/posts (off by default)
-├── signals.py         raw scorer output -> public shape: signals | factcheck | not_assessed. Drops every number.
-├── llm_score.py       optional Claude reader: quoted signals, no score (ANTHROPIC_API_KEY)
-├── proxy.py           /api/wayback, /api/rdap, /api/registry: cache, timeouts, link fallbacks
-├── guard.py           install-id rate limit, URL / domain validation (http/https, no private IPs)
-├── scorecard.py       page rules -> signals + context (no weights shown)
-├── model_adapter.py   lazy bridge to model/ (hm_core, post_types, kb)
-├── features/          domain.py, text.py
-└── config.py          paths
-tools/build_demo_cache.py   writes extension/demo-cache.json for the offline demo
-tests/                      pytest; test_check.py fails if any score/zone/verdict key appears in a response
+backend/
+├── app/
+│   ├── main.py            app, CORS, /health, /demo, page scoring (POST /score), page feedback
+│   ├── posts.py           extension endpoints: POST /score/posts (classify post type, then score), /feedback/posts
+│   ├── model_adapter.py   lazy bridge to model/ (hm_core, post_types, kb); API still starts if the model fails to load
+│   ├── scorecard.py       hand-weighted page scorecard: WEIGHTS = {code: (weight, Mongolian label)}
+│   ├── features/          domain.py (WHOIS, lookalike, HTTPS, outlet list), text.py (clickbait, sources, ...)
+│   ├── schemas.py         request/response models for POST /score
+│   └── config.py          all filesystem paths (repo-relative, overridable by env)
+├── tests/
+└── requirements.txt       includes ../model/requirements.txt
 ```
 
 ## Run
 
-From the repo root:
+From `extension/backend/`:
 
 ```bash
-pip install -r extension/backend/requirements.txt
-python -m uvicorn extension.backend.app.main:app --port 8000
-python -m pytest extension/backend/tests -q
+python -m venv .venv && source .venv/bin/activate       # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+pytest -q
 ```
 
-API contract: [`docs/API.md`](../../docs/API.md) · auto docs: http://localhost:8000/docs
+API docs (auto-generated): http://localhost:8000/docs · full contract: [`docs/API.md`](../docs/API.md)
+
+## Endpoints
+
+| Method | Path | Used by | Purpose |
+|---|---|---|---|
+| POST | `/score` | website, future news-page extension | score a **page**: url, title, text, links → score, zone, 3 reasons |
+| POST | `/score/posts` | extension (Facebook) | classify (claim/ad/commerce/personal) and score a **batch of posts**; Mongolian posts only (`hm_core.is_mongolian`: Russian, Kazakh, English and other foreign-language posts and ads are skipped) |
+| GET | `/score/mock?zone=` | frontend development | hard-coded responses |
+| POST | `/feedback` | page UI | "this score is wrong" → `data/feedback/page_feedback.jsonl` |
+| POST | `/feedback/posts` | extension | ✅/❌ label → `data/feedback/feedback.csv` (no author names stored) |
+| GET | `/health` | popup, monitoring | `{"ok":true,"model":"scorecard v4"}` or `"unavailable"` + error |
+| GET | `/demo`, `/demo/fb` | demos | fake feed / Facebook-like DOM test page from `extension/demo/` |
 
 ## Environment
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `HM_CHECK_LIMIT` | `60` | `/api/check` calls per install id per 10 min |
-| `HM_PROXY_TIMEOUT` | `5` | upstream timeout, seconds |
-| `HM_EXTENSION_IDS` | empty | comma-separated extension ids allowed by CORS (default: any `chrome-extension://` id) |
-| `HM_CORS_ORIGINS` | empty | website origins allowed by CORS |
-| `HM_FEEDBACK` | `0` | `1` enables `/feedback/posts` (team labelling sessions only) |
-| `ANTHROPIC_API_KEY` | empty | enables the LLM reader with Claude for `/api/check` |
-| `GEMINI_API_KEY` | empty | enables the LLM reader with Gemini (free key: aistudio.google.com → Get API key) |
+| `WHOIS_ENABLED` | `1` | `0` disables WHOIS lookups (tests, offline demos) |
+| `HM_CORS_ORIGINS` | empty | comma-separated website origins allowed to call the API (extension and localhost are always allowed) |
+| `HM_ARTIFACTS_DIR` | `model/artifacts` | where `.joblib` files are loaded from |
+| `HM_REFERENCE_DIR` | `data/reference` | outlet lists |
+| `HM_FEEDBACK_DIR` | `data/feedback` | where feedback is appended (git-ignored) |
+| `ANTHROPIC_API_KEY` | empty | turns on LLM scoring with Claude for `/score/posts` (see below) |
+| `GEMINI_API_KEY` | empty | turns on LLM scoring with Gemini (free key: aistudio.google.com → Get API key) |
 | `HM_LLM_PROVIDER` | auto | `claude` or `gemini` when both keys are set; otherwise the provider whose key is set |
-| `HM_LLM` | `1` | `0` turns the LLM reader off even when a key is set |
-| `HM_LLM_MODEL` | `claude-opus-5-5` / `gemini-3.5-flash-lite` | model used by the reader |
+| `HM_LLM` | `0` | LLM scoring is **off**; `1` turns it back on (the extension no longer calls `/score/posts/llm`) |
+| `HM_LLM_MODEL` | `claude-opus-5-5` / `gemini-3.5-flash-lite` | model used for scoring |
 | `HM_LLM_EFFORT` | `low` | Claude only: `low` / `medium` / `high`, more effort = slower, more careful |
-| `WHOIS_ENABLED` | `1` | `0` disables WHOIS in page checks |
-| `HM_ARTIFACTS_DIR`, `HM_REFERENCE_DIR`, `HM_FEEDBACK_DIR` | repo paths | overrides |
 
-## The LLM reader
+## LLM scoring (off)
 
-With a key set, `/api/check` sends the posts the user asked about to the LLM in one request
-([`app/llm_score.py`](app/llm_score.py)): text, image text, the first image, link domain and title, plus two facts
-from the trained model (registered-page list match; match against MFCC / factcheck.mn checks). The LLM returns the
-post kind and up to 3 signals with exact quotes; quotes not found in the post are dropped. It gives **no score** and
-may return no signals. Output carries `notes: ["llm_unvalidated"]`: it has not been measured on Mongolian posts.
-If the key is missing or a request fails (network, rate limit, refusal, bad JSON), the trained rules answer;
-`/health` → `llm.error` shows the last failure. Results are cached in memory by content.
-Gemini's free tier is often busy (503 / 504 / 429); the reader then retries once on `gemini-3.8-flash`.
-A 4-post batch took about 30 s on flash-lite during testing, so "Send for deeper check" can take a while.
+Off since 27 Oct 2026: the extension scores posts with the trained model only and no longer calls
+`/score/posts/llm`. The code stays for reference; `HM_LLM=1` turns the endpoint back on.
+
+
+With a key set, `/score/posts` sends each batch to the LLM in one request ([`app/llm_score.py`](app/llm_score.py)):
+post text, image text, the post's first image, link domain and title. The trained model adds two facts the LLM
+cannot know: the source kind (registered-outlets list) and a match against already-refuted claims. The LLM
+returns kind (claim / ad / personal), a 0–100 trust score, a one-sentence summary and up to 3 reasons with exact
+quotes; quotes not found in the post are dropped. Product rules still apply after Claude: green needs a registered
+source (else capped at 69), a strongly matched refuted claim stays below 40. Results have `"scorer": "llm"`.
+
+If the key is missing or a request fails (network, rate limit, refusal, bad JSON), those posts are scored by the
+trained scorecard as before; `/health` → `llm.error` shows the last failure. Results are cached in memory by content.
+Gemini's free tier is often busy (503 / 504 / 429); the scorer then retries once on `gemini-3.8-flash`.
+A 4-post batch took about 30 s on flash-lite during testing, so badges appear later than with the scorecard alone.
 
 Privacy: author names are not sent, only the source kind; post text and image do go to the LLM provider. On the
 Gemini free tier Google may use submitted content to improve its products: say so wherever the extension is shown.
@@ -69,12 +84,15 @@ Put the key in `extension/backend/.env` (git-ignored; copy [`.env.example`](.env
 shell, then start the server as usual:
 
 ```powershell
-cd extensionackend
-uvicorn app.main:app --port 8000
+cd extension\backend
+.venv\Scripts\python -m uvicorn app.main:app --port 8000
 ```
 
-## Measurement
+## Notes
 
-`python model/tools/measure_signals.py` runs `/api/check`'s code path (Claude off) on the held-out test split and
-writes `registry/measurement.json`. 2026-10-26: badges on 3 of 88 true news items (3%, 95% CI 1–10%). Caveats are in
-the file: all true items are news articles, not Facebook posts; the fact-check index contains the test items.
+- Unknown signals (`None`) contribute nothing, e.g. WHOIS unreachable is never punished.
+- No user identifiers, comments, browsing history or images are stored.
+- Not in the MVP: reverse image search, NLI, 1212.mn cross-check, LLM evidence retrieval (the LLM scorer reads
+  only the post itself; it does not search the web).
+- The page scorecard (`/score`) and the trained model (`/score/posts`) are separate scorers for now. Merging them
+  (model features + domain signals in one response with stable reason codes) is the next integration step.

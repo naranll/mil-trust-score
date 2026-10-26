@@ -1,7 +1,6 @@
-"""API shapes for page checks (POST /api/check/page). Post checks live in posts.py.
+"""API contract shared with the extension (role 3) and the model (role 1).
 
 The extension sends only page content. No usernames, comments or browsing history.
-There is no score, zone or verdict field anywhere: see CLAUDE.md section 2.
 """
 from typing import List, Literal, Optional
 
@@ -18,13 +17,21 @@ class ScoreRequest(BaseModel):
     published_date: Optional[str] = None              # ISO date, e.g. 2026-10-20
 
 
-class PageItem(BaseModel):
+class Reason(BaseModel):
     code: str            # stable id, also the MIL card id
     label: str           # short Mongolian text shown to the user
+    points: float        # contribution to the score (negative lowers it)
 
 
-class PageCheckResponse(BaseModel):
-    state: Literal["signals", "not_assessed"]
-    signals: List[PageItem]                      # up to 3, most important first
-    context: List[PageItem]                      # facts about the page, not a judgement
-    disclaimer: str = "Эдгээр нь шалгах дохио, дүгнэлт биш. Мэдээ үнэн эсэхийг хэлэхгүй."
+class ScoreResponse(BaseModel):
+    score: int                                   # 0-100
+    zone: Literal["green", "yellow", "red"]
+    reasons: List[Reason]                        # top 3 by impact
+    disclaimer: str = "Энэ оноо бүрэн найдвартай биш. Эх сурвалжийг өөрөө шалгаарай."
+
+
+class FeedbackRequest(BaseModel):
+    url: str
+    score_shown: int
+    user_says: Literal["too_low", "too_high", "wrong_reason"]
+    comment: Optional[str] = None

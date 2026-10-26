@@ -3,6 +3,10 @@
 > This file REPLACES the earlier CLAUDE.md. The product plan changed on 2026-10-26 (evening). Where this file and the old one disagree, this one wins. Keep the old "hard rules" spirit (signals, not verdicts) — it is restated below.
 > Read it fully, then do the "First 2 hours" section before building anything new.
 >
+> **Decision 2026-10-27 (team):** the side panel's main tab is the teammate's score-based post panel (content.js, sidepanel.js,
+> `/score/posts`); our tools live in one box in the «Хэрэгсэл» tab. The signals-only badge/`/api/check` work is in git history
+> (commit 1faf2b2). Hard rules in section 2 about scores and green states describe the plan, not what the main tab does today.
+>
 > **Decision 2026-10-26 (team):** no Google Fact Check Tools API. No `/api/factcheck`, no key. Fact-check matches come
 > from the local MFCC / factcheck.mn index (`/api/check`); Fact Check Explorer is a plain link in the registry.
 > Where sections 3.3, 5.1, 9 and 10 below mention the Google API, this decision wins.

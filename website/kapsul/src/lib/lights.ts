@@ -7,7 +7,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export type LightKind = "game" | "share";
 // Гэрлийн өнгө: тоглоом = цэнхэр, хуваалцсан = улбар шар (Okabe Ito)
-export const KIND_COLOR = { game: "#56b4e9", share: "#e69f00" } as const;
+export const KIND_COLOR = { game: "#6f86ff", share: "#ffb547" } as const;
 
 export type Light = { id: string; aimag: string; kind: LightKind; created_at: string };
 
@@ -26,6 +26,36 @@ function supa(): SupabaseClient | null {
 
 export const isLive = () => supa() !== null;
 
+// ЖИШЭЭ ӨГӨГДӨЛ: Supabase холбогдоогүй (демо) үед 22 аймгийн 11-д (50%) гэрэл асаасан харагдана.
+// Бодит оролцоо биш тул LightMap дээр «Жишээ өгөгдөл» гэж тэмдэглэнэ. Supabase холбогдвол харагдахгүй.
+const DEMO_SPREAD: [string, number, number][] = [
+  // [аймаг, тоглоом, хуваалцсан]
+  ["ub", 28, 14],
+  ["darkhan-uul", 12, 6],
+  ["orkhon", 13, 7],
+  ["selenge", 9, 4],
+  ["tuv", 8, 5],
+  ["khuvsgul", 7, 3],
+  ["uvurkhangai", 6, 4],
+  ["dornod", 7, 3],
+  ["khovd", 5, 4],
+  ["umnugovi", 5, 2],
+  ["bayankhongor", 4, 3],
+];
+function demoLights(): Light[] {
+  const out: Light[] = [];
+  const base = Date.parse("2026-10-26T08:00:00Z");
+  let n = 0;
+  for (const [aimag, game, share] of DEMO_SPREAD) {
+    for (let i = 0; i < game + share; i++) {
+      out.push({ id: `demo-${n}`, aimag, kind: i < game ? "game" : "share", created_at: new Date(base - n * 11 * 60000).toISOString() });
+      n++;
+    }
+  }
+  return out;
+}
+export const DEMO_AIMAGS = DEMO_SPREAD.length;
+
 function readLocal(): Light[] {
   try {
     return JSON.parse(localStorage.getItem(LOCAL_KEY) ?? "[]") as Light[];
@@ -36,7 +66,7 @@ function readLocal(): Light[] {
 
 export async function fetchLights(): Promise<Light[]> {
   const s = supa();
-  if (!s) return readLocal();
+  if (!s) return [...readLocal(), ...demoLights()];
   const { data, error } = await s.from("lights").select("id, aimag, kind, created_at").order("created_at", { ascending: false }).limit(600);
   if (error || !data) return readLocal();
   return data.map((d) => ({ ...d, id: String(d.id) })) as Light[];

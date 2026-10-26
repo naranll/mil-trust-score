@@ -165,7 +165,7 @@ def rdap(request: Request, response: Response, domain: str = Query(..., max_leng
 def registry():
     """The shared tool registry, as data. Remote updates of the extension may only ever be data like this."""
     out = {}
-    for name in ("tools", "mongolia", "measurement"):
+    for name in ("tools", "mongolia", "lessons"):
         p = REGISTRY_DIR / f"{name}.json"
         out[name] = json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
     return out

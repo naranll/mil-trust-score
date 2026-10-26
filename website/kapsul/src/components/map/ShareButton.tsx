@@ -19,7 +19,7 @@ export function ShareButton({ title, path, quiet }: { title: string; path: strin
     const prefix = copied ? "Линк хуулагдлаа." : "Хуваалцлаа.";
     try {
       if (localStorage.getItem(key)) {
-        setSt({ kind: "done", text: `${prefix} Энэ хуудсанд гэрэл аль хэдийн асаасан байна.` });
+        setSt({ kind: "done", text: `${prefix} Энэ хуудсанд гэрэл аль хэдийн асаасан.` });
         return;
       }
     } catch {
@@ -31,7 +31,7 @@ export function ShareButton({ title, path, quiet }: { title: string; path: strin
       try {
         localStorage.setItem(key, "1");
       } catch {}
-      setSt({ kind: "done", text: `${prefix} ${AIMAG_BY_ID[aimag]?.name} дээр +1 гэрэл асчээ.` });
+      setSt({ kind: "done", text: `${prefix} ${AIMAG_BY_ID[aimag]?.name} дээр +1 гэрэл асав.` });
     } catch (e) {
       setSt({ kind: "error", text: (e as Error).message });
     }
@@ -50,7 +50,7 @@ export function ShareButton({ title, path, quiet }: { title: string; path: strin
       }
     } catch (e) {
       if ((e as Error).name === "AbortError") return; // хэрэглэгч цуцалсан
-      setSt({ kind: "error", text: "Хуваалцаж чадсангүй. Хаягийн мөрөөс линкийг хуулж болно." });
+      setSt({ kind: "error", text: "Хуваалцаж чадсангүй. Хаягийн мөрөөс линкийг хуулна уу." });
       return;
     }
     setCopied(didCopy);
@@ -65,21 +65,18 @@ export function ShareButton({ title, path, quiet }: { title: string; path: strin
         type="button"
         onClick={share}
         disabled={st.kind === "busy"}
-        className={`inline-flex min-h-11 items-center gap-2 self-start rounded-full px-5 text-[15px] font-semibold ${
-          quiet
-            ? "bg-surface text-accent ring-[1.5px] ring-inset ring-accent hover:bg-accent-tint"
-            : "bg-accent text-on-accent hover:bg-accent-strong"
-        }`}
+        className={`btn self-start ${quiet ? "btn-secondary" : "btn-primary"}`}
       >
         <Share2 className="size-4" aria-hidden />
         Хуваалцах
       </button>
       {st.kind === "pick" && <AimagPicker onPick={(id) => light(id, copied)} />}
-      <p role="status" className="text-[15px] text-ink-2">
+      {/* Хоосон үед sr-only: зай эзлэхгүй тул товч хажуугийн товчтойгоо нэг шугамд байна */}
+      <p role="status" className="text-small text-ink-2 empty:sr-only">
         {st.kind === "done" && (
           <>
             {st.text}{" "}
-            <Link href="/data#map" className="link-accent font-semibold">
+            <Link href="/about#map" className="link-accent font-semibold">
               Газрын зураг дээр харах
             </Link>
           </>

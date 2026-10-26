@@ -1,10 +1,10 @@
-# Checker + proxy API. Includes the model dependencies because POST /api/check runs model/hm_core.py.
+# Scoring API. Includes the model dependencies because POST /score/posts runs model/hm_core.py.
 -r ../../model/requirements.txt
 fastapi>=0.110
 uvicorn>=0.29
 pydantic>=2
 python-whois      # optional at runtime: WHOIS_ENABLED=0 disables it
-anthropic>=2.3    # optional at runtime: Claude reader when ANTHROPIC_API_KEY is set (app/llm_score.py)
-google-genai>=2.33  # optional at runtime: Gemini reader when GEMINI_API_KEY is set
-httpx             # proxy upstream calls (app/proxy.py), Gemini image download and tests
+anthropic>=2.3    # optional at runtime: LLM scoring with Claude when ANTHROPIC_API_KEY is set (app/llm_score.py)
+google-genai>=2.33  # optional at runtime: LLM scoring with Gemini when GEMINI_API_KEY is set
+httpx             # tests (fastapi TestClient)
 pytest

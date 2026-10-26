@@ -3,7 +3,7 @@
 
 create table if not exists public.mil_stats (
   key         text primary key,
-  dataset     text not null check (dataset in ('mn_fraud','mn_facebook','global_news','mn_mil','mn_sites','mn_reading')),
+  dataset     text not null check (dataset in ('mn_fraud','mn_facebook','global_news','mn_mil','mn_sites','mn_reading','mn_ai')),
   label       text not null,
   value       numeric not null,
   unit        text not null check (unit in ('%','count','mnt_bn','people')),

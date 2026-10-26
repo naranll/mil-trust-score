@@ -5,7 +5,7 @@ export type Source = { name: string; url: string };
 
 export type Stat = {
   key: string;
-  dataset: "mn_fraud" | "mn_facebook" | "global_news" | "mn_mil" | "mn_sites" | "mn_reading";
+  dataset: "mn_fraud" | "mn_facebook" | "global_news" | "mn_mil" | "mn_sites" | "mn_reading" | "mn_ai";
   label: string; // монгол тайлбар
   value: number;
   unit: "%" | "count" | "mnt_bn" | "people";
@@ -35,6 +35,10 @@ const NUM: Source = {
 };
 const PRESS: Source = { name: "Хэвлэлийн хүрээлэн", url: "https://pressinst.org.mn/en/?p=933" };
 // Хэвлэлийн хүрээлэнгийн Мэдээлэл сургалтын албанаас авсан гарын авлага (онлайн холбоосгүй)
+const PRESS_MIL: Source = {
+  name: "Хэвлэлийн хүрээлэн, MIL үндэсний суурь судалгаа 2026",
+  url: "",
+};
 const PRESS_BOOK: Source = {
   name: "Хэвлэлийн хүрээлэн, «Монголын хэвлэл мэдээлэл өнөөдөр»",
   url: "",
@@ -95,4 +99,12 @@ export const FALLBACK_STATS: Stat[] = [
   { key: "read_tech", dataset: "mn_reading", label: "Технологи, хөгжил", value: 4, unit: "%", period: "уншигчид", source: PRESS_BOOK },
 
   { key: "press_critical_youth", dataset: "mn_mil", label: "Мэдээнд шүүмжлэлтэй ханддаг ахлах ангийнхан", value: 40, unit: "%", period: "2019", source: PRESS },
+
+  // Хиймэл оюуны хэрэглээ. Иргэд n=940; иргэний нийгэм (n=100), төрийн албан хаагчид (n=160) зорилтот түүвэр.
+  { key: "ai_use_public", dataset: "mn_ai", label: "Иргэд", value: 17, unit: "%", period: "ашигладаг", source: PRESS_MIL },
+  { key: "ai_check_public", dataset: "mn_ai", label: "Иргэд", value: 26, unit: "%", period: "давхар шалгадаг", source: PRESS_MIL },
+  { key: "ai_use_cso", dataset: "mn_ai", label: "Иргэний нийгэм", value: 51, unit: "%", period: "ашигладаг", source: PRESS_MIL },
+  { key: "ai_check_cso", dataset: "mn_ai", label: "Иргэний нийгэм", value: 53, unit: "%", period: "давхар шалгадаг", source: PRESS_MIL },
+  { key: "ai_use_gov", dataset: "mn_ai", label: "Төрийн албан хаагчид", value: 43, unit: "%", period: "ашигладаг", source: PRESS_MIL },
+  { key: "ai_check_gov", dataset: "mn_ai", label: "Төрийн албан хаагчид", value: 51, unit: "%", period: "давхар шалгадаг", source: PRESS_MIL },
 ];
