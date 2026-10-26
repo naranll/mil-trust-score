@@ -141,6 +141,29 @@
     return { sponsored, has_cta, link_title: title ? title.innerText.trim().slice(0, 200) : null };
   }
 
+  // --- Зөвхөн монгол пост -------------------------------------------------
+  // backend/model/hm_core.py-ийн is_mongolian()-тэй ижил дүрэм: кирилл давамгайлсан бол Ө/Ү эсвэл түгээмэл
+  // монгол үг шаардана (орос пост ч кирилл), латинаар бичсэн монголыг (bna, ene …) зөвшөөрнө, бусдыг алгасна.
+  const MN_LETTERS = /[ӨөҮү]/;
+  const OTHER_CYR = /[ӘәҒғҚқҢңҰұҺһІіЇїЄєЎў]/;
+  const MN_WORDS = /(?<![А-Яа-яЁёӨөҮү])(байна|байгаа|байсан|байх|энэ|эдгээр|тэр|юм|нь|бол|болно|болсон|гэж|гэсэн|гэнэ|бөгөөд|болон|бид|манай|хүн|ч|уу|үү|юу)(?![А-Яа-яЁёӨөҮү])/iu;
+  const MN_LATIN = /\b(bna|baina|baigaa|baisan|bol|bolno|bolson|ene|edgeer|yum|gej|gesen|gene|bid|manai|hun|huniig|shuu|uu|vv|bn|yu|mongol)\b/i;
+  const EN_WORDS = /\b(the|and|is|are|was|to|of|in|for|on|with|this|that|you|your|we|our|will|have|has|be|it|at|from|by|not|now|all|new)\b/gi;
+  const letters = (t) => (t.match(/[A-Za-zА-Яа-яЁёӨөҮү]/g) || []).length;
+  function isMongolian(raw) {
+    const t = raw.replace(/\[[^\]]+\]|https?:\/\/\S+/g, " ");
+    const n = letters(t);
+    if (n < 3 || OTHER_CYR.test(t)) return false;
+    const cyr = (t.match(/[А-Яа-яЁёӨөҮү]/g) || []).length / n;
+    if (cyr >= 0.6) return MN_LETTERS.test(t) || MN_WORDS.test(t);
+    if (cyr > 0.3) return MN_LETTERS.test(t);
+    const words = t.match(/[A-Za-z]+/g) || [];
+    const english = words.length >= 4 && (t.match(EN_WORDS) || []).length / words.length >= 0.12;
+    return !english && MN_LATIN.test(t);
+  }
+  // Бичвэргүй (зөвхөн зураг/видео) пост: хэлийг нь пэйжийн нэрээр таана
+  const mnName = (name) => !!name && ((/[А-Яа-яЁёӨөҮү]/.test(name) && !OTHER_CYR.test(name)) || /\.mn\b|mongol/i.test(name));
+
   // --- Шинэ постуудыг хайх --------------------------------------------------
   function scan() {
     document.querySelectorAll(POST_SELECTORS.join(",")).forEach((post) => {
@@ -158,6 +181,12 @@
       const media = findMedia(post);
       if (!msgEl && !imageText && !media.el) return;     // текст ч, зураг/видео ч алга
       const text = msgEl ? msgEl.innerText.trim() : "";
+      // Гадаад хэлний пост (зар ч мөн) дээр тэмдэг тавихгүй, серверт ч илгээхгүй
+      const words = `${text} ${imageText}`;
+      if (letters(words) >= 3 ? !isMongolian(words) : !mnName(findAuthor(post).author)) {
+        post.querySelector(":scope .hm-badge")?.remove();
+        return;
+      }
       // Өмнө нь шалгасан бол: текст 30%+ уртассан эсвэл зурагны бичвэр шинээр гарсан үед л дахин илгээнэ
       const prev = Number(post.dataset.hmLen || 0), prevImg = Number(post.dataset.hmImg || 0);
       const mediaKey = `${media.hasImage}|${media.hasVideo}|${media.aiLabel}`;
@@ -198,7 +227,6 @@
     const items = batch.map(([id, p]) => ({
       id, text: p.text, image_text: p.imageText, url: p.url, author: p.author, author_url: p.author_url, verified: p.verified,
       sponsored: p.sponsored, has_cta: p.has_cta, link_title: p.link_title,
-      image_url: /^https?:/.test(p.media && p.media.src) ? p.media.src : null,   // LLM-ээр оноох үед зургийг нь ч харна
     }));
     chrome.runtime.sendMessage({ type: "score", items }, (resp) => {
       if (!resp || resp.error) {
@@ -211,49 +239,10 @@
         const p = batch.find(([id]) => id === r.id)?.[1];
         if (!p) return;
         render(p, r);
-        if (p.text || p.imageText) queueLLM(r.id, p, items.find((x) => x.id === r.id));
       });
     });
     if (pending.size) flushSoon();
   }
-
-  // --- Хоёр дахь шат: LLM ---------------------------------------------------
-  // Сургасан загвар тэмдгийг шууд тавина (хурдан). Дараа нь LLM текст, зургийг уншаад тэмдгийг
-  // шинэчилнэ. Нэг удаад нэг л хүсэлт: үнэгүй API-ийн хязгаарт хүрэхгүй, лэнд удаашрахгүй.
-  const llmQueue = new Map();      // id -> {p, item}
-  let llmBusy = false, llmOff = false, llmRetryAt = 0, llmTimer = null;
-
-  function queueLLM(id, p, item) {
-    if (llmOff || !item) return;
-    llmQueue.set(id, { p, item });
-    clearTimeout(llmTimer);
-    llmTimer = setTimeout(runLLM, 400);   // нэг хүсэлтэд олон пост багтаах: дараалал дүүргэж байгаад явуулна
-  }
-
-  function runLLM() {
-    if (llmBusy || !llmQueue.size || Date.now() < llmRetryAt) return;
-    llmBusy = true;
-    const batch = [...llmQueue.entries()].slice(-8);       // хамгийн сүүлд ирсэн = дэлгэц дээр байгаа постууд
-    batch.forEach(([id]) => llmQueue.delete(id));
-    chrome.runtime.sendMessage({ type: "score-llm", items: batch.map(([, x]) => x.item) }, (resp) => {
-      llmBusy = false;
-      if (!resp || resp.error) {                            // сервер унтарсан: минутын дараа дахин оролдоно
-        batch.forEach(([id, x]) => { if (!llmQueue.has(id)) llmQueue.set(id, x); });
-        llmRetryAt = Date.now() + 60000;
-        setTimeout(runLLM, 60000);
-        return;
-      }
-      if (resp.llm === false) { llmOff = true; llmQueue.clear(); return; }   // LLM түлхүүргүй
-      resp.results.forEach((r) => {
-        const x = batch.find(([id]) => id === r.id)?.[1];
-        if (!x || !x.p.post.isConnected) return;
-        render(x.p, r);
-        if (selectedId === r.id) chrome.runtime.sendMessage({ type: "llm-update", id: r.id, r });
-      });
-      runLLM();
-    });
-  }
-
 
   // --- Тэмдэг (badge) зурах -------------------------------------------------
   // Пост дээр зөвхөн тэмдэг + нэг мөр шалтгаан. Дарахад хажуугийн самбарт оноо, шалтгаан,

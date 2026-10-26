@@ -2,7 +2,7 @@
 score with reasons quoted from the post.
 
 Providers: Claude (ANTHROPIC_API_KEY) or Gemini (GEMINI_API_KEY). HM_LLM_PROVIDER picks one when both
-keys are set; HM_LLM=0 turns LLM scoring off. Same prompt, schema and fallbacks for both.
+keys are set. OFF by default: the extension no longer calls it; set HM_LLM=1 to turn it back on. Same prompt, schema and fallbacks for both.
 The trained model still supplies what an LLM cannot know on its own: whether the page is on the
 registered-outlets list (source kind) and whether the claim matches one already refuted by MFCC or
 factcheck.mn. Those facts go into the prompt; the LLM writes the score and the reasons.
@@ -157,7 +157,7 @@ _cache: "OrderedDict[str, dict]" = OrderedDict()
 
 
 def enabled() -> bool:
-    if os.getenv("HM_LLM", "1") == "0":
+    if os.getenv("HM_LLM", "0") != "1":   # анхнаасаа унтраалттай: HM_LLM=1 үед л ажиллана
         return False
     if provider() == "gemini":
         return bool(_gemini_key())

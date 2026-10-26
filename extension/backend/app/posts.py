@@ -122,6 +122,9 @@ def score_one(m, it: Item) -> dict:
     """1) classify the post type  2) run the scorer that fits the type."""
     core, post_types = m.hm_core, m.post_types
     full_text = " ".join(x for x in (it.text, it.image_text) if x)
+    # Зөвхөн монгол пост: гадаад хэлний пост, зар, зурган бичвэрийг оноохгүй (extension ч мөн адил шүүдэг)
+    if (it.text or it.image_text) and not core.is_mongolian(full_text):
+        return {"status": "skip", "why": "Монгол бичвэр биш"}
     ptype, why_type = post_types.classify(full_text, it.sponsored, it.has_cta)
 
     if ptype in ("ad", "commerce"):

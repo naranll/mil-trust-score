@@ -115,3 +115,18 @@ def test_feedback_follows_legacy_header(tmp_path, monkeypatch):
     client.post("/feedback/posts", json={"text": NEUTRAL, "user_label": "false", "trust": 20, "zone": "red"})
     rows = list(csv.DictReader((tmp_path / "feedback.csv").open(encoding="utf-8-sig")))
     assert rows[0]["user_label"] == "false" and rows[0]["trust"] == "20" and rows[0]["author"] == ""
+
+
+def test_foreign_posts_are_skipped():
+    # Зөвхөн монгол пост оноогдоно: орос, англи, казах пост, гадаад хэлний зар алгасагдана
+    r = client.post("/score/posts", json={"items": [
+        {"id": "mn", "text": NEUTRAL},
+        {"id": "ru", "text": "Завтра все банковские карты будут заблокированы, срочно обновите данные по ссылке."},
+        {"id": "en", "text": "Breaking: all bank cards will be blocked tomorrow, update your details now please."},
+        {"id": "kz", "text": "Ертең барлық банк карталары бұғатталады, мәліметтерді жаңартыңыз дереу."},
+        {"id": "ad", "text": "Super sale today only! Buy now and get 50% off, click the link below.", "sponsored": True},
+    ]}).json()
+    by_id = {x["id"]: x for x in r["results"]}
+    assert by_id["mn"]["status"] == "ok"
+    for k in ("ru", "en", "kz", "ad"):
+        assert by_id[k]["status"] == "skip", k

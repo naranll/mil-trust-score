@@ -138,7 +138,6 @@ function scoreBlock(p, r, z, isAd) {
     r.source_unverified && "Эх сурвалж нь бүртгэлгүй тул 69-өөс дээш оноо өгөхгүй.",
     r.translit && "Латин үсгээр бичсэнийг кирилл болгож шалгасан тул нарийвчлал бага.",
     r.from_image && "Үнэлгээг зураг дээрх бичвэрээс хийсэн.",
-    r.scorer === "llm" && `Постыг хиймэл оюун уншиж үнэлсэн${r.model ? ` (${r.model})` : ""}.`,
   ].filter(Boolean);
   const hasNum = typeof r.trust === "number";
   const v = hasNum ? Math.max(0, Math.min(100, Math.round(r.trust))) : null;

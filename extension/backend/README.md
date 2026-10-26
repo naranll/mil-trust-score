@@ -36,7 +36,7 @@ API docs (auto-generated): http://localhost:8000/docs · full contract: [`docs/A
 | Method | Path | Used by | Purpose |
 |---|---|---|---|
 | POST | `/score` | website, future news-page extension | score a **page**: url, title, text, links → score, zone, 3 reasons |
-| POST | `/score/posts` | extension (Facebook) | classify (claim/ad/commerce/personal) and score a **batch of posts** |
+| POST | `/score/posts` | extension (Facebook) | classify (claim/ad/commerce/personal) and score a **batch of posts**; Mongolian posts only (`hm_core.is_mongolian`: Russian, Kazakh, English and other foreign-language posts and ads are skipped) |
 | GET | `/score/mock?zone=` | frontend development | hard-coded responses |
 | POST | `/feedback` | page UI | "this score is wrong" → `data/feedback/page_feedback.jsonl` |
 | POST | `/feedback/posts` | extension | ✅/❌ label → `data/feedback/feedback.csv` (no author names stored) |
@@ -55,11 +55,15 @@ API docs (auto-generated): http://localhost:8000/docs · full contract: [`docs/A
 | `ANTHROPIC_API_KEY` | empty | turns on LLM scoring with Claude for `/score/posts` (see below) |
 | `GEMINI_API_KEY` | empty | turns on LLM scoring with Gemini (free key: aistudio.google.com → Get API key) |
 | `HM_LLM_PROVIDER` | auto | `claude` or `gemini` when both keys are set; otherwise the provider whose key is set |
-| `HM_LLM` | `1` | `0` turns LLM scoring off even when a key is set |
+| `HM_LLM` | `0` | LLM scoring is **off**; `1` turns it back on (the extension no longer calls `/score/posts/llm`) |
 | `HM_LLM_MODEL` | `claude-opus-5-5` / `gemini-3.5-flash-lite` | model used for scoring |
 | `HM_LLM_EFFORT` | `low` | Claude only: `low` / `medium` / `high`, more effort = slower, more careful |
 
-## LLM scoring
+## LLM scoring (off)
+
+Off since 27 Oct 2026: the extension scores posts with the trained model only and no longer calls
+`/score/posts/llm`. The code stays for reference; `HM_LLM=1` turns the endpoint back on.
+
 
 With a key set, `/score/posts` sends each batch to the LLM in one request ([`app/llm_score.py`](app/llm_score.py)):
 post text, image text, the post's first image, link domain and title. The trained model adds two facts the LLM

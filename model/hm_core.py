@@ -104,6 +104,29 @@ def latin_to_cyrillic(t):
     return re.sub(r"(?<!\[)\b[A-Za-z]+\b(?!\])", conv, t)
 
 
+# Монгол бичвэр эсэх. Кирилл давамгайлсан ч орос (гадаад) пост байж болох тул Ө/Ү үсэг эсвэл түгээмэл монгол үг
+# шаардана. Латинаар бичсэн монголыг (bna, baina, ene …) зөвшөөрнө, англи болон бусад хэлийг алгасна.
+# extension/content.js-ийн isMongolian() нь яг ижил дүрэм.
+MN_LETTERS = re.compile(r"[ӨөҮү]")
+OTHER_CYR = re.compile(r"[ӘәҒғҚқҢңҰұҺһІіЇїЄєЎў]")
+MN_WORDS = re.compile(r"(?<![А-Яа-яЁёӨөҮү])(байна|байгаа|байсан|байх|энэ|эдгээр|тэр|юм|нь|бол|болно|болсон|гэж|гэсэн|гэнэ|бөгөөд|болон|бид|манай|хүн|ч|уу|үү|юу)(?![А-Яа-яЁёӨөҮү])", re.I)
+MN_LATIN = re.compile(r"\b(bna|baina|baigaa|baisan|bol|bolno|bolson|ene|edgeer|yum|gej|gesen|gene|bid|manai|hun|huniig|shuu|uu|vv|bn|yu|mongol)\b", re.I)
+
+
+def is_mongolian(t):
+    t = re.sub(r"\[[^\]]+\]|https?://\S+", " ", t or "")
+    if len(re.findall(r"[A-Za-zА-Яа-яЁёӨөҮү]", t)) < 3:
+        return False
+    if OTHER_CYR.search(t):              # казах, украин гэх мэт: монголд байдаггүй кирилл үсэг
+        return False
+    r = cyrillic_ratio(t)
+    if r >= 0.6:
+        return bool(MN_LETTERS.search(t) or MN_WORDS.search(t))
+    if r > 0.3:
+        return bool(MN_LETTERS.search(t))
+    return not is_english(t) and bool(MN_LATIN.search(t))
+
+
 def cyrillic_ratio(t):
     letters = re.findall(r"[A-Za-zА-Яа-яЁёӨөҮү]", re.sub(r"\[[^\]]+\]", "", t))
     if not letters:
@@ -421,6 +444,8 @@ def trust_score(raw_text, url=None, author=None, author_url=None, verified=False
     if len([w for w in text.split() if re.search(r"[^\W\d_]", w)]) < 6:   # emoji, тоог үг гэж тооцохгүй
         return {"status": "skip", "why": "Хэт богино — шалгах мэдэгдэл алга"}
     translit = False
+    if not is_mongolian(raw_text):
+        return {"status": "skip", "why": "Монгол бичвэр биш"}
     if cyrillic_ratio(text) < 0.6:
         if is_english(raw_text) or cyrillic_ratio(raw_text) > 0.3:
             return {"status": "skip", "why": "Монгол бичвэр биш"}
