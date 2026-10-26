@@ -209,10 +209,49 @@
       document.getElementById("hm-toast")?.remove();
       resp.results.forEach((r) => {
         const p = batch.find(([id]) => id === r.id)?.[1];
-        if (p) render(p, r);
+        if (!p) return;
+        render(p, r);
+        if (p.text || p.imageText) queueLLM(r.id, p, items.find((x) => x.id === r.id));
       });
     });
     if (pending.size) flushSoon();
+  }
+
+  // --- Хоёр дахь шат: LLM ---------------------------------------------------
+  // Сургасан загвар тэмдгийг шууд тавина (хурдан). Дараа нь LLM текст, зургийг уншаад тэмдгийг
+  // шинэчилнэ. Нэг удаад нэг л хүсэлт: үнэгүй API-ийн хязгаарт хүрэхгүй, лэнд удаашрахгүй.
+  const llmQueue = new Map();      // id -> {p, item}
+  let llmBusy = false, llmOff = false, llmRetryAt = 0, llmTimer = null;
+
+  function queueLLM(id, p, item) {
+    if (llmOff || !item) return;
+    llmQueue.set(id, { p, item });
+    clearTimeout(llmTimer);
+    llmTimer = setTimeout(runLLM, 400);   // нэг хүсэлтэд олон пост багтаах: дараалал дүүргэж байгаад явуулна
+  }
+
+  function runLLM() {
+    if (llmBusy || !llmQueue.size || Date.now() < llmRetryAt) return;
+    llmBusy = true;
+    const batch = [...llmQueue.entries()].slice(-8);       // хамгийн сүүлд ирсэн = дэлгэц дээр байгаа постууд
+    batch.forEach(([id]) => llmQueue.delete(id));
+    chrome.runtime.sendMessage({ type: "score-llm", items: batch.map(([, x]) => x.item) }, (resp) => {
+      llmBusy = false;
+      if (!resp || resp.error) {                            // сервер унтарсан: минутын дараа дахин оролдоно
+        batch.forEach(([id, x]) => { if (!llmQueue.has(id)) llmQueue.set(id, x); });
+        llmRetryAt = Date.now() + 60000;
+        setTimeout(runLLM, 60000);
+        return;
+      }
+      if (resp.llm === false) { llmOff = true; llmQueue.clear(); return; }   // LLM түлхүүргүй
+      resp.results.forEach((r) => {
+        const x = batch.find(([id]) => id === r.id)?.[1];
+        if (!x || !x.p.post.isConnected) return;
+        render(x.p, r);
+        if (selectedId === r.id) chrome.runtime.sendMessage({ type: "llm-update", id: r.id, r });
+      });
+      runLLM();
+    });
   }
 
 
