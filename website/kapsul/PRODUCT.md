@@ -33,7 +33,8 @@ Slogan: **Cure from the Core.** Metaphor: a pill/capsule — but not "one pill c
   2. Distribution (why it reached you) → the feed game / feed forensics. **The deep layer.**
   3. Production (who makes it and why) → source profiles (stub).
   4. Cognition (your own defaults) → training mode + pre/post measurement.
-- Visual: a capsule cut open shows concentric layers; particles spilling out are the many social factors.
+- Visual (home hero, changed 27 Oct 2026 at the user's request: the medicine capsule did not fit the subject): a
+  synthetic false Facebook post is the top layer of a stack; tapping it explodes the stack into the four layers.
 
 Language to avoid: "we solve misinformation", "our AI detects fake news", "we cure people", "trust score".
 Lines to use: "Treat the root, not the leaf." "The symptom is the claim. The disease is the pipeline."
@@ -49,7 +50,8 @@ Lines to use: "Treat the root, not the leaf." "The symptom is the claim. The dis
 ## Brand Commitments
 
 - Slogan "Cure from the Core" (user-given).
-- Pill/capsule metaphor (user-given).
+- Pill/capsule metaphor (user-given) survives in the slogan and the logo only; the home hero no longer shows a pill.
+- The site is used mostly on phones: design 390 px first, then desktop.
 - Visual system: **HACKMIL 2026 Design system v3** (user-supplied sheets): Okabe Ito for UI and verdicts, Paul Tol for chart scales, Golos Text, light + dark, WCAG 2.2 AA, color never works alone.
 - Visual references supplied by the user: an opened capsule spilling particles (3D); tsaaguur.mn/network starfield graph for the light map.
 - Light map: every finished game or share lights +1 on a 3D map of Mongolia in the sharer's aimag.
