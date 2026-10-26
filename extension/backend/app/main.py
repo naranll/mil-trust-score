@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 from . import posts
-from . import model_adapter
+from . import llm_score, model_adapter
 from .config import EXTENSION_DIR, feedback_dir
 from .schemas import FeedbackRequest, ScoreRequest, ScoreResponse
 from .scorecard import score_page
@@ -33,7 +33,8 @@ app.include_router(posts.router)
 @app.get("/health")
 def health():
     m = model_adapter.status()
-    return {"ok": True, "model": "scorecard v4" if m["loaded"] else "unavailable", "model_error": m["error"]}
+    return {"ok": True, "model": "scorecard v4" if m["loaded"] else "unavailable", "model_error": m["error"],
+            "llm": llm_score.status()}
 
 
 @app.get("/demo", include_in_schema=False)

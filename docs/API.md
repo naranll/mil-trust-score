@@ -29,7 +29,7 @@ Request (up to 50 items per call)
 ```json
 { "items": [ { "id": "hm1", "text": "post text", "url": null, "author": "Page name",
                "author_url": "https://www.facebook.com/slug", "verified": false, "image_text": "",
-               "sponsored": false, "has_cta": false, "link_title": null } ] }
+               "sponsored": false, "has_cta": false, "link_title": null, "image_url": null } ] }
 ```
 `author`/`author_url` are used only to match the trusted-pages list and are never stored. `sponsored`, `has_cta`
 (ad buttons) and `link_title` (link preview title) help the post-type classifier and the caption-vs-link check.
@@ -44,6 +44,10 @@ depends on it. Every result has `id`, `status` and (when classified) `post_type`
   "source": "trusted|lookalike|verified|unknown", "source_unverified": false,
   "text_only_trust": 98, "factcheck": null }
 ```
+When `ANTHROPIC_API_KEY` is set the batch is scored by Claude first (text + `image_url`), and results carry
+`"scorer": "llm"`, `"model"`, and `trust` on ad results too; evidence items keep a post-specific `why`.
+Posts Claude could not score fall back to the trained scorecard. Details: `extension/backend/README.md` → LLM scoring.
+
 Green needs a verified source (registered page, or a registered site's link that matches the caption). Clean text
 from an unknown source is capped at yellow 69 (`source_unverified: true`).
 

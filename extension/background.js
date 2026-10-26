@@ -1,23 +1,19 @@
 // Background service worker — content script-ээс постууд ирэхэд API руу дамжуулна.
 // Яагаад шууд content.js-ээс дуудахгүй вэ? facebook.com-ийн хамгаалалт (CSP, mixed content)
 // http://127.0.0.1 руу хандахыг хаадаг. Background-аас бол host_permissions-оор зөвшөөрөгдөнө.
+// Мөн хажуугийн самбарыг (sidepanel.html) нээж, сонгосон постыг storage.session-оор дамжуулна.
 
 const DEFAULT_API = "http://127.0.0.1:8000";
 
-// Popup-д харуулах статистик: хэдэн пост шалгасан / алгассан / алдаа гарсан
-async function countStats(results, failed = 0) {
-  const { stats = { green: 0, yellow: 0, red: 0, skip: 0, error: 0 } } = await chrome.storage.local.get("stats");
-  if (results) results.forEach((r) => { const k = r.status === "ok" ? r.zone : (r.status === "skip" ? "skip" : "error"); stats[k] = (stats[k] || 0) + 1; });
-  stats.error += failed;
-  await chrome.storage.local.set({ stats });
-}
+// Extension-ий тэмдэг дээр дарахад popup биш, самбар нээгдэнэ
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
 
 async function getApi() {
   const { api } = await chrome.storage.local.get("api");
   return api || DEFAULT_API;
 }
 
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "score") {
     (async () => {
       try {
@@ -26,28 +22,26 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ items: msg.items }),
         });
-        const data = await res.json();
-        await countStats(data.results || []);
-        sendResponse(data);
+        sendResponse(await res.json());
       } catch (e) {
-        await countStats(null, msg.items.length);
         sendResponse({ error: String(e) });   // сервер асаагүй бол энд орно
       }
     })();
     return true; // хариуг async-аар буцаана гэдгийг Chrome-д хэлнэ
   }
-  if (msg.type === "feedback") {
-    (async () => {
-      try {
-        const res = await fetch(`${await getApi()}/feedback/posts`, {
-          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(msg.item),
-        });
-        sendResponse(await res.json());
-      } catch (e) {
-        sendResponse({ ok: false, error: String(e) });
-      }
-    })();
+  if (msg.type === "open-panel") {
+    // sidePanel.open() зөвхөн хэрэглэгчийн дарсан үйлдлийн хариуд ажилладаг тул await-гүйгээр ШУУД дуудна
+    const tab = sender.tab;
+    chrome.sidePanel.open({ windowId: tab.windowId })
+      .then(() => sendResponse({ ok: true }))
+      .catch((e) => sendResponse({ ok: false, error: String(e) }));
+    chrome.storage.session.set({ [`sel:${tab.id}`]: { ...msg.post, tabId: tab.id, at: Date.now() } });
     return true;
+  }
+  if (msg.type === "focus") {
+    // Самбараас «Постод очих» → тухайн табын content script руу
+    chrome.tabs.sendMessage(msg.tabId, { type: "focus", id: msg.id }).catch(() => {});
+    return false;
   }
   if (msg.type === "health") {
     (async () => {
@@ -61,3 +55,6 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return true;
   }
 });
+
+// Таб хаагдвал сонголтыг цэвэрлэнэ
+chrome.tabs.onRemoved.addListener((tabId) => { chrome.storage.session.remove(`sel:${tabId}`); });

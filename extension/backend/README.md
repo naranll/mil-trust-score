@@ -52,11 +52,29 @@ API docs (auto-generated): http://localhost:8000/docs · full contract: [`docs/A
 | `HM_ARTIFACTS_DIR` | `model/artifacts` | where `.joblib` files are loaded from |
 | `HM_REFERENCE_DIR` | `data/reference` | outlet lists |
 | `HM_FEEDBACK_DIR` | `data/feedback` | where feedback is appended (git-ignored) |
+| `ANTHROPIC_API_KEY` | empty | turns on LLM scoring for `/score/posts` (Claude reads the text and image, see below) |
+| `HM_LLM` | `1` | `0` turns LLM scoring off even when a key is set |
+| `HM_LLM_MODEL` | `claude-opus-5-5` | Claude model used for scoring |
+| `HM_LLM_EFFORT` | `low` | `low` / `medium` / `high`: more effort = slower, more careful |
+
+## LLM scoring
+
+With `ANTHROPIC_API_KEY` set, `/score/posts` sends each batch to Claude in one request ([`app/llm_score.py`](app/llm_score.py)):
+post text, image text, the post's first image (by URL), link domain and title. The trained model adds two facts
+Claude cannot know: the source kind (registered-outlets list) and a match against already-refuted claims. Claude
+returns kind (claim / ad / personal), a 0–100 trust score, a one-sentence summary and up to 3 reasons with exact
+quotes; quotes not found in the post are dropped. Product rules still apply after Claude: green needs a registered
+source (else capped at 69), a strongly matched refuted claim stays below 40. Results have `"scorer": "llm"`.
+
+If the key is missing or a request fails (network, rate limit, refusal, bad JSON), those posts are scored by the
+trained scorecard as before; `/health` → `llm.error` shows the last failure. Results are cached in memory by content.
+Privacy: author names are not sent, only the source kind; post text and image do go to the Anthropic API.
 
 ## Notes
 
 - Unknown signals (`None`) contribute nothing, e.g. WHOIS unreachable is never punished.
 - No user identifiers, comments, browsing history or images are stored.
-- Not in the MVP: reverse image search, NLI, 1212.mn cross-check, LLM evidence retrieval.
+- Not in the MVP: reverse image search, NLI, 1212.mn cross-check, LLM evidence retrieval (the LLM scorer reads
+  only the post itself; it does not search the web).
 - The page scorecard (`/score`) and the trained model (`/score/posts`) are separate scorers for now. Merging them
   (model features + domain signals in one response with stable reason codes) is the next integration step.

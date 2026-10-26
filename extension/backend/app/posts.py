@@ -3,18 +3,21 @@
 This is the contract the extension already speaks (extension/content.js, background.js).
 Page-level scoring for news sites lives in scorecard.py and POST /score.
 
-Flow per post: classify the post type (claim / ad / commerce / personal), then run the
+Flow: when an Anthropic key is configured, Claude scores the whole batch in one request
+(llm_score.py: text + image -> 0-100 trust, zone, reasons). Posts it could not score fall back to
+the trained pipeline: classify the post type (claim / ad / commerce / personal), then run the
 matching scorer. Claims go through the trained scorecard; ads get a scam-signal check;
 personal posts are skipped.
 """
 import csv
 from datetime import datetime
 from typing import List, Optional
+from urllib.parse import urlparse
 
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from . import model_adapter
+from . import llm_score, model_adapter
 from .config import feedback_dir
 
 router = APIRouter(tags=["posts"])
@@ -33,18 +36,50 @@ class Item(BaseModel):
     sponsored: bool = False            # Facebook "Sponsored" label
     has_cta: bool = False              # ad buttons such as "Send message" / "Shop now"
     link_title: Optional[str] = None   # title of the link preview card
+    image_url: Optional[str] = None    # first image (or video poster) of the post, sent to the LLM scorer only
 
 
 class Batch(BaseModel):
     items: List[Item]
 
 
+def _llm_input(m, it: Item) -> dict:
+    """What Claude sees for one post. The trained model adds the two facts an LLM cannot know:
+    the source kind (registered-outlets list) and a match against already-refuted claims."""
+    full_text = " ".join(x for x in (it.text, it.image_text) if x)
+    kind, fc = "unknown", None
+    if m is not None:
+        core = m.hm_core
+        try:
+            kind, _ = core.source_adjust(it.author, it.author_url, it.verified)
+            if len(full_text.split()) >= 6:
+                fc = core.factcheck_match(core.clean(full_text))
+                if fc and core.is_debunk(full_text):
+                    fc = None
+        except Exception:  # the LLM can still score without these two facts
+            kind, fc = "unknown", None
+    domain = None
+    if it.url:
+        domain = urlparse(it.url).hostname
+    return {"id": it.id, "text": it.text, "image_text": it.image_text, "image_url": it.image_url,
+            "link_domain": domain, "link_title": it.link_title, "sponsored": it.sponsored,
+            "has_cta": it.has_cta, "source_kind": kind, "factcheck": fc}
+
+
 @router.post("/score/posts")
 def score_posts(batch: Batch):
     m = model_adapter.get_model()
+    items = batch.items[:MAX_BATCH]
+    # 1) Claude reads every post in one request; 2) whatever it could not score goes to the trained scorecard
+    llm_in = {it.id: _llm_input(m, it) for it in items} if llm_score.enabled() else {}
+    llm_out = llm_score.score_batch(list(llm_in.values()))
     out = []
-    for it in batch.items[:MAX_BATCH]:
-        if m is None:
+    for it in items:
+        if it.id in llm_out:
+            r = llm_score.to_result(llm_out[it.id], llm_in[it.id])
+            if m is not None:
+                r = m.kb.enrich(r, " ".join(x for x in (it.text, it.image_text) if x), r.get("post_type"))
+        elif m is None:
             r = {"status": "error", "why": "model unavailable"}
         else:
             try:

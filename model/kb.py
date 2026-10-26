@@ -47,7 +47,7 @@ def _attach_why(items):
     for x in items or []:
         x = dict(x)
         k = sig.get(x.get("id"), {})
-        if k.get("why"):
+        if k.get("why") and not x.get("why"):   # keep a post-specific why (LLM scorer) over the generic one
             x["why"] = k["why"]
         if k.get("src_url"):
             x["src_name"], x["src_url"] = k.get("src_name") or "Эх сурвалж", k["src_url"]

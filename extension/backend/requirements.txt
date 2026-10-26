@@ -4,5 +4,6 @@ fastapi>=0.110
 uvicorn>=0.29
 pydantic>=2
 python-whois      # optional at runtime: WHOIS_ENABLED=0 disables it
+anthropic>=2.3    # optional at runtime: LLM scoring runs only when ANTHROPIC_API_KEY is set (app/llm_score.py)
 httpx             # tests (fastapi TestClient)
 pytest

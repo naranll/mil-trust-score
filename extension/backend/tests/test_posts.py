@@ -5,6 +5,7 @@ import os
 import pytest
 
 os.environ["WHOIS_ENABLED"] = "0"
+os.environ["HM_LLM"] = "0"  # these tests cover the trained scorecard; LLM scoring is in test_llm_score.py
 
 pytest.importorskip("sklearn")
 pytest.importorskip("lightgbm")

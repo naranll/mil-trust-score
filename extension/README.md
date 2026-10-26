@@ -6,14 +6,15 @@
 Facebook feed ──(post text, page name)──▶ content.js ──▶ background.js ──▶ backend  POST /score/posts
                                                                                   ◀── score + 3 reasons
                 badge on every post ◀────────────────────────────────────────────
+                click a badge ──▶ background.js ──(storage.session "sel:<tabId>")──▶ side panel
 ```
 
 ```
 extension/
-├── manifest.json     permissions, host_permissions (API address), content-script matches
-├── content.js        finds Facebook posts, extracts text/author/image text, draws the badge + detail card
-├── background.js     service worker: forwards requests to the backend (avoids CORS / mixed-content blocks)
-├── popup.html/js     "server is running" check + API address setting
+├── manifest.json     permissions, host_permissions (API address), content-script matches, side_panel
+├── content.js        finds Facebook posts, extracts text/author/image text, draws the badge + one-line reason
+├── background.js     service worker: forwards requests to the backend (avoids CORS / mixed-content blocks), opens the side panel
+├── sidepanel.*       side panel: score 0–100, top reasons, one-click checking tools, questions to ask; server address (gear)
 ├── styles.css        badge styles
 └── demo/demo.html    fake Facebook feed for demos without logging in (served by the backend at /demo)
 ```
@@ -38,13 +39,15 @@ Check: http://127.0.0.1:8000/health → `{"ok":true,"model":"scorecard v4",...}`
 1. Chrome → `chrome://extensions`
 2. Turn on **Developer mode** (top right)
 3. **Load unpacked** → choose the `extension/` folder
-4. Click the extension icon: it should say "✅ Сервер ажиллаж байна"
+4. Click the extension icon: the side panel opens. If the server is not running it says «Сервертэй холбогдсонгүй».
+
+Requires Chrome 116+ (side panel API).
 
 ## 3. Try it
 - **Demo (works without internet):** http://127.0.0.1:8000/demo — the most reliable option for presentations
-- **Facebook:** open facebook.com and scroll. Each Mongolian post gets a 🟢/🟡/🔴 badge; click it for reasons + MIL card.
+- **Facebook:** open facebook.com and scroll. Each Mongolian post gets a badge; click «Шалгах» and the side panel shows the score, reasons and checking tools.
 
-> To use a deployed backend, set its URL in the popup and add the same origin to `host_permissions` in `manifest.json`.
+> To use a deployed backend, set its URL in the side panel (gear icon) and add the same origin to `host_permissions` in `manifest.json`.
 
 ## Тэмдгийн утга (хэрэглэгчид юу харагдах вэ)
 | Тэмдэг | Утга | Хэзээ |
@@ -52,8 +55,9 @@ Check: http://127.0.0.1:8000/health → `{"ok":true,"model":"scorecard v4",...}`
 | 🟢 Анхааруулах шинж илрээгүй | Бичвэрт сэжигтэй шинж алга **ба** эх сурвалж батлагдсан | Зөвхөн бүртгэлтэй пэйж эсвэл бүртгэлтэй сайтын линктэй пост |
 | 🟡 Эх сурвалжийг шалгаарай | Шийдэх хангалттай нотолгоо алга | Эх сурвалж тодорхойгүй ч цэвэр бичсэн пост энд орно |
 | 🔴 Анхааруулах дохиотой | Луйвар, манипуляц эсвэл өмнө нь няцаагдсан мэдэгдэл | |
-| (тэмдэггүй) | **Шалгагдаагүй** — хэт богино, гадаад хэл | Popup дээр тоо нь харагдана |
-Тоо (0–100) хэрэглэгчид харагдахгүй: дүрмүүдийн дараах оноо магадлал биш, харин «40% үнэн» гэж буруу уншигддаг.
+| (тэмдэггүй) | **Шалгагдаагүй** — хэт богино, гадаад хэл | |
+Тоо (0–100) зөвхөн самбарт, 0–40–70–100 шкалын хамт харагдана. «40% үнэн» гэж буруу уншигдахгүйн тулд
+«Автомат үнэлгээ, магадлал биш» гэж доор нь бичсэн.
 Латин үсгээр бичсэн монгол постыг кирилл болгож шалгана (🔤 тэмдэглэгээтэй, нарийвчлал бага).
 Сервер холбогдохгүй бол баруун доод буланд ⚠️ мэдэгдэл гарна.
 
