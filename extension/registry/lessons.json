@@ -1,0 +1,45 @@
+{
+  "_about": "Short lessons for the 'Habits' tab. SIFT is by Mike Caulfield, CC BY 4.0 (attribution required). Mongolian text is a draft for the content teammate to review.",
+  "sift": {
+    "title": { "en": "SIFT: four moves before you share", "mn": "SIFT: хуваалцахаасаа өмнөх дөрвөн алхам" },
+    "attribution": { "text": "SIFT by Mike Caulfield, CC BY 4.0", "url": "https://hapgood.us/2019/06/19/sift-the-four-moves/" },
+    "steps": [
+      { "key": "S", "en": ["Stop", "Feel a strong reaction? Pause before you share. Ask: do I know this source?"],
+        "mn": ["Зогс", "Хүчтэй сэтгэл хөдлөл төрөв үү? Хуваалцахаасаа өмнө түр зогс. Энэ эх сурвалжийг би мэдэх үү?"] },
+      { "key": "I", "en": ["Investigate the source", "Leave the post. Who is behind the page or site? Search its name in a new tab."],
+        "mn": ["Эх сурвалжийг судал", "Постоос гарч, пэйж эсвэл сайтын ард хэн байгааг шинэ таб дээр нэрээр нь хай."] },
+      { "key": "F", "en": ["Find better coverage", "Is anyone else reporting it, especially outlets that did their own reporting?"],
+        "mn": ["Илүү сайн мэдээлэл ол", "Өөр хэн нэгэн, ялангуяа өөрсдөө сурвалжилсан хэвлэл үүнийг мэдээлж байна уу?"] },
+      { "key": "T", "en": ["Trace to the original", "Follow quotes, numbers and photos back to where they first appeared. Is the context the same?"],
+        "mn": ["Эх үүсвэрийг мөрд", "Ишлэл, тоо, зургийг анх гарсан газар хүртэл нь мөрд. Агуулга нь ижил хэвээр байна уу?"] }
+    ]
+  },
+  "ifcn": {
+    "title": { "en": "IFCN: five commitments of a fact-checker", "mn": "IFCN: баримт шалгагчийн таван амлалт" },
+    "source": "https://ifcncodeofprinciples.poynter.org/the-commitments",
+    "items": [
+      { "en": "Nonpartisanship and fairness", "mn": "Аль нэг талд үл нэгдэх, шударга байх" },
+      { "en": "Standards and transparency of sources", "mn": "Эх сурвалжийн стандарт, ил тод байдал" },
+      { "en": "Transparency of funding and organisation", "mn": "Санхүүжилт, байгууллагын ил тод байдал" },
+      { "en": "Standards and transparency of methodology", "mn": "Арга зүйн стандарт, ил тод байдал" },
+      { "en": "Open and honest corrections policy", "mn": "Нээлттэй, шударга залруулгын бодлого" }
+    ]
+  },
+  "tactics": [
+    {
+      "id": "urgency",
+      "en": { "post": "URGENT!!! Share before they delete it!", "q": "What is this wording trying to make you do?", "a": "Act before thinking. Urgency to share is a common tactic; a real warning still makes sense after a 1-minute check." },
+      "mn": { "post": "ЯАРАЛТАЙ!!! Устгахаас нь өмнө шэйрлээрэй!", "q": "Энэ хэллэг таныг юу хийлгэх гэж байна вэ?", "a": "Бодохоос өмнө үйлдэл хийлгэх. Яаруулах нь түгээмэл арга; жинхэнэ анхааруулга 1 минут шалгасны дараа ч утгаа алдахгүй." }
+    },
+    {
+      "id": "anon_source",
+      "en": { "post": "Doctors say this tea cures diabetes in 3 days.", "q": "Which doctors? Where?", "a": "No name, no hospital, no study. An unnamed expert cannot be checked; look for who actually said it." },
+      "mn": { "post": "Эмч нар хэлэхдээ энэ цай чихрийн шижинг 3 хоногт эдгээдэг гэнэ.", "q": "Аль эмч? Хаана?", "a": "Нэр ч, эмнэлэг ч, судалгаа ч алга. Нэргүй мэргэжилтнийг шалгах боломжгүй; хэн үнэхээр хэлснийг хай." }
+    },
+    {
+      "id": "old_photo",
+      "en": { "post": "A photo of a flood, captioned 'Ulaanbaatar today'.", "q": "How could you check when the photo was taken?", "a": "Reverse-search it (TinEye sorts by oldest). Old photos re-shared as new are one of the most common tricks." },
+      "mn": { "post": "Үерийн зураг, «Улаанбаатар өнөөдөр» гэсэн тайлбартай.", "q": "Зургийг хэзээ авсныг яаж шалгах вэ?", "a": "Урвуу хайлт хий (TinEye хамгийн эртнийхээр эрэмбэлдэг). Хуучин зургийг шинэ мэт тараах нь хамгийн түгээмэл заль." }
+    }
+  ]
+}

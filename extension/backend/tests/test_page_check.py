@@ -22,41 +22,34 @@ def test_health():
     assert client.get("/health").json()["ok"] is True
 
 
-def test_registered_outlet_is_green():
-    r = client.post("/score", json={
+def test_registered_outlet_is_context_not_a_rating():
+    body = client.post("/api/check/page", json={
         "url": "https://montsame.mn/mn/read/1",
         "title": "Төсвийн орлого өслөө",
         "text": GOOD_TEXT,
         "links": ["https://montsame.mn/mn/about", "https://mof.gov.mn/report"],
         "author": "Б. Болд",
         "published_date": "2026-10-24",
-    })
-    body = r.json()
-    assert body["zone"] == "green" and body["score"] >= 70
-    assert len(body["reasons"]) <= 3
+    }).json()
+    assert body["state"] == "not_assessed" and body["signals"] == []
+    assert {"registered_outlet", "has_author_date"} <= {c["code"] for c in body["context"]}
+    assert "score" not in body and "zone" not in body
 
 
-def test_lookalike_clickbait_is_red():
-    r = client.post("/score", json={
-        "url": "http://ikon-news.mn/shok",
-        "title": "ШОК! Та итгэхгүй!!",
-        "text": BAD_TEXT,
-        "links": [],
-    })
-    body = r.json()
-    assert body["zone"] == "red" and body["score"] < 40
-    assert all(x["points"] < 0 for x in body["reasons"])
+def test_lookalike_clickbait_has_signals():
+    body = client.post("/api/check/page", json={
+        "url": "http://ikon-news.mn/shok", "title": "ШОК! Та итгэхгүй!!", "text": BAD_TEXT, "links": [],
+    }).json()
+    assert body["state"] == "signals" and 1 <= len(body["signals"]) <= 3
+    assert "domain_lookalike" in {s["code"] for s in body["signals"]}
+    assert all("points" not in s for s in body["signals"])
 
 
-def test_unknown_features_do_not_punish():
-    r = client.post("/score", json={"url": "https://example.com/a", "title": "", "text": ""})
-    assert r.json()["score"] == 60
+def test_empty_page_is_not_assessed():
+    body = client.post("/api/check/page", json={"url": "https://example.com/a", "title": "", "text": ""}).json()
+    assert body["state"] == "not_assessed"
 
 
-def test_mock_and_feedback(tmp_path, monkeypatch):
-    monkeypatch.setenv("HM_FEEDBACK_DIR", str(tmp_path))  # never write into the real data/feedback
-    for z in ("red", "yellow", "green"):
-        assert client.get(f"/score/mock?zone={z}").json()["zone"] == z
-    r = client.post("/feedback", json={"url": "https://x.mn", "score_shown": 20, "user_says": "too_low"})
-    assert r.json() == {"saved": True}
-    assert (tmp_path / "page_feedback.jsonl").exists()
+def test_old_endpoints_are_gone():
+    assert client.post("/score", json={"url": "https://x.mn"}).status_code == 404
+    assert client.post("/feedback", json={"url": "https://x.mn"}).status_code == 404

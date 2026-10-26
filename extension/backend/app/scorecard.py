@@ -1,34 +1,35 @@
-"""Scorecard: score = clamp(BASE + sum(weight * strength), 0, 100).
+"""Page signals for news articles / websites (POST /api/check/page). Rules only, no number.
 
-WEIGHTS is the single place the model teammate replaces with trained values
-(WoE / LightGBM + SHAP -> same codes, new numbers). Keep the codes stable: they are also the MIL card ids.
+Each rule returns a strength (0..1), or None when it did not fire or could not be measured. Rules that point at something
+worth checking become "signals"; rules that describe the page (registered outlet, named author and date)
+become "context". Neither says whether the article is true. Codes are stable: they are also MIL card ids.
 """
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 from .features import domain as D
 from .features import text as T
-from .schemas import Reason, ScoreRequest, ScoreResponse
+from .schemas import PageCheckResponse, PageItem, ScoreRequest
 
-BASE = 60
-
-# code: (weight, Mongolian label shown to the user)
-WEIGHTS: Dict[str, Tuple[float, str]] = {
+# code: (kind, priority, Mongolian label shown to the user). Priority only orders the list: it is never shown,
+# summed or turned into a number for the user.
+RULES: Dict[str, tuple] = {
     # domain
-    "domain_young":      (-15, "Домэйн саяхан бүртгэгдсэн"),
-    "domain_lookalike":  (-25, "Алдартай мэдээллийн сайтыг дуурайсан нэртэй"),
-    "no_contact_page":   (-8,  "Холбоо барих хаяг, «бидний тухай» хуудас олдсонгүй"),
-    "no_https":          (-10, "HTTPS ашиглаагүй"),
-    "registered_outlet": (25,  "Бүртгэлтэй хэвлэл мэдээллийн байгууллага"),
+    "domain_young":      ("signal",  15, "Домэйн саяхан бүртгэгдсэн"),
+    "domain_lookalike":  ("signal",  25, "Алдартай мэдээллийн сайтыг дуурайсан нэртэй"),
+    "no_contact_page":   ("signal",  8,  "Холбоо барих хаяг, «бидний тухай» хуудас олдсонгүй"),
+    "no_https":          ("signal",  10, "HTTPS ашиглаагүй"),
+    "registered_outlet": ("context", 0,  "Багийн жагсаалтад буй бүртгэлтэй хэвлэл мэдээллийн байгууллага"),
     # text
-    "clickbait":         (-12, "Clickbait гарчигтай"),
-    "emotional_words":   (-8,  "Сэтгэл хөдлөл өдөөх үг олонтой"),
-    "caps_exclaim":      (-6,  "Их үсэг, анхаарлын тэмдэг хэт олон"),
-    "no_sources":        (-10, "Эх сурвалж, ишлэл байхгүй"),
-    "anonymous_source":  (-8,  "Нэргүй эх сурвалж ашигласан"),
-    "has_author_date":   (6,   "Зохиогч, огноо тодорхой"),
+    "clickbait":         ("signal",  12, "Clickbait гарчигтай"),
+    "emotional_words":   ("signal",  8,  "Сэтгэл хөдлөл өдөөх үг олонтой"),
+    "caps_exclaim":      ("signal",  6,  "Их үсэг, анхаарлын тэмдэг хэт олон"),
+    "no_sources":        ("signal",  10, "Эх сурвалж, ишлэл байхгүй"),
+    "anonymous_source":  ("signal",  8,  "Нэргүй эх сурвалж ашигласан"),
+    "has_author_date":   ("context", 0,  "Зохиогч, огноо тодорхой"),
     # context
-    "old_news":          (-10, "Нийтлэгдсэнээс нэг жилээс илүү өнгөрсөн"),
+    "old_news":          ("signal",  10, "Нийтлэгдсэнээс нэг жилээс илүү өнгөрсөн"),
 }
+THRESHOLD = 0.5   # a rule counts as fired at half strength or more
 
 
 def compute_features(req: ScoreRequest) -> Dict[str, Optional[float]]:
@@ -48,31 +49,14 @@ def compute_features(req: ScoreRequest) -> Dict[str, Optional[float]]:
     }
 
 
-def zone_of(score: int) -> str:
-    if score >= 70:
-        return "green"
-    if score >= 40:
-        return "yellow"
-    return "red"
-
-
-def score_page(req: ScoreRequest) -> ScoreResponse:
+def check_page(req: ScoreRequest) -> PageCheckResponse:
     feats = compute_features(req)
-    contribs: List[Reason] = []
-    for code, strength in feats.items():
-        if strength is None:
+    signals: List[PageItem] = []
+    context: List[PageItem] = []
+    # most important first
+    for code, strength in sorted(feats.items(), key=lambda kv: -(kv[1] or 0) * RULES[kv[0]][1]):
+        if strength is None or strength < THRESHOLD:   # None = did not fire, or could not be measured
             continue
-        weight, label = WEIGHTS[code]
-        contribs.append(Reason(code=code, label=label, points=round(weight * strength, 1)))
-
-    raw = BASE + sum(r.points for r in contribs)
-    score = int(max(0, min(100, round(raw))))
-    zone = zone_of(score)
-
-    # Reasons: in red/yellow lead with what hurt the score; in green lead with what helped.
-    contribs.sort(key=lambda r: abs(r.points), reverse=True)
-    if zone == "green":
-        preferred = [r for r in contribs if r.points > 0] + [r for r in contribs if r.points <= 0]
-    else:
-        preferred = [r for r in contribs if r.points < 0] + [r for r in contribs if r.points >= 0]
-    return ScoreResponse(score=score, zone=zone, reasons=preferred[:3])
+        kind, _, label = RULES[code]
+        (signals if kind == "signal" else context).append(PageItem(code=code, label=label))
+    return PageCheckResponse(state="signals" if signals else "not_assessed", signals=signals[:3], context=context)

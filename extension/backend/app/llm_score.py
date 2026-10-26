@@ -1,13 +1,14 @@
-"""LLM scoring for Facebook posts: Claude reads the post text (and its image) and returns a 0-100 trust
-score with reasons quoted from the post.
+"""Claude reader for Facebook posts: Claude reads the post text (and its image) and lists signals worth
+checking, each with the exact words it found. It does NOT score the post and does not judge truth.
 
-Enabled when an Anthropic credential is configured (ANTHROPIC_API_KEY) and HM_LLM is not "0".
+Runs only when the user pressed "send for deeper check" (POST /api/check), an Anthropic credential is
+configured (ANTHROPIC_API_KEY) and HM_LLM is not "0". Unvalidated: the extension labels its output so.
 The trained model still supplies what an LLM cannot know on its own: whether the page is on the
 registered-outlets list (source kind) and whether the claim matches one already refuted by MFCC or
-factcheck.mn. Those facts go into the prompt; Claude writes the score and the reasons.
+factcheck.mn. Those facts go into the prompt.
 
 score_batch() never raises: on any failure (no key, API error, refusal, bad JSON) it returns the posts
-it could not score as missing, and posts.py falls back to the trained scorecard for them.
+it could not read as missing, and posts.py falls back to the trained rules for them.
 Privacy: author names are not sent, only the source kind. Nothing is stored except an in-memory cache.
 """
 import hashlib
@@ -35,40 +36,37 @@ SIGNALS = [
     "ad_short_link", "ad_brand_bait", "ad_hidden_promo", "image_mismatch", "other",
 ]
 
-SYSTEM = """You score Facebook posts for a Mongolian media and information literacy (MIL) browser extension.
-The extension shows each post a 0-100 trust score and the reasons for it, so that young readers learn to
-notice manipulation themselves. You do not decide whether a claim is true. You judge how much the post
-shows the signals of misinformation, manipulation or scams, and how well it is sourced.
+SYSTEM = """You help readers of a Mongolian media and information literacy (MIL) browser extension notice what in a
+Facebook post is worth checking before they believe or share it. The reader asked for this check.
+You do NOT decide whether a claim is true, you do NOT score or rate the post, and you never call it fake,
+false, reliable or safe. You point at specific wording or features, and the reader does the checking.
 
 For each post decide its kind:
 - "claim": states news, facts, health/money/government information or advice that someone could share as true.
 - "ad": sells something, promotes a giveaway, asks for money, card details or messages (sponsored or not).
 - "personal": everyday personal content with nothing to check (greetings, photos of a walk, opinions about one's own day).
 
-Score (trust, integer 0-100) for "claim" and "ad" posts:
-- 70-100: no warning signs and the source is identifiable; specific, checkable, calm wording.
-- 40-69: not enough to decide; unclear or missing source, hearsay ("...юм билээ", "гэнэ"), vague details.
-- 0-39: clear warning signs: miracle or 100% promises, "they are hiding it", urgency to share, fear or outrage,
-  requests for card numbers or prepayment, lookalike pages or domains, a claim already refuted by fact-checkers.
-For "personal" posts set trust to 0 and give no reasons.
-
-Facts provided by the system (trust them; you cannot check them yourself):
-- source_kind: "trusted" = registered Mongolian news outlet page; "lookalike" = name imitates a known outlet;
-  "verified" = blue check only (not proof of reliability); "unknown" = not on the list.
-- factcheck: a similar claim was already rated by MFCC or factcheck.mn (with their verdict). If it is "strong"
-  and the post repeats the claim rather than debunking it, the score must be below 40.
-
-Reasons:
-- Give up to 3 reasons that lower trust, most important first, and up to 2 short trust_signals that raise it.
+Signals worth checking (for "claim" and "ad" posts), for example: miracle or 100% promises, "they are hiding it",
+urgency to share, fear or outrage wording, hearsay or an unnamed source ("...юм билээ", "гэнэ", "эх сурвалжийн
+мэдээлснээр"), requests for card numbers or prepayment, lookalike pages or domains, a caption that does not fit the
+link or image, a claim matching one already checked by a fact-checker.
+- Give up to 3 signals, most important first. If there are none, return an empty list: that is a normal,
+  common answer. Never invent a signal to fill the list. Calm, specific, sourced wording is not a signal.
 - "found" is an exact excerpt copied character for character from the post text, image text or link title
-  (2-8 words), or "" when the reason is not about specific wording. Never paraphrase inside "found".
-- "text" names the signal in at most 8 words; "why" explains in one sentence why it should make a reader careful.
+  (2-8 words), or "" when the signal is not about specific wording. Never paraphrase inside "found".
+- "text" names the signal in at most 8 words; "why" says in one sentence what the reader could check and why.
 - If an image is attached, look at it: text in the image, and whether the image fits the caption.
   Do not guess whether an image is AI-generated; mention only clear visible signs.
 - Posts may be written in Mongolian Cyrillic or in Mongolian with Latin letters; read both.
+For "personal" posts give no signals.
 
-Write "summary", "text", "why" and "trust_signals" in Mongolian Cyrillic, plain and short, for a teenager.
-The summary is one sentence that tells the reader what to watch for. Return one result for every post id."""
+Facts provided by the system (you cannot check them yourself):
+- source_kind: "trusted" = page on the team's registered Mongolian news outlet list; "lookalike" = name imitates
+  a known outlet; "verified" = blue check only (identity, not accuracy); "unknown" = not on the list.
+- factcheck: a similar claim was already checked by MFCC or factcheck.mn. If the post repeats that claim, say so
+  as a "factcheck" signal and quote the repeated words.
+
+Write "text" and "why" in Mongolian Cyrillic, plain and short, for a teenager. Return one result for every post id."""
 
 
 class Reason(BaseModel):
@@ -81,10 +79,7 @@ class Reason(BaseModel):
 class PostScore(BaseModel):
     id: str
     kind: Literal["claim", "ad", "personal"]
-    trust: int
-    summary: str
     reasons: List[Reason]
-    trust_signals: List[str]
 
 
 class BatchScore(BaseModel):
@@ -101,8 +96,6 @@ SCHEMA = {
                 "properties": {
                     "id": {"type": "string"},
                     "kind": {"type": "string", "enum": ["claim", "ad", "personal"]},
-                    "trust": {"type": "integer"},
-                    "summary": {"type": "string"},
                     "reasons": {
                         "type": "array",
                         "items": {
@@ -117,9 +110,8 @@ SCHEMA = {
                             "additionalProperties": False,
                         },
                     },
-                    "trust_signals": {"type": "array", "items": {"type": "string"}},
                 },
-                "required": ["id", "kind", "trust", "summary", "reasons", "trust_signals"],
+                "required": ["id", "kind", "reasons"],
                 "additionalProperties": False,
             },
         }
@@ -165,7 +157,7 @@ def _key(p: dict) -> str:
 
 
 def _content(posts: List[dict], with_images: bool) -> list:
-    blocks = [{"type": "text", "text": f"Score these {len(posts)} posts."}]
+    blocks = [{"type": "text", "text": f"List the signals worth checking in these {len(posts)} posts."}]
     for p in posts:
         fields = {k: p[k] for k in ("id", "text", "image_text", "link_domain", "link_title", "sponsored",
                                     "has_cta", "source_kind", "factcheck") if p.get(k) not in (None, "", False)}
@@ -252,43 +244,30 @@ def score_batch(posts: List[dict]) -> Dict[str, dict]:
     return out
 
 
-# --- Map Claude's answer onto the response shape the extension already speaks (docs/API.md) ---------
+# --- Map Claude's answer onto the raw shape signals.to_signals() expects ---------------------------------
 
 def _norm(s: str) -> str:
     return re.sub(r"\s+", " ", (s or "").lower()).strip()
 
 
 def to_result(raw: dict, p: dict) -> dict:
-    """raw: one PostScore dict; p: the prepared post (same dict that was sent)."""
+    """raw: one PostScore dict; p: the prepared post (same dict that was sent). Returns a raw result in the
+    same shape as posts.score_one(), so signals.to_signals() maps both. No number is produced."""
     if raw["kind"] == "personal":
-        return {"status": "skip", "post_type": "personal", "why": "Энгийн пост — шалгах мэдэгдэл алга", "scorer": "llm"}
+        return {"status": "skip", "post_type": "personal", "why": "personal_post", "scorer": "llm"}
     haystack = _norm(" ".join(x for x in (p.get("text"), p.get("image_text"), p.get("link_title")) if x))
     reasons = []
     for x in raw["reasons"][:3]:
+        if x["signal"] == "factcheck":      # the fact-check card comes from the index, not from the LLM
+            continue
         item = {"id": x["signal"], "text": x["text"], "why": x["why"]}
         if x["found"] and _norm(x["found"]) in haystack:   # drop quotes the model did not copy verbatim
             item["found"] = x["found"]
         reasons.append(item)
-    trust = max(0, min(100, int(raw["trust"])))
     kind, fc = p.get("source_kind") or "unknown", p.get("factcheck")
-    base = {"status": "ok", "trust": trust, "summary": raw["summary"], "source": kind,
-            "factcheck": fc, "scorer": "llm", "model": MODEL}
-
+    if kind == "lookalike" and not any(r["id"] == "lookalike" for r in reasons):
+        reasons.insert(0, {"id": "lookalike", "text": "Пэйжийн нэр нь алдартай байгууллагыг дуурайсан"})
+    base = {"status": "ok", "source": kind, "factcheck": fc, "scorer": "llm", "model": MODEL}
     if raw["kind"] == "ad":
-        if kind == "lookalike" or (fc and fc.get("strong")):
-            trust = min(trust, 39)
-        zone = "ad_scam" if trust < 40 else ("ad_check" if trust < 70 else "ad_ok")
-        return {**base, "trust": trust, "post_type": "ad", "zone": zone,
-                "type_why": "Худалдаа, зар эсвэл бэлэгтэй холбоотой пост",
-                "scam": reasons, "legit": [{"id": "llm", "text": t} for t in raw["trust_signals"][:2]]}
-
-    # Product rule (docs/API.md): green needs a registered source; a refuted claim stays red
-    unverified = trust >= 70 and kind != "trusted"
-    if unverified:
-        trust = 69
-    if fc and fc.get("strong"):
-        trust = min(trust, 39)
-    zone = "green" if trust >= 70 else ("yellow" if trust >= 40 else "red")
-    return {**base, "trust": trust, "post_type": "claim", "zone": zone, "source_unverified": unverified,
-            "evidence": reasons, "risks": [r["text"] for r in reasons],
-            "trust_signals": raw["trust_signals"][:2], "translit": False}
+        return {**base, "post_type": "ad", "scam": reasons, "legit": []}
+    return {**base, "post_type": "claim", "evidence": reasons}

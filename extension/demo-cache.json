@@ -1,0 +1,732 @@
+{
+ "_about": "Generated 2026-10-26 by extension/backend/tools/build_demo_cache.py. Rules + trained model only. Shown in the extension as 'cached demo result'.",
+ "checks": {
+  "яаралтай!!! эмч нар нууж байгаа энэ аргаар 3 хоногт чихрийн шижин 100% эдгэрнэ, шэйрлээрэй найзуудаа": {
+   "post_type": "claim",
+   "scorer": "rules+model",
+   "signals": [
+    {
+     "id": "urgency",
+     "text": "Яаруулж, тараахыг шахаж байна",
+     "found": "ЯАРАЛТАЙ",
+     "why": "Худал мэдээ үнэнээс хурдан тархдаг; «яаралтай тарааарай» нь бодох хугацааг танаас булаадаг.",
+     "src_name": "Vosoughi, Roy & Aral, Science 2018",
+     "src_url": "https://doi.org/10.1126/science.aap9559",
+     "model_guess": false
+    },
+    {
+     "id": "absolute",
+     "text": "Хэт итгэлтэй амлалт",
+     "found": "100%",
+     "why": "Эм, эмчилгээ, хөрөнгө оруулалт хэзээ ч 100% баталгаа өгдөггүй — хэт итгэлтэй амлалт нь анхааруулах дохио.",
+     "src_name": "FTC: луйврыг таних",
+     "src_url": "https://consumer.ftc.gov/articles/how-avoid-scam",
+     "model_guess": false
+    },
+    {
+     "id": "conspiracy",
+     "text": "«Нууж байна» маягийн хэллэг",
+     "found": "нууж",
+     "why": "«Тэд нууж байна» гэдэг нь нотолгоо байхгүйг нөхөх түгээмэл арга; няцаалт бүрийг «нуулт»-ын нотолгоо болгон эргүүлдэг.",
+     "src_name": "Douglas, Sutton & Cichocka, 2017",
+     "src_url": "https://doi.org/10.1177/0963721417718261",
+     "model_guess": false
+    }
+   ],
+   "context": [],
+   "factcheck": null,
+   "notes": [],
+   "state": "signals",
+   "checked": true,
+   "reflect": {
+    "if_believe": "Нотолгоогүй «нуулт»-ад итгэх нь эмч, эрдэмтэн, албан байгууллагын жинхэнэ мэдээлэлд ч үл итгэхэд хүргэдэг.",
+    "if_check": "Энэ мэдэгдлийг хараат бус хэд хэдэн эх сурвалж баталсан уу? Баримт шалгагчийн сайтаас хайгаарай.",
+    "ask": "Ямар нотолгоо гарвал би энэ бодлоо өөрчлөх вэ? Хариулт нь «юу ч биш» бол энэ итгэл нотолгоонд тулгуурлаагүй байна."
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=%D0%AF%D0%90%D0%A0%D0%90%D0%9B%D0%A2%D0%90%D0%99+%D0%AD%D0%BC%D1%87+%D0%BD%D0%B0%D1%80+%D0%BD%D1%83%D1%83%D0%B6+%D0%B1%D0%B0%D0%B9%D0%B3%D0%B0%D0%B0+%D1%8D%D0%BD%D1%8D+%D0%B0%D1%80%D0%B3%D0%B0%D0%B0%D1%80+3+%D1%85%D0%BE%D0%BD%D0%BE%D0%B3%D1%82+%D1%87%D0%B8%D1%85%D1%80%D0%B8%D0%B9%D0%BD"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=%D0%AF%D0%90%D0%A0%D0%90%D0%9B%D0%A2%D0%90%D0%99+%D0%AD%D0%BC%D1%87+%D0%BD%D0%B0%D1%80+%D0%BD%D1%83%D1%83%D0%B6+%D0%B1%D0%B0%D0%B9%D0%B3%D0%B0%D0%B0"
+    },
+    {
+     "title": "Эрүүл мэндийн яам",
+     "url": "https://moh.gov.mn"
+    },
+    {
+     "title": "ДЭМБ — Монгол",
+     "url": "https://www.who.int/countries/mng"
+    }
+   ]
+  },
+  "налайх орчимд баавгай үзэгдсэн гэнэ, гадуур явахдаа болгоомжтой байгаарай. хүүхдүүдээ ганцааранг нь битгий гаргаарай": {
+   "post_type": "claim",
+   "scorer": "rules+model",
+   "signals": [
+    {
+     "id": "anon_source",
+     "text": "Хэн хэлснийг тодорхой заагаагүй",
+     "found": "гэнэ",
+     "why": "«Эрдэмтэд», «эмч нар», «гэнэ» гэхэд хэн гэдгийг шалгах боломжгүй. Нэр, байгууллага, судалгааны линк байх ёстой.",
+     "src_name": "SIFT арга: эх сурвалжийг шалга",
+     "src_url": "https://hapgood.us/2019/06/19/sift-the-four-moves/",
+     "model_guess": false
+    },
+    {
+     "id": "call_to_action",
+     "text": "Танаас ямар нэг үйлдэл хийхийг шаардаж байна",
+     "found": "байгаарай",
+     "why": "Дарах, хуваалцах, бичих гэж шахах нь пост таны үйлдлээр тархах гэж байгааг илтгэнэ.",
+     "src_name": "Pennycook et al., Nature 2021",
+     "src_url": "https://doi.org/10.1038/s41586-021-03344-2",
+     "model_guess": false
+    }
+   ],
+   "context": [
+    {
+     "id": "page_registered"
+    }
+   ],
+   "factcheck": null,
+   "notes": [],
+   "state": "signals",
+   "checked": true,
+   "reflect": {
+    "if_believe": "Шалгаагүй мэдээллийг хуваалцвал танд итгэдэг найз нөхөд нь танаар дамжиж итгэнэ.",
+    "if_check": "Өөр хоёр эх сурвалжаас ижил мэдээ хайгаарай (хажуугийн уншлага). Олдохгүй бол болгоомжил.",
+    "ask": "Үүнийг хуваалцахаас өмнө: энэ үнэн гэдэгт би хэр итгэлтэй вэ?"
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=%D0%9D%D0%B0%D0%BB%D0%B0%D0%B9%D1%85+%D0%BE%D1%80%D1%87%D0%B8%D0%BC%D0%B4+%D0%B1%D0%B0%D0%B0%D0%B2%D0%B3%D0%B0%D0%B9+%D2%AF%D0%B7%D1%8D%D0%B3%D0%B4%D1%81%D1%8D%D0%BD+%D0%B3%D1%8D%D0%BD%D1%8D+%D0%B3%D0%B0%D0%B4%D1%83%D1%83%D1%80+%D1%8F%D0%B2%D0%B0%D1%85%D0%B4%D0%B0%D0%B0+%D0%B1%D0%BE%D0%BB%D0%B3%D0%BE%D0%BE%D0%BC%D0%B6%D1%82%D0%BE%D0%B9+%D0%B1%D0%B0%D0%B9%D0%B3%D0%B0%D0%B0%D1%80%D0%B0%D0%B9+%D0%A5%D2%AF%D2%AF%D1%85%D0%B4%D2%AF%D2%AF%D0%B4%D1%8D%D1%8D"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=%D0%9D%D0%B0%D0%BB%D0%B0%D0%B9%D1%85+%D0%BE%D1%80%D1%87%D0%B8%D0%BC%D0%B4+%D0%B1%D0%B0%D0%B0%D0%B2%D0%B3%D0%B0%D0%B9+%D2%AF%D0%B7%D1%8D%D0%B3%D0%B4%D1%81%D1%8D%D0%BD+%D0%B3%D1%8D%D0%BD%D1%8D"
+    }
+   ]
+  },
+  "уих-ын намрын ээлжит чуулганы хуралдаанаар ирэх оны төсвийн төслийг хэлэлцэх эсэхийг шийдвэрлэлээ": {
+   "post_type": "claim",
+   "scorer": "rules+model",
+   "signals": [],
+   "context": [
+    {
+     "id": "page_registered"
+    }
+   ],
+   "factcheck": null,
+   "notes": [],
+   "state": "not_assessed",
+   "checked": true,
+   "why_not": "no_signals_found",
+   "reflect": {
+    "if_believe": "Батлагдаагүй шийдвэрийн тухай мэдээг тараавал бусдыг сандраах, буруу шийдвэр гаргуулах эрсдэлтэй.",
+    "if_check": "legalinfo.mn, parliament.mn, Засгийн газрын албан сайтаас тухайн шийдвэр байгаа эсэхийг шалгаарай.",
+    "ask": "Энэ мэдээ миний дэмждэг эсвэл эсэргүүцдэг талыг зорилтоо болгосон уу? Тэгвэл би илүү хурдан итгэж байж магадгүй."
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=%D0%A3%D0%98%D0%A5-%D1%8B%D0%BD+%D0%BD%D0%B0%D0%BC%D1%80%D1%8B%D0%BD+%D1%8D%D1%8D%D0%BB%D0%B6%D0%B8%D1%82+%D1%87%D1%83%D1%83%D0%BB%D0%B3%D0%B0%D0%BD%D1%8B+%D1%85%D1%83%D1%80%D0%B0%D0%BB%D0%B4%D0%B0%D0%B0%D0%BD%D0%B0%D0%B0%D1%80+%D0%B8%D1%80%D1%8D%D1%85+%D0%BE%D0%BD%D1%8B+%D1%82%D3%A9%D1%81%D0%B2%D0%B8%D0%B9%D0%BD+%D1%82%D3%A9%D1%81%D0%BB%D0%B8%D0%B9%D0%B3+%D1%85%D1%8D%D0%BB%D1%8D%D0%BB%D1%86%D1%8D%D1%85"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=%D0%A3%D0%98%D0%A5-%D1%8B%D0%BD+%D0%BD%D0%B0%D0%BC%D1%80%D1%8B%D0%BD+%D1%8D%D1%8D%D0%BB%D0%B6%D0%B8%D1%82+%D1%87%D1%83%D1%83%D0%BB%D0%B3%D0%B0%D0%BD%D1%8B+%D1%85%D1%83%D1%80%D0%B0%D0%BB%D0%B4%D0%B0%D0%B0%D0%BD%D0%B0%D0%B0%D1%80"
+    },
+    {
+     "title": "Эрх зүйн мэдээллийн нэгдсэн систем",
+     "url": "https://legalinfo.mn"
+    },
+    {
+     "title": "УИХ",
+     "url": "https://www.parliament.mn"
+    }
+   ]
+  },
+  "баяр хүргэе! та банкнаас 500,000 төгрөгийн бэлэг хожсон байна, линк дээр дарж картын дугаараа баталгаажуулаарай": {
+   "post_type": "claim",
+   "scorer": "rules+model",
+   "signals": [
+    {
+     "id": "scam",
+     "text": "Луйврын шинж",
+     "found": "бэлэг",
+     "why": "Банк, байгууллага линкээр картын мэдээлэл, нууц код хэзээ ч асуудаггүй.",
+     "src_name": "FTC: луйврыг таних",
+     "src_url": "https://consumer.ftc.gov/articles/how-avoid-scam",
+     "model_guess": false
+    },
+    {
+     "id": "call_to_action",
+     "text": "Танаас ямар нэг үйлдэл хийхийг шаардаж байна",
+     "found": "баталгаажуулаарай",
+     "why": "Дарах, хуваалцах, бичих гэж шахах нь пост таны үйлдлээр тархах гэж байгааг илтгэнэ.",
+     "src_name": "Pennycook et al., Nature 2021",
+     "src_url": "https://doi.org/10.1038/s41586-021-03344-2",
+     "model_guess": false
+    },
+    {
+     "id": "domain",
+     "text": "Алдартай мэдээллийн сайтыг дуурайсан домэйн нэр",
+     "why": "Линкийн хаягийг дуурайсан, хамгаалалтгүй эсвэл тайлбартайгаа таарахгүй байх нь хуурамч мэдээний түгээмэл шинж.",
+     "src_name": "SIFT арга",
+     "src_url": "https://hapgood.us/2019/06/19/sift-the-four-moves/",
+     "model_guess": false
+    }
+   ],
+   "context": [],
+   "factcheck": null,
+   "notes": [],
+   "state": "signals",
+   "checked": true,
+   "reflect": {
+    "if_believe": "Линк дээр дарж карт, нууц кодоо оруулбал дансаа хоосруулах эрсдэлтэй. Шилжүүлсэн мөнгийг буцаахад маш хэцүү.",
+    "if_check": "Банк, байгууллагынхаа албан утас руу залгаж эсвэл албан апп-аас нь шалгавал 2 минутад мэднэ.",
+    "ask": "Яг одоо намайг яаруулж байна уу? Яаруулж байгаа бол хэн, юуны төлөө?"
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=%D0%91%D0%B0%D1%8F%D1%80+%D1%85%D2%AF%D1%80%D0%B3%D1%8D%D0%B5+%D0%A2%D0%B0+%D0%B1%D0%B0%D0%BD%D0%BA%D0%BD%D0%B0%D0%B0%D1%81+500+000+%D1%82%D3%A9%D0%B3%D1%80%D3%A9%D0%B3%D0%B8%D0%B9%D0%BD+%D0%B1%D1%8D%D0%BB%D1%8D%D0%B3+%D1%85%D0%BE%D0%B6%D1%81%D0%BE%D0%BD+%D0%B1%D0%B0%D0%B9%D0%BD%D0%B0"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=%D0%91%D0%B0%D1%8F%D1%80+%D1%85%D2%AF%D1%80%D0%B3%D1%8D%D0%B5+%D0%A2%D0%B0+%D0%B1%D0%B0%D0%BD%D0%BA%D0%BD%D0%B0%D0%B0%D1%81+500"
+    },
+    {
+     "title": "Цагдаагийн ерөнхий газар",
+     "url": "https://police.gov.mn"
+    }
+   ]
+  },
+  "тэд биднээс нууж байна. вакцин дотор чип суулгаад бүгдийг хянаж байгаа, сэрээрэй монголчууд аа": {
+   "post_type": "claim",
+   "scorer": "rules+model",
+   "signals": [
+    {
+     "id": "lookalike",
+     "text": "«Medee.rnn» нэр нь алдартай пэйжийг дуурайсан байж магадгүй",
+     "why": "Алдартай пэйжийн нэрийг дуурайх нь итгэл олж авах түгээмэл заль.",
+     "src_name": "FTC: луйврыг таних",
+     "src_url": "https://consumer.ftc.gov/articles/how-avoid-scam",
+     "model_guess": false
+    },
+    {
+     "id": "conspiracy",
+     "text": "«Нууж байна» маягийн хэллэг",
+     "found": "биднээс",
+     "why": "«Тэд нууж байна» гэдэг нь нотолгоо байхгүйг нөхөх түгээмэл арга; няцаалт бүрийг «нуулт»-ын нотолгоо болгон эргүүлдэг.",
+     "src_name": "Douglas, Sutton & Cichocka, 2017",
+     "src_url": "https://doi.org/10.1177/0963721417718261",
+     "model_guess": false
+    },
+    {
+     "id": "call_to_action",
+     "text": "Танаас ямар нэг үйлдэл хийхийг шаардаж байна",
+     "found": "сэрээрэй",
+     "why": "Дарах, хуваалцах, бичих гэж шахах нь пост таны үйлдлээр тархах гэж байгааг илтгэнэ.",
+     "src_name": "Pennycook et al., Nature 2021",
+     "src_url": "https://doi.org/10.1038/s41586-021-03344-2",
+     "model_guess": false
+    }
+   ],
+   "context": [],
+   "factcheck": null,
+   "notes": [],
+   "state": "signals",
+   "checked": true,
+   "reflect": {
+    "if_believe": "Нотолгоогүй «нуулт»-ад итгэх нь эмч, эрдэмтэн, албан байгууллагын жинхэнэ мэдээлэлд ч үл итгэхэд хүргэдэг.",
+    "if_check": "Энэ мэдэгдлийг хараат бус хэд хэдэн эх сурвалж баталсан уу? Баримт шалгагчийн сайтаас хайгаарай.",
+    "ask": "Ямар нотолгоо гарвал би энэ бодлоо өөрчлөх вэ? Хариулт нь «юу ч биш» бол энэ итгэл нотолгоонд тулгуурлаагүй байна."
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=%D0%A2%D1%8D%D0%B4+%D0%B1%D0%B8%D0%B4%D0%BD%D1%8D%D1%8D%D1%81+%D0%BD%D1%83%D1%83%D0%B6+%D0%B1%D0%B0%D0%B9%D0%BD%D0%B0+%D0%92%D0%B0%D0%BA%D1%86%D0%B8%D0%BD+%D0%B4%D0%BE%D1%82%D0%BE%D1%80+%D1%87%D0%B8%D0%BF+%D1%81%D1%83%D1%83%D0%BB%D0%B3%D0%B0%D0%B0%D0%B4+%D0%B1%D2%AF%D0%B3%D0%B4%D0%B8%D0%B9%D0%B3+%D1%85%D1%8F%D0%BD%D0%B0%D0%B6"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=%D0%A2%D1%8D%D0%B4+%D0%B1%D0%B8%D0%B4%D0%BD%D1%8D%D1%8D%D1%81+%D0%BD%D1%83%D1%83%D0%B6+%D0%B1%D0%B0%D0%B9%D0%BD%D0%B0+%D0%92%D0%B0%D0%BA%D1%86%D0%B8%D0%BD"
+    },
+    {
+     "title": "Эрүүл мэндийн яам",
+     "url": "https://moh.gov.mn"
+    },
+    {
+     "title": "ДЭМБ — Монгол",
+     "url": "https://www.who.int/countries/mng"
+    }
+   ]
+  },
+  "хүүхдээ эрт илрүүлгийн үзлэгт хамруулаарай, сургууль цэцэрлэг дээр нь үнэгүй хийж байгаа юм билээ": {
+   "post_type": "claim",
+   "scorer": "rules+model",
+   "signals": [
+    {
+     "id": "call_to_action",
+     "text": "Танаас ямар нэг үйлдэл хийхийг шаардаж байна",
+     "found": "хамруулаарай",
+     "why": "Дарах, хуваалцах, бичих гэж шахах нь пост таны үйлдлээр тархах гэж байгааг илтгэнэ.",
+     "src_name": "Pennycook et al., Nature 2021",
+     "src_url": "https://doi.org/10.1038/s41586-021-03344-2",
+     "model_guess": false
+    }
+   ],
+   "context": [],
+   "factcheck": null,
+   "notes": [],
+   "state": "signals",
+   "checked": true,
+   "reflect": {
+    "if_believe": "Шалгаагүй мэдээллийг хуваалцвал танд итгэдэг найз нөхөд нь танаар дамжиж итгэнэ.",
+    "if_check": "Өөр хоёр эх сурвалжаас ижил мэдээ хайгаарай (хажуугийн уншлага). Олдохгүй бол болгоомжил.",
+    "ask": "Үүнийг хуваалцахаас өмнө: энэ үнэн гэдэгт би хэр итгэлтэй вэ?"
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=%D0%A5%D2%AF%D2%AF%D1%85%D0%B4%D1%8D%D1%8D+%D1%8D%D1%80%D1%82+%D0%B8%D0%BB%D1%80%D2%AF%D2%AF%D0%BB%D0%B3%D0%B8%D0%B9%D0%BD+%D2%AF%D0%B7%D0%BB%D1%8D%D0%B3%D1%82+%D1%85%D0%B0%D0%BC%D1%80%D1%83%D1%83%D0%BB%D0%B0%D0%B0%D1%80%D0%B0%D0%B9+%D1%81%D1%83%D1%80%D0%B3%D1%83%D1%83%D0%BB%D1%8C+%D1%86%D1%8D%D1%86%D1%8D%D1%80%D0%BB%D1%8D%D0%B3+%D0%B4%D1%8D%D1%8D%D1%80+%D0%BD%D1%8C+%D2%AF%D0%BD%D1%8D%D0%B3%D2%AF%D0%B9"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=%D0%A5%D2%AF%D2%AF%D1%85%D0%B4%D1%8D%D1%8D+%D1%8D%D1%80%D1%82+%D0%B8%D0%BB%D1%80%D2%AF%D2%AF%D0%BB%D0%B3%D0%B8%D0%B9%D0%BD+%D2%AF%D0%B7%D0%BB%D1%8D%D0%B3%D1%82+%D1%85%D0%B0%D0%BC%D1%80%D1%83%D1%83%D0%BB%D0%B0%D0%B0%D1%80%D0%B0%D0%B9"
+    }
+   ]
+  },
+  "өнөөдөр гэрийнхэнтэйгээ хамт уулаар алхлаа 🙂": {
+   "post_type": "personal",
+   "scorer": "rules+model",
+   "signals": [],
+   "context": [],
+   "factcheck": null,
+   "notes": [],
+   "state": "not_assessed",
+   "checked": false,
+   "why_not": "personal_post"
+  },
+  "yaaraltai!!! emch nar nuuj baigaa ene argaar 3 honogt chihriin shijin 100% edgerne, shareleerei": {
+   "post_type": "claim",
+   "scorer": "rules+model",
+   "signals": [
+    {
+     "id": "urgency",
+     "text": "Яаруулж, тараахыг шахаж байна",
+     "found": "Яаралтай",
+     "why": "Худал мэдээ үнэнээс хурдан тархдаг; «яаралтай тарааарай» нь бодох хугацааг танаас булаадаг.",
+     "src_name": "Vosoughi, Roy & Aral, Science 2018",
+     "src_url": "https://doi.org/10.1126/science.aap9559",
+     "model_guess": false
+    },
+    {
+     "id": "absolute",
+     "text": "Хэт итгэлтэй амлалт",
+     "found": "100%",
+     "why": "Эм, эмчилгээ, хөрөнгө оруулалт хэзээ ч 100% баталгаа өгдөггүй — хэт итгэлтэй амлалт нь анхааруулах дохио.",
+     "src_name": "FTC: луйврыг таних",
+     "src_url": "https://consumer.ftc.gov/articles/how-avoid-scam",
+     "model_guess": false
+    },
+    {
+     "id": "conspiracy",
+     "text": "«Нууж байна» маягийн хэллэг",
+     "found": "нууж",
+     "why": "«Тэд нууж байна» гэдэг нь нотолгоо байхгүйг нөхөх түгээмэл арга; няцаалт бүрийг «нуулт»-ын нотолгоо болгон эргүүлдэг.",
+     "src_name": "Douglas, Sutton & Cichocka, 2017",
+     "src_url": "https://doi.org/10.1177/0963721417718261",
+     "model_guess": false
+    }
+   ],
+   "context": [],
+   "factcheck": null,
+   "notes": [
+    "translit"
+   ],
+   "state": "signals",
+   "checked": true,
+   "reflect": {
+    "if_believe": "Нотолгоогүй «нуулт»-ад итгэх нь эмч, эрдэмтэн, албан байгууллагын жинхэнэ мэдээлэлд ч үл итгэхэд хүргэдэг.",
+    "if_check": "Энэ мэдэгдлийг хараат бус хэд хэдэн эх сурвалж баталсан уу? Баримт шалгагчийн сайтаас хайгаарай.",
+    "ask": "Ямар нотолгоо гарвал би энэ бодлоо өөрчлөх вэ? Хариулт нь «юу ч биш» бол энэ итгэл нотолгоонд тулгуурлаагүй байна."
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=Yaaraltai+Emch+nar+nuuj+baigaa+ene+argaar+3+honogt+chihriin"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=Yaaraltai+Emch+nar+nuuj+baigaa"
+    }
+   ]
+  },
+  "засгийн газрын хуралдаанаар ирэх оноос эхлэн иргэн бүрийн хадгаламжийн 30 хувийг төрд шилжүүлэх шийдвэр гаргалаа": {
+   "post_type": "claim",
+   "scorer": "rules+model",
+   "signals": [],
+   "context": [],
+   "factcheck": null,
+   "notes": [],
+   "state": "not_assessed",
+   "checked": true,
+   "why_not": "no_signals_found",
+   "reflect": {
+    "if_believe": "Батлагдаагүй шийдвэрийн тухай мэдээг тараавал бусдыг сандраах, буруу шийдвэр гаргуулах эрсдэлтэй.",
+    "if_check": "legalinfo.mn, parliament.mn, Засгийн газрын албан сайтаас тухайн шийдвэр байгаа эсэхийг шалгаарай.",
+    "ask": "Энэ мэдээ миний дэмждэг эсвэл эсэргүүцдэг талыг зорилтоо болгосон уу? Тэгвэл би илүү хурдан итгэж байж магадгүй."
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=%D0%97%D0%B0%D1%81%D0%B3%D0%B8%D0%B9%D0%BD+%D0%B3%D0%B0%D0%B7%D1%80%D1%8B%D0%BD+%D1%85%D1%83%D1%80%D0%B0%D0%BB%D0%B4%D0%B0%D0%B0%D0%BD%D0%B0%D0%B0%D1%80+%D0%B8%D1%80%D1%8D%D1%85+%D0%BE%D0%BD%D0%BE%D0%BE%D1%81+%D1%8D%D1%85%D0%BB%D1%8D%D0%BD+%D0%B8%D1%80%D0%B3%D1%8D%D0%BD+%D0%B1%D2%AF%D1%80%D0%B8%D0%B9%D0%BD+%D1%85%D0%B0%D0%B4%D0%B3%D0%B0%D0%BB%D0%B0%D0%BC%D0%B6%D0%B8%D0%B9%D0%BD+30"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=%D0%97%D0%B0%D1%81%D0%B3%D0%B8%D0%B9%D0%BD+%D0%B3%D0%B0%D0%B7%D1%80%D1%8B%D0%BD+%D1%85%D1%83%D1%80%D0%B0%D0%BB%D0%B4%D0%B0%D0%B0%D0%BD%D0%B0%D0%B0%D1%80+%D0%B8%D1%80%D1%8D%D1%85+%D0%BE%D0%BD%D0%BE%D0%BE%D1%81"
+    },
+    {
+     "title": "Эрх зүйн мэдээллийн нэгдсэн систем",
+     "url": "https://legalinfo.mn"
+    },
+    {
+     "title": "УИХ",
+     "url": "https://www.parliament.mn"
+    }
+   ]
+  },
+  "норвегид вакцин хийлгэсэн 23 хүн нас барсан гэнэ шүү, болгоомжтой байцгаая": {
+   "post_type": "claim",
+   "scorer": "rules+model",
+   "signals": [
+    {
+     "id": "anon_source",
+     "text": "Хэн хэлснийг тодорхой заагаагүй",
+     "found": "гэнэ",
+     "why": "«Эрдэмтэд», «эмч нар», «гэнэ» гэхэд хэн гэдгийг шалгах боломжгүй. Нэр, байгууллага, судалгааны линк байх ёстой.",
+     "src_name": "SIFT арга: эх сурвалжийг шалга",
+     "src_url": "https://hapgood.us/2019/06/19/sift-the-four-moves/",
+     "model_guess": false
+    },
+    {
+     "id": "style_model",
+     "text": "Бичих хэлбэр нь өмнө нь худал болох нь тогтоогдсон постуудтай төстэй",
+     "why": "Манай загвар өмнө нь худал гэж тогтоогдсон 1,900 гаруй постоос сурсан хэв маягтай төстэй гэж үзсэн. Энэ нь нотолгоо биш, магадлал.",
+     "model_guess": true
+    }
+   ],
+   "context": [],
+   "factcheck": {
+    "publisher": "MFCC",
+    "headline": "Норвегт вакцин хийлгэсэн 23 хүн нас барсан гэх мэдээлэл нь #ТӨӨРӨГДҮҮЛСЭН",
+    "claim": "Норвегт вакцин хийлгэсэн 23 хүн нас барсан",
+    "url": "https://mfcc.mn/factcheck-47/",
+    "date": "2021-01-28",
+    "match": "close"
+   },
+   "notes": [],
+   "state": "factcheck",
+   "checked": true,
+   "reflect": {
+    "if_believe": "Батлагдаагүй аргаар эмчлүүлж, эмчийн эмчилгээгээ хойшлуулбал өвчин хүндэрч болно.",
+    "if_check": "Эмч, эсвэл ЭМЯ, ДЭМБ-ын сайтаас 5 минут хайхад тухайн арга батлагдсан эсэх нь харагдана.",
+    "ask": "Би үүнийг итгэмээр байгаа учраас итгэж байна уу, эсвэл нотолгоо харсан уу?"
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=%D0%9D%D0%BE%D1%80%D0%B2%D0%B5%D0%B3%D0%B8%D0%B4+%D0%B2%D0%B0%D0%BA%D1%86%D0%B8%D0%BD+%D1%85%D0%B8%D0%B9%D0%BB%D0%B3%D1%8D%D1%81%D1%8D%D0%BD+23+%D1%85%D2%AF%D0%BD+%D0%BD%D0%B0%D1%81+%D0%B1%D0%B0%D1%80%D1%81%D0%B0%D0%BD+%D0%B3%D1%8D%D0%BD%D1%8D+%D1%88%D2%AF%D2%AF+%D0%B1%D0%BE%D0%BB%D0%B3%D0%BE%D0%BE%D0%BC%D0%B6%D1%82%D0%BE%D0%B9"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=%D0%9D%D0%BE%D1%80%D0%B2%D0%B5%D0%B3%D0%B8%D0%B4+%D0%B2%D0%B0%D0%BA%D1%86%D0%B8%D0%BD+%D1%85%D0%B8%D0%B9%D0%BB%D0%B3%D1%8D%D1%81%D1%8D%D0%BD+23+%D1%85%D2%AF%D0%BD"
+    },
+    {
+     "title": "Эрүүл мэндийн яам",
+     "url": "https://moh.gov.mn"
+    },
+    {
+     "title": "ДЭМБ — Монгол",
+     "url": "https://www.who.int/countries/mng"
+    }
+   ]
+  },
+  "эмч нар нууж байна! энэ ундааг 7 хоног уувал хорт хавдар 100% эдгэрнэ": {
+   "post_type": "claim",
+   "scorer": "rules+model",
+   "signals": [
+    {
+     "id": "absolute",
+     "text": "Хэт итгэлтэй амлалт",
+     "found": "100%",
+     "why": "Эм, эмчилгээ, хөрөнгө оруулалт хэзээ ч 100% баталгаа өгдөггүй — хэт итгэлтэй амлалт нь анхааруулах дохио.",
+     "src_name": "FTC: луйврыг таних",
+     "src_url": "https://consumer.ftc.gov/articles/how-avoid-scam",
+     "model_guess": false
+    },
+    {
+     "id": "conspiracy",
+     "text": "«Нууж байна» маягийн хэллэг",
+     "found": "НУУЖ",
+     "why": "«Тэд нууж байна» гэдэг нь нотолгоо байхгүйг нөхөх түгээмэл арга; няцаалт бүрийг «нуулт»-ын нотолгоо болгон эргүүлдэг.",
+     "src_name": "Douglas, Sutton & Cichocka, 2017",
+     "src_url": "https://doi.org/10.1177/0963721417718261",
+     "model_guess": false
+    },
+    {
+     "id": "anon_source",
+     "text": "Хэн хэлснийг тодорхой заагаагүй",
+     "found": "ЭМЧ НАР",
+     "why": "«Эрдэмтэд», «эмч нар», «гэнэ» гэхэд хэн гэдгийг шалгах боломжгүй. Нэр, байгууллага, судалгааны линк байх ёстой.",
+     "src_name": "SIFT арга: эх сурвалжийг шалга",
+     "src_url": "https://hapgood.us/2019/06/19/sift-the-four-moves/",
+     "model_guess": false
+    }
+   ],
+   "context": [],
+   "factcheck": null,
+   "notes": [
+    "from_image"
+   ],
+   "state": "signals",
+   "checked": true,
+   "reflect": {
+    "if_believe": "Нотолгоогүй «нуулт»-ад итгэх нь эмч, эрдэмтэн, албан байгууллагын жинхэнэ мэдээлэлд ч үл итгэхэд хүргэдэг.",
+    "if_check": "Энэ мэдэгдлийг хараат бус хэд хэдэн эх сурвалж баталсан уу? Баримт шалгагчийн сайтаас хайгаарай.",
+    "ask": "Ямар нотолгоо гарвал би энэ бодлоо өөрчлөх вэ? Хариулт нь «юу ч биш» бол энэ итгэл нотолгоонд тулгуурлаагүй байна."
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=%D0%AD%D0%9C%D0%A7+%D0%9D%D0%90%D0%A0+%D0%9D%D0%A3%D0%A3%D0%96+%D0%91%D0%90%D0%99%D0%9D%D0%90+%D0%AD%D0%BD%D1%8D+%D1%83%D0%BD%D0%B4%D0%B0%D0%B0%D0%B3+7+%D1%85%D0%BE%D0%BD%D0%BE%D0%B3+%D1%83%D1%83%D0%B2%D0%B0%D0%BB+%D1%85%D0%BE%D1%80%D1%82"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=%D0%AD%D0%9C%D0%A7+%D0%9D%D0%90%D0%A0+%D0%9D%D0%A3%D0%A3%D0%96+%D0%91%D0%90%D0%99%D0%9D%D0%90+%D0%AD%D0%BD%D1%8D"
+    },
+    {
+     "title": "Эрүүл мэндийн яам",
+     "url": "https://moh.gov.mn"
+    },
+    {
+     "title": "ДЭМБ — Монгол",
+     "url": "https://www.who.int/countries/mng"
+    }
+   ]
+  },
+  "энэ юу болоод байна аа 😱": {
+   "post_type": "personal",
+   "scorer": "rules+model",
+   "signals": [],
+   "context": [],
+   "factcheck": null,
+   "notes": [],
+   "state": "not_assessed",
+   "checked": false,
+   "why_not": "personal_post"
+  },
+  "сүүлийн 5 ширхэг! японы арьс арчилгааны багц ердөө 39,000₮. захиалга зөвхөн inbox-оор, урьдчилгаа 50% данс руу шилжүүлээрэй": {
+   "post_type": "ad",
+   "scorer": "rules+model",
+   "signals": [
+    {
+     "id": "ad_prepay",
+     "text": "Урьдчилгаа төлбөрийг данс руу шилжүүлэхийг шаардаж байна",
+     "found": "урьдчилгаа",
+     "why": "Луйварчид ихэвчлэн урьдчилгаа авсны дараа холбоо тасалдаг. Хувь хүний данс руу шилжүүлсэн мөнгийг буцаахад хэцүү.",
+     "src_name": "FTC: онлайн худалдааны луйвар",
+     "src_url": "https://consumer.ftc.gov/articles/how-avoid-scam",
+     "model_guess": false
+    },
+    {
+     "id": "ad_inbox_only",
+     "text": "Үнэ, захиалгыг зөвхөн чатаар (inbox) — нээлттэй мэдээлэл алга",
+     "found": "зөвхөн inbox",
+     "why": "Үнийг нээлттэй бичихгүй, зөвхөн чатаар ярих нь хүн бүрт өөр үнэ хэлэх, ул мөргүй харилцах боломж олгоно.",
+     "src_name": "FTC",
+     "src_url": "https://consumer.ftc.gov/articles/how-avoid-scam",
+     "model_guess": false
+    },
+    {
+     "id": "ad_scarcity",
+     "text": "«Сүүлийн цөөн ширхэг», «өнөөдөр л» гэж яаруулж байна",
+     "found": "Сүүлийн 5",
+     "why": "Хомсдлын нөлөө: «цөөн үлдсэн» гэхэд бид бодохоос өмнө шийддэг (Cialdini-ийн итгүүлэх зарчим).",
+     "src_name": "FTC",
+     "src_url": "https://consumer.ftc.gov/articles/how-avoid-scam",
+     "model_guess": false
+    }
+   ],
+   "context": [],
+   "factcheck": null,
+   "notes": [],
+   "state": "signals",
+   "checked": true,
+   "reflect": {
+    "if_believe": "Линк дээр дарж карт, нууц кодоо оруулбал дансаа хоосруулах эрсдэлтэй. Шилжүүлсэн мөнгийг буцаахад маш хэцүү.",
+    "if_check": "Банк, байгууллагынхаа албан утас руу залгаж эсвэл албан апп-аас нь шалгавал 2 минутад мэднэ.",
+    "ask": "Яг одоо намайг яаруулж байна уу? Яаруулж байгаа бол хэн, юуны төлөө?"
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=%D0%A1%D2%AF%D2%AF%D0%BB%D0%B8%D0%B9%D0%BD+5+%D1%88%D0%B8%D1%80%D1%85%D1%8D%D0%B3+%D0%AF%D0%BF%D0%BE%D0%BD%D1%8B+%D0%B0%D1%80%D1%8C%D1%81+%D0%B0%D1%80%D1%87%D0%B8%D0%BB%D0%B3%D0%B0%D0%B0%D0%BD%D1%8B+%D0%B1%D0%B0%D0%B3%D1%86+%D0%B5%D1%80%D0%B4%D3%A9%D3%A9+39+000"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=%D0%A1%D2%AF%D2%AF%D0%BB%D0%B8%D0%B9%D0%BD+5+%D1%88%D0%B8%D1%80%D1%85%D1%8D%D0%B3+%D0%AF%D0%BF%D0%BE%D0%BD%D1%8B+%D0%B0%D1%80%D1%8C%D1%81"
+    },
+    {
+     "title": "Улсын бүртгэлийн ерөнхий газар",
+     "url": "https://burtgel.gov.mn"
+    }
+   ],
+   "laws": [
+    {
+     "title": "Зөрчлийн тухай хууль, 10.2 дугаар зүйлийн 7.",
+     "text": "Худалдагч хэрэглэгчийг төөрөгдүүлбэл хувь хүнийг 500, хуулийн этгээдийг 50,000 нэгжээр торгоно (2020 оны нэмэлт өөрчлөлтөөр).",
+     "url": "https://legalinfo.mn/mn/detail?lawId=103687",
+     "verified": true
+    }
+   ]
+  },
+  "ielts сургалтад элсэлт авч байна. 8 долоо хоног, 450,000₮. хаяг: бзд 26-р хороо, да хүрээ төв 4 давхар. утас 7011-5566. е-баримт олгоно": {
+   "post_type": "ad",
+   "scorer": "rules+model",
+   "signals": [],
+   "context": [],
+   "factcheck": null,
+   "notes": [],
+   "state": "not_assessed",
+   "checked": true,
+   "why_not": "no_signals_found",
+   "reflect": {
+    "if_believe": "Урьдчилгаа шилжүүлээд бараагаа авалгүй үлдэх, эсвэл хуурамч бараа авах эрсдэлтэй.",
+    "if_check": "Пэйжийн түүх, хаяг, вэб сайт, бусдын сэтгэгдлийг 3 минут шалгавал луйврын ихэнхийг илрүүлнэ.",
+    "ask": "Хэрэв энэ санал маргааш ч гэсэн хэвээр байх байсан бол би одоо авах уу?"
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=IELTS+%D1%81%D1%83%D1%80%D0%B3%D0%B0%D0%BB%D1%82%D0%B0%D0%B4+%D1%8D%D0%BB%D1%81%D1%8D%D0%BB%D1%82+%D0%B0%D0%B2%D1%87+%D0%B1%D0%B0%D0%B9%D0%BD%D0%B0+8+%D0%B4%D0%BE%D0%BB%D0%BE%D0%BE+%D1%85%D0%BE%D0%BD%D0%BE%D0%B3+450+000"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=IELTS+%D1%81%D1%83%D1%80%D0%B3%D0%B0%D0%BB%D1%82%D0%B0%D0%B4+%D1%8D%D0%BB%D1%81%D1%8D%D0%BB%D1%82+%D0%B0%D0%B2%D1%87+%D0%B1%D0%B0%D0%B9%D0%BD%D0%B0"
+    },
+    {
+     "title": "Улсын бүртгэлийн ерөнхий газар",
+     "url": "https://burtgel.gov.mn"
+    }
+   ],
+   "laws": [
+    {
+     "title": "Зөрчлийн тухай хууль, 10.2 дугаар зүйлийн 7.",
+     "text": "Худалдагч хэрэглэгчийг төөрөгдүүлбэл хувь хүнийг 500, хуулийн этгээдийг 50,000 нэгжээр торгоно (2020 оны нэмэлт өөрчлөлтөөр).",
+     "url": "https://legalinfo.mn/mn/detail?lawId=103687",
+     "verified": true
+    }
+   ]
+  },
+  "засгийн газар бүх иргэдэд 1 сая төгрөг тараахаар шийдвэрлэлээ, данс руугаа шалгаарай!!!": {
+   "post_type": "claim",
+   "scorer": "rules+model",
+   "signals": [
+    {
+     "id": "scam",
+     "text": "Луйврын шинж",
+     "found": "данс",
+     "why": "Банк, байгууллага линкээр картын мэдээлэл, нууц код хэзээ ч асуудаггүй.",
+     "src_name": "FTC: луйврыг таних",
+     "src_url": "https://consumer.ftc.gov/articles/how-avoid-scam",
+     "model_guess": false
+    },
+    {
+     "id": "exclaim",
+     "text": "Анхаарлын тэмдэг (!) олон",
+     "why": "Олон анхаарлын тэмдэг яаралтай, сандруулсан өнгө аяс үүсгэдэг.",
+     "src_name": "Martel, Pennycook & Rand, 2020",
+     "src_url": "https://doi.org/10.1186/s41235-020-00252-3",
+     "model_guess": false
+    },
+    {
+     "id": "call_to_action",
+     "text": "Танаас ямар нэг үйлдэл хийхийг шаардаж байна",
+     "found": "шалгаарай",
+     "why": "Дарах, хуваалцах, бичих гэж шахах нь пост таны үйлдлээр тархах гэж байгааг илтгэнэ.",
+     "src_name": "Pennycook et al., Nature 2021",
+     "src_url": "https://doi.org/10.1038/s41586-021-03344-2",
+     "model_guess": false
+    }
+   ],
+   "context": [],
+   "factcheck": null,
+   "notes": [],
+   "state": "signals",
+   "checked": true,
+   "reflect": {
+    "if_believe": "Линк дээр дарж карт, нууц кодоо оруулбал дансаа хоосруулах эрсдэлтэй. Шилжүүлсэн мөнгийг буцаахад маш хэцүү.",
+    "if_check": "Банк, байгууллагынхаа албан утас руу залгаж эсвэл албан апп-аас нь шалгавал 2 минутад мэднэ.",
+    "ask": "Яг одоо намайг яаруулж байна уу? Яаруулж байгаа бол хэн, юуны төлөө?"
+   },
+   "check_links": [
+    {
+     "title": "Google-ээс хайх",
+     "url": "https://www.google.com/search?q=%D0%97%D0%B0%D1%81%D0%B3%D0%B8%D0%B9%D0%BD+%D0%B3%D0%B0%D0%B7%D0%B0%D1%80+%D0%B1%D2%AF%D1%85+%D0%B8%D1%80%D0%B3%D1%8D%D0%B4%D1%8D%D0%B4+1+%D1%81%D0%B0%D1%8F+%D1%82%D3%A9%D0%B3%D1%80%D3%A9%D0%B3+%D1%82%D0%B0%D1%80%D0%B0%D0%B0%D1%85%D0%B0%D0%B0%D1%80+%D1%88%D0%B8%D0%B9%D0%B4%D0%B2%D1%8D%D1%80%D0%BB%D1%8D%D0%BB%D1%8D%D1%8D+%D0%B4%D0%B0%D0%BD%D1%81"
+    },
+    {
+     "title": "MFCC-ээс хайх",
+     "url": "https://mfcc.mn/?s=%D0%97%D0%B0%D1%81%D0%B3%D0%B8%D0%B9%D0%BD+%D0%B3%D0%B0%D0%B7%D0%B0%D1%80+%D0%B1%D2%AF%D1%85+%D0%B8%D1%80%D0%B3%D1%8D%D0%B4%D1%8D%D0%B4+1"
+    },
+    {
+     "title": "Цагдаагийн ерөнхий газар",
+     "url": "https://police.gov.mn"
+    }
+   ]
+  },
+  "бид гэр бүлээрээ хөвсгөл явлаа, ус нь үнэхээр тунгалаг, гоё амраад ирлээ 😍": {
+   "post_type": "personal",
+   "scorer": "rules+model",
+   "signals": [],
+   "context": [],
+   "factcheck": null,
+   "notes": [],
+   "state": "not_assessed",
+   "checked": false,
+   "why_not": "personal_post"
+  }
+ },
+ "wayback": {
+  "https://ikon.mn/": {
+   "ok": true,
+   "url": "https://ikon.mn/",
+   "archived": true,
+   "first": null,
+   "latest": {
+    "timestamp": "20261026053447",
+    "date": "2026-10-26",
+    "url": "http://web.archive.org/web/20261026053447/https://ikon.mn/"
+   },
+   "history_url": "https://web.archive.org/web/*/https://ikon.mn/",
+   "recorded": "2026-10-26"
+  }
+ },
+ "rdap": {
+  "ik0n.mn": {
+   "ok": false,
+   "reason": "no_rdap_for_tld",
+   "fallback_url": "https://www.whois.com/whois/ik0n.mn",
+   "domain": "ik0n.mn"
+  },
+  "ikon.mn": {
+   "ok": false,
+   "reason": "no_rdap_for_tld",
+   "fallback_url": "https://www.whois.com/whois/ikon.mn",
+   "domain": "ikon.mn"
+  }
+ }
+}

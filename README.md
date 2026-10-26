@@ -1,5 +1,14 @@
 # Итгэлцлийн оноо
 
+> **2026-10-26: бүтээгдэхүүний чиглэл өөрчлөгдсөн.** 0–100 оноо, ногоон/шар/улаан бүсийг хассан. Одоо extension
+> «шалгах дохио, дүгнэлт биш» харуулна: гурван төлөв (шалгах дохио · баримт шалгалт олдсон · шалгаагүй), хажуугийн
+> самбарт хэрэгсэл, эх сурвалж. Доорх оноотой холбоотой хэсгүүд хуучирсан. Одоогийн дүрэм: [`CLAUDE.md`](CLAUDE.md),
+> API: [`docs/API.md`](docs/API.md), extension: [`extension/README.md`](extension/README.md).
+>
+> _Product changed on 2026-10-26: the 0–100 score and colour zones were removed. The extension now shows signals to
+> check, never a verdict. Sections below that describe the score are out of date._
+
+
 > Мэдээллийн сайт болон Facebook пост дээр тайлбарлагдахуйц 0–100 итгэлцлийн оноо харуулж, хэрэглэгчийг мэдээг өөрөө шүүн тунгаахад сургадаг browser extension.
 
 _HACKMIL 2026 хакатоны төсөл · A browser extension that gives news pages and Facebook posts an explainable 0–100 trust score, then teaches media and information literacy instead of telling users what is true. And a website to promote media literacy for all ages._

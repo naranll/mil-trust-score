@@ -1,80 +1,63 @@
-# backend/ — scoring API (FastAPI)
+# extension/backend/: checker + thin proxy (FastAPI)
 
-**Owner: API / mobile-scanner member.** The one server the extension and the website talk to. It does not hold
-model code or data itself: it imports [`model/hm_core.py`](../model/README.md) and reads
-[`data/reference/`](../data/README.md).
+**Owner: API member.** The one server the extension (and later the website) talks to. Signals, never a score:
+see [`CLAUDE.md`](../../CLAUDE.md) section 2. It imports [`model/`](../../model/README.md) and reads
+[`data/reference/`](../../data/README.md) and [`registry/`](../../registry/README.md).
 
 ```
-backend/
-├── app/
-│   ├── main.py            app, CORS, /health, /demo, page scoring (POST /score), page feedback
-│   ├── posts.py           extension endpoints: POST /score/posts (classify post type, then score), /feedback/posts
-│   ├── model_adapter.py   lazy bridge to model/ (hm_core, post_types, kb); API still starts if the model fails to load
-│   ├── scorecard.py       hand-weighted page scorecard: WEIGHTS = {code: (weight, Mongolian label)}
-│   ├── features/          domain.py (WHOIS, lookalike, HTTPS, outlet list), text.py (clickbait, sources, ...)
-│   ├── schemas.py         request/response models for POST /score
-│   └── config.py          all filesystem paths (repo-relative, overridable by env)
-├── tests/
-└── requirements.txt       includes ../model/requirements.txt
+app/
+├── main.py            app, CORS, /health, /demo, POST /api/check/page
+├── posts.py           POST /api/check (user pressed "send for deeper check"), /feedback/posts (off by default)
+├── signals.py         raw scorer output -> public shape: signals | factcheck | not_assessed. Drops every number.
+├── llm_score.py       optional Claude reader: quoted signals, no score (ANTHROPIC_API_KEY)
+├── proxy.py           /api/wayback, /api/rdap, /api/registry: cache, timeouts, link fallbacks
+├── guard.py           install-id rate limit, URL / domain validation (http/https, no private IPs)
+├── scorecard.py       page rules -> signals + context (no weights shown)
+├── model_adapter.py   lazy bridge to model/ (hm_core, post_types, kb)
+├── features/          domain.py, text.py
+└── config.py          paths
+tools/build_demo_cache.py   writes extension/demo-cache.json for the offline demo
+tests/                      pytest; test_check.py fails if any score/zone/verdict key appears in a response
 ```
 
 ## Run
 
-From `extension/backend/`:
+From the repo root:
 
 ```bash
-python -m venv .venv && source .venv/bin/activate       # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-pytest -q
+pip install -r extension/backend/requirements.txt
+python -m uvicorn extension.backend.app.main:app --port 8000
+python -m pytest extension/backend/tests -q
 ```
 
-API docs (auto-generated): http://localhost:8000/docs · full contract: [`docs/API.md`](../docs/API.md)
-
-## Endpoints
-
-| Method | Path | Used by | Purpose |
-|---|---|---|---|
-| POST | `/score` | website, future news-page extension | score a **page**: url, title, text, links → score, zone, 3 reasons |
-| POST | `/score/posts` | extension (Facebook) | classify (claim/ad/commerce/personal) and score a **batch of posts** |
-| GET | `/score/mock?zone=` | frontend development | hard-coded responses |
-| POST | `/feedback` | page UI | "this score is wrong" → `data/feedback/page_feedback.jsonl` |
-| POST | `/feedback/posts` | extension | ✅/❌ label → `data/feedback/feedback.csv` (no author names stored) |
-| GET | `/health` | popup, monitoring | `{"ok":true,"model":"scorecard v4"}` or `"unavailable"` + error |
-| GET | `/demo`, `/demo/fb` | demos | fake feed / Facebook-like DOM test page from `extension/demo/` |
+API contract: [`docs/API.md`](../../docs/API.md) · auto docs: http://localhost:8000/docs
 
 ## Environment
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `WHOIS_ENABLED` | `1` | `0` disables WHOIS lookups (tests, offline demos) |
-| `HM_CORS_ORIGINS` | empty | comma-separated website origins allowed to call the API (extension and localhost are always allowed) |
-| `HM_ARTIFACTS_DIR` | `model/artifacts` | where `.joblib` files are loaded from |
-| `HM_REFERENCE_DIR` | `data/reference` | outlet lists |
-| `HM_FEEDBACK_DIR` | `data/feedback` | where feedback is appended (git-ignored) |
-| `ANTHROPIC_API_KEY` | empty | turns on LLM scoring for `/score/posts` (Claude reads the text and image, see below) |
-| `HM_LLM` | `1` | `0` turns LLM scoring off even when a key is set |
-| `HM_LLM_MODEL` | `claude-opus-5-5` | Claude model used for scoring |
-| `HM_LLM_EFFORT` | `low` | `low` / `medium` / `high`: more effort = slower, more careful |
+| `HM_CHECK_LIMIT` | `60` | `/api/check` calls per install id per 10 min |
+| `HM_PROXY_TIMEOUT` | `5` | upstream timeout, seconds |
+| `HM_EXTENSION_IDS` | empty | comma-separated extension ids allowed by CORS (default: any `chrome-extension://` id) |
+| `HM_CORS_ORIGINS` | empty | website origins allowed by CORS |
+| `HM_FEEDBACK` | `0` | `1` enables `/feedback/posts` (team labelling sessions only) |
+| `ANTHROPIC_API_KEY` | empty | enables the Claude reader for `/api/check` |
+| `HM_LLM` | `1` | `0` turns the Claude reader off even with a key |
+| `HM_LLM_MODEL` / `HM_LLM_EFFORT` | `claude-opus-5-5` / `low` | Claude model and effort |
+| `WHOIS_ENABLED` | `1` | `0` disables WHOIS in page checks |
+| `HM_ARTIFACTS_DIR`, `HM_REFERENCE_DIR`, `HM_FEEDBACK_DIR` | repo paths | overrides |
 
-## LLM scoring
+## The Claude reader
 
-With `ANTHROPIC_API_KEY` set, `/score/posts` sends each batch to Claude in one request ([`app/llm_score.py`](app/llm_score.py)):
-post text, image text, the post's first image (by URL), link domain and title. The trained model adds two facts
-Claude cannot know: the source kind (registered-outlets list) and a match against already-refuted claims. Claude
-returns kind (claim / ad / personal), a 0–100 trust score, a one-sentence summary and up to 3 reasons with exact
-quotes; quotes not found in the post are dropped. Product rules still apply after Claude: green needs a registered
-source (else capped at 69), a strongly matched refuted claim stays below 40. Results have `"scorer": "llm"`.
+With `ANTHROPIC_API_KEY` set, `/api/check` sends the posts the user asked about to Claude in one request: text,
+image text, the first image (by URL), link domain and title, plus two facts from the trained model (registered-page
+list match; match against MFCC / factcheck.mn checks). Claude returns the post kind and up to 3 signals with exact
+quotes; quotes not found in the post are dropped. It gives **no score** and may return no signals. Output carries
+`notes: ["llm_unvalidated"]`: it has not been measured on Mongolian posts. On any failure the trained rules answer.
+Author names are not sent to Anthropic; post text and image are.
 
-If the key is missing or a request fails (network, rate limit, refusal, bad JSON), those posts are scored by the
-trained scorecard as before; `/health` → `llm.error` shows the last failure. Results are cached in memory by content.
-Privacy: author names are not sent, only the source kind; post text and image do go to the Anthropic API.
+## Measurement
 
-## Notes
-
-- Unknown signals (`None`) contribute nothing, e.g. WHOIS unreachable is never punished.
-- No user identifiers, comments, browsing history or images are stored.
-- Not in the MVP: reverse image search, NLI, 1212.mn cross-check, LLM evidence retrieval (the LLM scorer reads
-  only the post itself; it does not search the web).
-- The page scorecard (`/score`) and the trained model (`/score/posts`) are separate scorers for now. Merging them
-  (model features + domain signals in one response with stable reason codes) is the next integration step.
+`python model/tools/measure_signals.py` runs `/api/check`'s code path (Claude off) on the held-out test split and
+writes `registry/measurement.json`. 2026-10-26: badges on 3 of 88 true news items (3%, 95% CI 1–10%). Caveats are in
+the file: all true items are news articles, not Facebook posts; the fact-check index contains the test items.

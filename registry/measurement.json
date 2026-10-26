@@ -1,0 +1,36 @@
+{
+  "measured_on": "2026-10-26",
+  "dataset": "data/datasets/HACKMIL_dataset_v31_test.csv (held-out split, human-written items only)",
+  "scorer": "rules + trained model (the Claude reader was not measured)",
+  "true_items": {
+    "n": 89,
+    "assessed": 88,
+    "badged": 3,
+    "badged_signals": 3,
+    "badged_factcheck": 0,
+    "false_positive_rate": 0.034,
+    "ci95": [
+      0.012,
+      0.095
+    ],
+    "source_types": {
+      "news": 89
+    }
+  },
+  "false_items": {
+    "n": 198,
+    "assessed": 185,
+    "with_rule_signals": 59,
+    "note": "Fact-check matches on these items are not reported: the fact-check index contains them."
+  },
+  "caveats": [
+    "All true items are news-article text. The false-positive rate on Facebook posts has not been measured.",
+    "Small sample: read the 95% interval, not the point value.",
+    "The fact-check index includes the test items, so it is not evaluated here.",
+    "Labels come from fact-checker articles and news outlets chosen by the dataset builders, not from model output."
+  ],
+  "summary": {
+    "en": "On 88 held-out news articles labelled true, our rules raised a badge on 3 (3%, 95% interval 1-10%). Not yet measured on Facebook posts.",
+    "mn": "Үнэн гэж шошголсон 88 мэдээний нийтлэлээс (сургалтад ороогүй) манай дүрэм 3-д нь тэмдэг тавьсан (3%, 95% интервал 1-10%). Facebook пост дээр хараахан хэмжээгүй."
+  }
+}

@@ -1,9 +1,9 @@
-# Scoring API. Includes the model dependencies because POST /score/posts runs model/hm_core.py.
+# Checker + proxy API. Includes the model dependencies because POST /api/check runs model/hm_core.py.
 -r ../../model/requirements.txt
 fastapi>=0.110
 uvicorn>=0.29
 pydantic>=2
 python-whois      # optional at runtime: WHOIS_ENABLED=0 disables it
 anthropic>=2.3    # optional at runtime: LLM scoring runs only when ANTHROPIC_API_KEY is set (app/llm_score.py)
-httpx             # tests (fastapi TestClient)
+httpx             # proxy upstream calls (app/proxy.py) and tests
 pytest
