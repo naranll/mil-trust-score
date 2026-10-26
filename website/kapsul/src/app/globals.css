@@ -111,6 +111,9 @@
   --shadow-1: var(--shadow-1);
   --shadow-2: var(--shadow-2);
   --ease-out-expo: cubic-bezier(0.2, 0, 0, 1);
+  /* Албан, уншихад амар: тод = 600 (700 биш), шахуу зай бага */
+  --font-weight-bold: 600;
+  --tracking-tight: -0.01em;
   --ease-in-out-std: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -128,7 +131,7 @@ body {
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 

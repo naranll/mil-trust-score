@@ -40,11 +40,11 @@ attribute vec3 aUnit;    // нэгж капсулын гадаргуу дээр�
 attribute vec3 aDir;     // цацралтын байрлал (нэгж)
 attribute vec3 aScatter; // ачаалахын өмнөх тархсан байрлал [-1,1]
 attribute float aRand;
-attribute float aGroup;  // 0…4 = sections.ts-ийн дараалал (0 = Пост шалгагч)
+attribute float aGroup;  // 0…4 = habits.ts-ийн дараалал
 
 uniform float uTime, uAssemble, uProblem, uManip, uSplit, uBurst, uRegroup, uRotY, uTiltX, uTiltY;
 uniform vec3 uCenter;
-uniform float uCapH, uClusterH, uSize, uDpr;
+uniform float uCapH, uClusterH, uSize, uDpr, uBig;
 uniform vec2 uExtent;
 uniform vec3 uSlots[5];
 uniform float uHover[5];
@@ -76,8 +76,8 @@ void main() {
   vec3 burst = rotY(uRotY) * aDir * uCapH + uCenter;
   p = mix(p, burst, ease(clamp(uBurst * 1.3 - aRand * 0.3, 0.0, 1.0)));
 
-  // 3: 5 жижиг капсул (Пост шалгагч 1.3 дахин том). Hover үед бага зэрэг эргэж, тодорно.
-  float scale = uClusterH * (g == 0 ? 1.3 : 1.0) * (1.0 + hov * 0.08);
+  // 3: 5 жижиг капсул (голын дадал uBig нь 1.3 дахин том). Hover үед бага зэрэг эргэж, тодорно.
+  float scale = uClusterH * (abs(aGroup - uBig) < 0.5 ? 1.3 : 1.0) * (1.0 + hov * 0.08);
   vec3 cl = rotY(uTime * 0.25 + aGroup + hov * 0.8) * aUnit * scale + uSlots[g];
   float tr = ease(clamp(uRegroup * 1.35 - aRand * 0.35, 0.0, 1.0));
   p = mix(p, cl, tr);
@@ -131,7 +131,7 @@ function buildGeometry(count: number, groupWeights: number[]) {
     dir.set([d.x, d.y, d.z], i * 3);
     scatter.set([Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1], i * 3);
     rand[i] = Math.random();
-    // Бүлэг: Пост шалгагч 1.3 дахин том тул цэг илүү (талбай ~1.69)
+    // Бүлэг: голын дадал 1.3 дахин том тул цэг илүү (талбай ~1.69)
     let x = Math.random() * total, gi = 0;
     while (x > groupWeights[gi] && gi < groupWeights.length - 1) x -= groupWeights[gi++];
     group[i] = gi;
@@ -148,9 +148,9 @@ function buildGeometry(count: number, groupWeights: number[]) {
   return geo;
 }
 
-function Cloud({ driveRef, count, colors }: { driveRef: RefObject<Drive>; count: number; colors: string[] }) {
+function Cloud({ driveRef, count, colors, big }: { driveRef: RefObject<Drive>; count: number; colors: string[]; big: number }) {
   const gl = useThree((s) => s.gl);
-  const geometry = useMemo(() => buildGeometry(count, [1.69, 1, 1, 1, 1]), [count]);
+  const geometry = useMemo(() => buildGeometry(count, colors.map((_, i) => (i === big ? 1.69 : 1))), [count, colors, big]);
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -174,6 +174,7 @@ function Cloud({ driveRef, count, colors }: { driveRef: RefObject<Drive>; count:
           uClusterH: { value: 80 },
           uSize: { value: count > 1500 ? 2.6 : 2.4 },
           uDpr: { value: 1 },
+          uBig: { value: big },
           uExtent: { value: new THREE.Vector2(600, 400) },
           uSlots: { value: Array.from({ length: 5 }, () => new THREE.Vector3()) },
           uHover: { value: [0, 0, 0, 0, 0] },
@@ -186,7 +187,7 @@ function Cloud({ driveRef, count, colors }: { driveRef: RefObject<Drive>; count:
           },
         },
       }),
-    [colors, count],
+    [colors, count, big],
   );
   useEffect(() => () => (geometry.dispose(), material.dispose()), [geometry, material]);
 
@@ -234,12 +235,14 @@ export default function PointCapsule({
   driveRef,
   count,
   colors,
+  big,
   active,
   onReady,
 }: {
   driveRef: RefObject<Drive>;
   count: number;
   colors: string[];
+  big: number; // 1.3 дахин том бөөгнөрлийн дугаар
   active: boolean;
   onReady: () => void;
 }) {
@@ -255,7 +258,7 @@ export default function PointCapsule({
       aria-hidden
       style={{ pointerEvents: "none" }}
     >
-      <Cloud driveRef={driveRef} count={count} colors={colors} />
+      <Cloud driveRef={driveRef} count={count} colors={colors} big={big} />
     </Canvas>
   );
 }

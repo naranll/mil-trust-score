@@ -1,6 +1,9 @@
 // Сайтын тохиргоо
 export const SITE = {
   hackathon: "HACKMIL 2026",
+  // TODO: багийн имэйлийг бичнэ. Хоосон бол footer-т харагдахгүй (зохиомол хаяг бүү тавь).
+  email: "",
+  github: "https://github.com/naranll/mil-trust-score",
 };
 
 // Багийн гишүүд. [ ] доторх нэрийг жинхэнэ нэрээр солино.

@@ -11,7 +11,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { HABITS, HABIT_DESKTOP_ORDER } from "@/data/habits";
+import { HABIT_BIG, HABITS } from "@/data/habits";
 import type { Drive } from "./PointCapsule";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -82,7 +82,7 @@ export function LandingScroll() {
     L.clusterH = mobile ? 50 : Math.min(a.height * 0.28, (a.width / 5) * 0.6);
     root.current.querySelectorAll<HTMLElement>("[data-label]").forEach((el) => {
       const i = Number(el.dataset.label);
-      const half = (L.clusterH * (i === 0 ? 1.3 : 1)) / 2;
+      const half = (L.clusterH * (i === HABIT_BIG ? 1.3 : 1)) / 2;
       if (mobile) {
         // Утас: жагсаалтын мөр бүрийн зүүн талын тэмдгийн байранд
         const s = el.querySelector("[data-swatch]")!.getBoundingClientRect();
@@ -202,14 +202,14 @@ export function LandingScroll() {
   const flow = "group-data-[mode=static]:static motion-reduce:static";
 
   return (
-    // -mt-14: sticky цэсний доогуур орж, эхний дэлгэцийг бүтэн эзэлнэ
-    <section ref={root} data-landing data-mode={mode} aria-labelledby="landing-title" className="group relative -mt-14">
+    // -mt-16: sticky цэсний (64px) доогуур орж, эхний дэлгэцийг бүтэн эзэлнэ
+    <section ref={root} data-landing data-mode={mode} aria-labelledby="landing-title" className="group relative -mt-16">
       <div ref={stage} className="relative flex min-h-svh w-full flex-col px-5 pt-20 pb-4 md:px-10 md:pt-24 md:pb-6 xl:px-16">
         {/* Бүтэн дэлгэцийн canvas (цэсний доогуур ч), ирмэг рүүгээ цэгүүд бүдгэрнэ */}
         {mode === "anim" && count > 0 && (
           <div data-canvas aria-hidden className="absolute inset-0">
             <div className={`h-full w-full transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}>
-              <PointCapsule driveRef={driveRef} count={count} colors={COLORS} active={active} onReady={onReady} />
+              <PointCapsule driveRef={driveRef} count={count} colors={COLORS} big={HABIT_BIG} active={active} onReady={onReady} />
             </div>
           </div>
         )}
@@ -270,7 +270,6 @@ export function LandingScroll() {
               <li
                 key={h.id}
                 data-label={i}
-                className={HABIT_DESKTOP_ORDER[i]}
                 onMouseEnter={() => (driveRef.current.hover = i)}
                 onMouseLeave={() => (driveRef.current.hover = -1)}
               >
@@ -283,7 +282,7 @@ export function LandingScroll() {
                     style={{ background: h.color }}
                   />
                   <span className="flex flex-col gap-0.5">
-                    <span className={`font-semibold text-ink ${i === 0 ? "text-[19px] md:text-[22px]" : "text-[17px] md:text-[19px]"}`}>
+                    <span className={`font-semibold text-ink ${i === HABIT_BIG ? "text-[19px] md:text-[22px]" : "text-[17px] md:text-[19px]"}`}>
                       {h.name}
                     </span>
                     <span className="text-[14px] leading-snug text-ink-2 md:mx-auto md:max-w-[15rem] md:text-[15px]">{h.line}</span>

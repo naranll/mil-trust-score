@@ -1,9 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import "./globals.css";
 import { Nav } from "@/components/ui/Nav";
-import { NAV } from "@/data/nav";
-import { Wordmark } from "@/components/ui/Wordmark";
+import { SITE } from "@/data/site";
 
 export const metadata: Metadata = {
   title: { default: "Cure from the Core", template: "%s · Cure from the Core" },
@@ -29,20 +28,31 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="main" className="flex-1">
           {children}
         </main>
-        <footer className="mt-24 px-4 pb-6">
-          <div className="glass mx-auto flex max-w-6xl flex-col gap-8 px-8 py-10 text-ink md:flex-row md:items-end md:justify-between md:px-14">
-            <div className="space-y-2">
-              <Wordmark size="lg" />
-              <p className="text-[12.8px] text-ink-3">HACKMIL 2026 · demo</p>
-            </div>
-            <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
-              {NAV.map((n) => (
-                <li key={n.href}>
-                  <Link href={n.href} className="inline-flex min-h-11 items-center text-ink-2 hover:text-accent">
-                    {n.label}
-                  </Link>
+        {/* Footer: minimal, зөвхөн холбогдох мэдээлэл (цэс нь header-т). Имэйл нь SITE.email бөглөгдсөн үед л. */}
+        <footer className="mt-24 border-t border-(--rule)">
+          <div className="flex w-full flex-col gap-2 px-5 py-6 text-[14px] text-ink-3 sm:flex-row sm:items-center sm:justify-between md:px-10 xl:px-16">
+            <p>
+              Cure the Core баг, {SITE.hackathon}
+            </p>
+            <ul className="flex flex-wrap items-center gap-x-6">
+              {SITE.email && (
+                <li>
+                  <a href={`mailto:${SITE.email}`} className="inline-flex min-h-11 items-center hover:text-ink">
+                    {SITE.email}
+                  </a>
                 </li>
-              ))}
+              )}
+              <li>
+                <a
+                  href={SITE.github}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-11 items-center gap-1 hover:text-ink"
+                >
+                  GitHub
+                  <ArrowUpRight aria-hidden className="size-3" />
+                </a>
+              </li>
             </ul>
           </div>
         </footer>
