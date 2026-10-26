@@ -1,0 +1,8 @@
+# Normalise line endings so Windows/Mac teammates do not produce whole-file diffs.
+* text=auto
+*.joblib binary
+*.png binary
+*.jpg binary
+*.woff2 binary
+# Datasets keep whatever line endings they were exported with.
+*.csv -text

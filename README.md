@@ -44,19 +44,25 @@ Extension (Chrome MV3)  ──►  Backend (FastAPI)  ──►  Скоркар�
 ## Репо бүтэц
 
 ```
-itgeltsliin-onoo/
-├── backend/        FastAPI, скоркарт, шинж тэмдгүүд
-├── extension/      Chrome Manifest V3
-├── website/        танилцуулах хуудас, MIL карт, ангийн сорил
-├── data/           цуглуулах, цэвэрлэх скриптүүд
-└── README.md
+mil-trust-score/
+├── backend/        FastAPI: оноо өгөх API (/score, /score/posts)      → backend/README.md
+├── extension/      Chrome Manifest V3: Facebook дээрх badge, MIL карт  → extension/README.md
+├── model/          сургасан загвар, hm_core.py, notebook, tools        → model/README.md
+├── data/           датасет, жагсаалт (reference), санал хүсэлт          → data/README.md
+├── website/        танилцуулах сайт, MIL карт, тоглоом                 → website/README.md
+└── docs/           ARCHITECTURE.md, API.md, CONTRIBUTING.md
 ```
+
+Хэн юуг хариуцдаг, файлыг хаанаас олох вэ: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Хамтарч ажиллах дүрэм:
+[`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md).
 
 ## Backend ажиллуулах
 
 ```bash
+# repo-ийн үндэс хавтаснаас
+python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
+pip install -r backend/requirements.txt
 cd backend
-pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 pytest -q
 ```
@@ -66,9 +72,12 @@ API баримт: http://localhost:8000/docs
 | Method | Path                                  | Зориулалт                                            |
 | ------ | ------------------------------------- | ---------------------------------------------------- |
 | `POST` | `/score`                              | Хуудасны агуулгыг авч оноо, бүс, 3 шалтгаан буцаана  |
+| `POST` | `/score/posts`                        | Extension-ий Facebook постууд (сургасан загвар)      |
 | `GET`  | `/score/mock?zone=red\|yellow\|green` | Extension хөгжүүлэхэд зориулсан хатуу кодолсон хариу |
-| `POST` | `/feedback`                           | «Энэ оноо буруу байна» товчны хариу                  |
+| `POST` | `/feedback`, `/feedback/posts`        | «Энэ оноо буруу байна» товчны хариу                  |
 | `GET`  | `/health`                             | Шалгалт                                              |
+
+Бүрэн гэрээ: [`docs/API.md`](docs/API.md).
 
 **Хүсэлт:** `url`, `title`, `text`, `links[]`, `images[]`, `author?`, `published_date?`
 **Хариу:** `{ score, zone, reasons: [{ code, label, points }], disclaimer }`
