@@ -24,7 +24,7 @@ const DUR = 600; // тэмдэг бүр 600ms дотор байрандаа оч
 const DRAW = 2000; // 2-р графикийн хүрээг үзэг шиг зурна
 
 // n хошуутай одны зам; түлхүүр (key) дээр ч мөн адил хэлбэр
-export function starPath(n, L) {
+function starPath(n, L) {
   const w = n === 4 ? L * 0.16 : L * 0.3;
   let d = "";
   for (let i = 0; i < n; i++) {
