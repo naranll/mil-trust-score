@@ -1,114 +1,176 @@
 "use client";
 
-// Нүүрний гүйлгээтэй түүх (GSAP ScrollTrigger, pin + scrub). Капсул бүх хугацаанд голдоо:
-// 0 танилцуулга → 2 хуваагдаж эмүүд гарна → 3 эмүүд байрандаа очиж, сайтын 5 хэсгийн холбоос болно.
-import { useRef } from "react";
+// Нүүрний гүйлгээтэй түүх (GSAP ScrollTrigger, pin + scrub). Цэгэн капсул бүтэн дэлгэцэн дээр.
+// 0 «Cure the Core» капсулын урд → гүйлгэхэд үсгүүд хайлж алга болно, капсул баруун тийш шилжинэ →
+// 1 өвчин (гадаргуу тогтворгүй, ~12% цэг улбар шар) → 2 хуваагдаж цацрана →
+// 3 цэгүүд 5 өнгөт жижиг капсул = 5 дадал. Сайтын хэсгүүд рүү цэс (header) хөтөлнө.
+// Утсан дээр 3-р үе шатанд canvas бүдгэрч, энгийн HTML жагсаалт гарна.
+// Хөдөлгөөн багасгасан эсвэл WebGL байхгүй үед canvas-гүй, эцсийн төлөв шууд (data-mode="static").
+import dynamic from "next/dynamic";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { SECTIONS, type SectionId } from "@/data/sections";
-import { Capsule } from "./Capsule";
-import { Pill } from "./Pill";
+import { HABITS, HABIT_DESKTOP_ORDER } from "@/data/habits";
+import type { Drive } from "./PointCapsule";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-// Компьютер дээр Пост шалгагч голд (3-р байр), утсан дээр DOM-ын дарааллаар эхэнд
-const DESKTOP_ORDER: Record<SectionId, string> = {
-  data: "md:order-1",
-  game: "md:order-2",
-  extension: "md:order-3",
-  blog: "md:order-4",
-  about: "md:order-5",
-};
+const PointCapsule = dynamic(() => import("./PointCapsule"), { ssr: false });
 
-// end: pin-ийн урт, fan: эмүүдийн хэвтээ тархалт (px), dots: тоосонцрын тоо, dist: цацралтын зай, jitter: чичиргээний хүч
-type Mode = { end: string; fan: number; dots: number; dist: number; jitter: number };
+const TITLE = "Cure the Core";
+const COLORS = HABITS.map((h) => h.color);
 
-// Тоосонцор: сайтын 5 хэсгийн өнгө + цагаан, ээлжлэн
-const DOT_COLORS = [...SECTIONS.map((s) => s.color), "var(--text-primary)"];
+// Хөтчийн боломжийг нэг удаа шалгана. Server дээр "pending" (hydration зөрөхгүй).
+type Mode = "pending" | "anim" | "static";
+let cachedMode: Mode | null = null;
+function clientMode(): Mode {
+  if (cachedMode) return cachedMode;
+  let webgl = false;
+  try {
+    const c = document.createElement("canvas");
+    webgl = !!(c.getContext("webgl2") || c.getContext("webgl"));
+  } catch {
+    webgl = false;
+  }
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  cachedMode = reduced || !webgl ? "static" : "anim";
+  return cachedMode;
+}
+const noSubscribe = () => () => {};
 
 export function LandingScroll() {
   const root = useRef<HTMLElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const area = useRef<HTMLDivElement>(null);
   const trigger = useRef<ScrollTrigger | null>(null);
+  // GSAP, хулгана, шошго бүгд энэ объектыг өөрчилнө; canvas frame бүрт уншина. Render үеэр уншихгүй.
+  const driveRef = useRef<Drive>({
+    assemble: 0,
+    problem: 0,
+    manip: 0,
+    split: 0,
+    burst: 0,
+    regroup: 0,
+    shift: 0,
+    tilt: { x: 0, y: 0 },
+    hover: -1,
+    layout: { x0: 0, y0: 0, cx: 0, cy: 0, capH: 300, clusterH: 80, ex: 600, ey: 400, slots: Array(10).fill(0) },
+  });
+
+  const mode = useSyncExternalStore(noSubscribe, clientMode, () => "pending" as Mode);
+  const count = useSyncExternalStore(noSubscribe, () => (innerWidth < 768 ? 900 : 3000), () => 0);
+  const [ready, setReady] = useState(false);
+  const [active, setActive] = useState(true);
+
+  // Байрлал (px, canvas = бүтэн дэлгэцийн төвөөс, y дээшээ). Бөөгнөрөл бүр = шошгоныхоо яг дээр.
+  const measure = () => {
+    if (!area.current || !stage.current || !root.current) return;
+    const c = stage.current.getBoundingClientRect();
+    const a = area.current.getBoundingClientRect();
+    const ccx = c.left + c.width / 2, ccy = c.top + c.height / 2;
+    const ax = a.left + a.width / 2 - ccx, ay = ccy - (a.top + a.height / 2);
+    const mobile = matchMedia("(max-width: 767px)").matches;
+    const L = driveRef.current.layout;
+    L.capH = mobile ? Math.min(a.height * 0.5, a.width * 0.95) : Math.min(a.height * 0.85, a.width * 0.36);
+    L.x0 = ax;
+    L.y0 = ay;
+    L.cx = ax + (mobile ? 0 : a.width * 0.24);
+    L.cy = ay + (mobile ? -a.height * 0.17 : 0);
+    L.ex = c.width / 2;
+    L.ey = c.height / 2;
+    L.clusterH = mobile ? 50 : Math.min(a.height * 0.28, (a.width / 5) * 0.6);
+    root.current.querySelectorAll<HTMLElement>("[data-label]").forEach((el) => {
+      const i = Number(el.dataset.label);
+      const half = (L.clusterH * (i === 0 ? 1.3 : 1)) / 2;
+      if (mobile) {
+        // Утас: жагсаалтын мөр бүрийн зүүн талын тэмдгийн байранд
+        const s = el.querySelector("[data-swatch]")!.getBoundingClientRect();
+        L.slots[i * 2] = s.left + s.width / 2 - ccx;
+        L.slots[i * 2 + 1] = ccy - (s.top + s.height / 2);
+      } else {
+        // Компьютер: шошгоны яг дээр
+        const r = el.getBoundingClientRect();
+        L.slots[i * 2] = r.left + r.width / 2 - ccx;
+        L.slots[i * 2 + 1] = ccy - (r.top - 20 - half);
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (mode !== "anim" || !root.current) return;
+    // Хуудаснаас гарсан үед рендер зогсоно
+    const io = new IntersectionObserver(([e]) => setActive(e.isIntersecting));
+    io.observe(root.current);
+    const ro = new ResizeObserver(measure);
+    if (area.current) ro.observe(area.current);
+    // Хулганаар бага зэрэг хазайна (≤ 6°), зөвхөн хулганатай төхөөрөмжид
+    const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const onMove = (e: PointerEvent) => {
+      const drive = driveRef.current;
+      drive.tilt.x = (e.clientX / innerWidth - 0.5) * 0.21;
+      drive.tilt.y = (e.clientY / innerHeight - 0.5) * 0.21;
+    };
+    if (fine) addEventListener("pointermove", onMove);
+    return () => {
+      io.disconnect();
+      ro.disconnect();
+      removeEventListener("pointermove", onMove);
+    };
+  }, [mode]);
 
   useGSAP(
     () => {
-      // Нэг timeline, хоёр тохиргоо (компьютер, утас). Хөдөлгөөн багасгасан үед юу ч үүсгэхгүй:
-      // CSS эцсийн төлөвийг шууд харуулна (globals.css «Нүүрний гүйлгээтэй түүх»).
-      const build = (m: Mode) => {
+      if (mode !== "anim") return;
+      const drive = driveRef.current;
+      const build = (mobile: boolean) => {
+        measure();
         const q = gsap.utils.selector(root);
-        const area = q("[data-area]")[0] as HTMLElement;
-        const svg = root.current!.querySelector("[data-capsule] svg") as SVGSVGElement;
-        const pills = q("[data-pill]") as HTMLElement[];
-        const dots = (q("[data-dot]") as HTMLElement[]).slice(0, m.dots);
-
-        // Эм бүрийн эцсийн байрнаас капсулын төв хүртэлх зай (li нь хөдөлдөггүй тул хэмжилт зөв)
-        const toCenter = (el: HTMLElement) => {
-          const a = area.getBoundingClientRect();
-          const r = (el.parentElement as HTMLElement).getBoundingClientRect();
-          return { x: a.left + a.width / 2 - (r.left + r.width / 2), y: a.top + a.height / 2 - (r.top + r.height / 2) };
-        };
-        const split = () => svg.getBoundingClientRect().height * 0.42;
-
         const tl = gsap.timeline({
           defaults: { ease: "none" },
           scrollTrigger: {
             trigger: root.current,
             start: "top top",
-            end: m.end,
+            end: mobile ? "+=150%" : "+=300%",
             pin: true,
             scrub: 0.6,
             invalidateOnRefresh: true,
+            onRefresh: measure,
           },
         });
         trigger.current = tl.scrollTrigger ?? null;
-        tl.set(q("[data-pill-text]"), { autoAlpha: 0 }, 0);
 
-        // 1. Асуудал: капсул томорч, «өвчтэй» мэт чичирнэ
-        tl.to(q('[data-caption="0"]'), { autoAlpha: 0, y: -24, duration: 0.4 }, 0)
-          .fromTo(q('[data-caption="1"]'), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.4 }, 0.3)
-          .to(q("[data-cap-scale]"), { scale: 1.15, duration: 0.8 }, 0)
-          .fromTo(q(".cap-jitter"), { "--j": 0 }, { "--j": m.jitter, duration: 0.8 }, 0.1);
+        // 0→1. Гарчгийн үсгүүд санамсаргүй дарааллаар бүдэгрэн хайлж, капсул баруун тийш шилжинэ
+        tl.to(
+          q("[data-char]"),
+          { autoAlpha: 0, filter: "blur(14px)", yPercent: -35, scale: 1.2, duration: 0.35, stagger: { each: 0.025, from: "random" } },
+          0,
+        )
+          .to(q('[data-caption="0"]'), { autoAlpha: 0, y: 16, duration: 0.3 }, 0)
+          .to(drive, { shift: 1, duration: 0.8 }, 0.15)
+          .fromTo(q('[data-caption="1"]'), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.4 }, 0.55)
+          .to(drive, { problem: 1, manip: 1, duration: 0.9 }, 0.2);
 
-        // 2. Хуваагдах: хагасууд салж, эмүүд голоос гарч, тоосонцор цацарна
-        const s2 = 1.1;
+        // 2. Хуваагдаж, цацрах
+        const s2 = 1.3;
         tl.to(q('[data-caption="1"]'), { autoAlpha: 0, y: -24, duration: 0.4 }, s2)
           .fromTo(q('[data-caption="2"]'), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.4 }, s2 + 0.3)
-          .to(q(".cap-jitter"), { "--j": 0, duration: 0.2 }, s2)
-          .to(q('[data-cap-half="top"]'), { y: () => -split(), rotation: -10, svgOrigin: "70 150", duration: 1 }, s2)
-          .to(q('[data-cap-half="bottom"]'), { y: () => split(), rotation: 10, svgOrigin: "70 150", duration: 1 }, s2)
-          .fromTo(
-            pills,
-            { x: (_i, el) => toCenter(el).x, y: (_i, el) => toCenter(el).y, scale: 0.2, autoAlpha: 0 },
-            {
-              x: (i, el) => toCenter(el).x + (i - 2) * m.fan,
-              y: (i, el) => toCenter(el).y + Math.abs(i - 2) * 12 - 8,
-              scale: 0.55,
-              autoAlpha: 1,
-              duration: 0.8,
-            },
-            s2 + 0.2,
-          );
-        dots.forEach((d, i) => {
-          const angle = (i / dots.length) * Math.PI * 2 + (i % 3) * 0.35;
-          const dist = m.dist * (0.55 + ((i * 37) % 45) / 100);
-          // Эхэндээ нуугдмал (буцааж гүйлгэхэд ч), нээгдэх агшинд гарч ирээд тарна
-          tl.fromTo(d, { x: 0, y: 0, scale: 1, autoAlpha: 0 }, { autoAlpha: 1, duration: 0.01 }, s2 + 0.15).to(
-            d,
-            { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist, scale: 0.3, autoAlpha: 0, duration: 0.7, ease: "power2.out" },
-            s2 + 0.16,
-          );
-        });
+          .to(drive, { split: 1, duration: 0.5 }, s2)
+          .to(drive, { burst: 1, problem: 0, duration: 0.7 }, s2 + 0.45);
 
-        // 3. Байрлах: капсул алга болж, эмүүд байрандаа, нэр, тайлбар нь гарна
-        const s3 = 2.3;
-        tl.to(q("[data-cap-half]"), { autoAlpha: 0, duration: 0.4 }, s3)
+        // 3. Цэгүүд 5 өнгөт жижиг капсул = 5 дадал болно (компьютер: эгнээ, утас: мөр бүрийн зүүн талд)
+        const s3 = 2.5;
+        tl.to(q('[data-caption="2"]'), { autoAlpha: 0, y: -24, duration: 0.4 }, s3)
           .to(q("[data-scroll-hint]"), { autoAlpha: 0, duration: 0.3 }, s3)
-          .to(q('[data-caption="2"]'), { autoAlpha: 0, y: -24, duration: 0.4 }, s3)
-          .to(q('[data-caption="0"]'), { autoAlpha: 1, y: 0, duration: 0.4 }, s3 + 0.3)
-          .to(pills, { x: 0, y: 0, scale: 1, duration: 1, stagger: 0.04 }, s3)
-          .to(q("[data-pill-text]"), { autoAlpha: 1, duration: 0.4, stagger: 0.05 }, s3 + 0.7)
-          .to({}, { duration: 0.3 }); // эцэст бага зэрэг зогсоно
+          .fromTo(q("[data-final]"), { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.4 }, s3 + 0.4)
+          .to(drive, { regroup: 1, manip: 0, duration: 1 }, s3)
+          .fromTo(
+            q("[data-pill]"),
+            { autoAlpha: 0, y: 12 },
+            { autoAlpha: 1, y: 0, duration: 0.4, stagger: mobile ? 0.06 : 0.05 },
+            s3 + 0.7,
+          );
+        tl.to({}, { duration: 0.3 }); // эцэст бага зэрэг зогсоно
 
         return () => {
           trigger.current = null;
@@ -116,18 +178,19 @@ export function LandingScroll() {
       };
 
       const mm = gsap.matchMedia();
-      mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () =>
-        build({ end: "+=300%", fan: 64, dots: 25, dist: 170, jitter: 1 }),
-      );
-      // Утас: богино гүйлгээ (нийт ~250vh), цөөн тоосонцор, сул чичиргээ, нарийн тархалт
-      mm.add("(max-width: 767px) and (prefers-reduced-motion: no-preference)", () =>
-        build({ end: "+=150%", fan: 30, dots: 10, dist: 110, jitter: 0.6 }),
-      );
+      mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => build(false));
+      mm.add("(max-width: 767px) and (prefers-reduced-motion: no-preference)", () => build(true));
     },
-    { scope: root },
+    { scope: root, dependencies: [mode] },
   );
 
-  // «Алгасах»: pin-ийн төгсгөл рүү (хөдөлгөөнгүй үед #sections холбоос шууд ажиллана)
+  // Ачаалахад цэгүүд тархсан байрлалаас капсул болж нэг удаа цугларна (~1.2с)
+  const onReady = () => {
+    setReady(true);
+    gsap.to(driveRef.current, { assemble: 1, duration: 1.2, ease: "power2.out", delay: 0.1 });
+  };
+
+  // «Алгасах»: pin-ийн төгсгөл рүү (хөдөлгөөнгүй үед #habits холбоос шууд ажиллана)
   const skip = (e: React.MouseEvent) => {
     const st = trigger.current;
     if (!st) return;
@@ -135,62 +198,108 @@ export function LandingScroll() {
     window.scrollTo({ top: st.end, behavior: "smooth" });
   };
 
+  // static: хөдөлгөөн багасгасан (CSS-ээр шууд) эсвэл WebGL байхгүй (JS тогтоосны дараа)
+  const flow = "group-data-[mode=static]:static motion-reduce:static";
+
   return (
     // -mt-14: sticky цэсний доогуур орж, эхний дэлгэцийг бүтэн эзэлнэ
-    <section ref={root} data-landing aria-labelledby="landing-title" className="relative -mt-14">
-      <div className="mx-auto flex min-h-svh max-w-6xl flex-col px-5 pt-20 pb-4 md:pt-24 md:pb-6">
-        {/* Үе шат бүрийн бичвэр нэг нүдэнд давхцаж байрлана */}
-        <div className="mx-auto grid max-w-2xl text-center [&>*]:[grid-area:1/1]">
-          <div data-caption="0">
-            <h1 id="landing-title" className="text-[clamp(2.75rem,7vw,4.75rem)] leading-[1.02] font-bold tracking-tight text-ink">
-              Cure the Core
+    <section ref={root} data-landing data-mode={mode} aria-labelledby="landing-title" className="group relative -mt-14">
+      <div ref={stage} className="relative flex min-h-svh w-full flex-col px-5 pt-20 pb-4 md:px-10 md:pt-24 md:pb-6 xl:px-16">
+        {/* Бүтэн дэлгэцийн canvas (цэсний доогуур ч), ирмэг рүүгээ цэгүүд бүдгэрнэ */}
+        {mode === "anim" && count > 0 && (
+          <div data-canvas aria-hidden className="absolute inset-0">
+            <div className={`h-full w-full transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}>
+              <PointCapsule driveRef={driveRef} count={count} colors={COLORS} active={active} onReady={onReady} />
+            </div>
+          </div>
+        )}
+
+        <div
+          ref={area}
+          data-area
+          className="relative flex-1 group-data-[mode=static]:flex group-data-[mode=static]:flex-col group-data-[mode=static]:gap-10 motion-reduce:flex motion-reduce:flex-col motion-reduce:gap-10"
+        >
+          {/* 0: гарчиг капсулын урд, голд */}
+          <div
+            className={`pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-5 text-center group-data-[mode=static]:items-start group-data-[mode=static]:text-left motion-reduce:items-start motion-reduce:text-left ${flow}`}
+          >
+            <h1
+              id="landing-title"
+              aria-label={TITLE}
+              className="text-[clamp(3rem,11vw,10rem)] leading-[0.95] font-bold tracking-tight text-ink [text-shadow:0_0_40px_var(--bg),0_0_12px_var(--bg)]"
+            >
+              <span aria-hidden>
+                {[...TITLE].map((ch, i) => (
+                  <span key={i} data-char className="inline-block whitespace-pre">
+                    {ch}
+                  </span>
+                ))}
+              </span>
             </h1>
-            <p className="mt-3 text-lg text-ink-2 md:text-xl">Таны Facebook feed-ийг хэн сонгодог вэ?</p>
+            <p data-caption="0" className="max-w-md text-lg text-ink-2 [text-shadow:0_0_16px_var(--bg)] md:text-xl">
+              Таны Facebook feed-ийг хэн сонгодог вэ?
+            </p>
           </div>
-          <div data-caption="1" className="self-center text-xl leading-snug text-ink md:text-[25px]">
-            <p>Таны харж буй пост бүрийг алгоритм сонгодог.</p>
-            <p className="mt-2 text-ink-2">Хамгийн их сэтгэл хөдлөл төрүүлдэг нь хамгийн хурдан тархдаг.</p>
-          </div>
-          <div data-caption="2" className="self-center text-xl leading-snug md:text-[25px]">
-            <p className="font-bold text-ink">Нэг эм хангалтгүй.</p>
-            <p className="mt-2 text-ink-2">Манипуляцаас хамгаалах ганц шийдэл гэж байхгүй.</p>
-          </div>
-        </div>
 
-        <div data-area className="relative flex flex-1 items-center justify-center py-3 md:py-6">
-          <div data-capsule className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div data-cap-scale>
-              <div className="cap-jitter">
-                <div className="cap-idle">
-                  <Capsule className="w-[clamp(72px,11vw,120px)]" />
+          {/* 1–2: бичвэрийн багана (зүүн; утсан дээр дээд хэсэгт). Нэг нүдэнд давхцана. */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 grid md:inset-y-0 md:right-auto md:w-[46%] md:content-center [&>*]:[grid-area:1/1] group-data-[mode=static]:hidden motion-reduce:hidden">
+            <div data-caption="1" className="flex max-w-md flex-col gap-3 text-xl leading-snug md:text-[25px]">
+              <p className="font-semibold text-ink">Таны харж буй пост бүрийг алгоритм сонгодог.</p>
+              <p className="text-ink-2">Хамгийн их сэтгэл хөдлөл төрүүлдэг нь хамгийн хурдан тархдаг.</p>
+            </div>
+            <div data-caption="2" className="flex max-w-md flex-col gap-3 text-xl leading-snug md:text-[25px]">
+              <p className="text-[31.25px] leading-tight font-bold text-ink md:text-[39px]">Нэг эм хангалтгүй.</p>
+              <p className="text-ink-2">Манипуляцаас хамгаалах ганц шийдэл гэж байхгүй.</p>
+            </div>
+          </div>
+
+          <h2
+            data-final
+            className={`absolute top-0 left-0 z-10 text-[25px] leading-tight font-bold text-ink md:top-[4%] md:text-[31.25px] ${flow}`}
+          >
+            Ганц эм биш, таван дадал
+          </h2>
+
+          {/* 3: 5 дадал. Компьютер дээр бөөгнөрөл бүрийн доор, утсан дээр (ба static үед) жагсаалт.
+              Холбоос биш (сайтын хэсгүүд рүү цэс хөтөлнө). Хулгана аваачихад бөөгнөрөл нь тодорно. */}
+          <ul
+            id="habits"
+            className={`absolute inset-x-0 top-14 z-10 flex flex-col gap-1 md:top-auto md:bottom-[6%] md:grid md:grid-cols-5 md:gap-4 ${flow}`}
+          >
+            {HABITS.map((h, i) => (
+              <li
+                key={h.id}
+                data-label={i}
+                className={HABIT_DESKTOP_ORDER[i]}
+                onMouseEnter={() => (driveRef.current.hover = i)}
+                onMouseLeave={() => (driveRef.current.hover = -1)}
+              >
+                <div data-pill={h.id} className="flex items-center gap-3 rounded-2xl px-3 py-2.5 md:flex-col md:gap-1 md:text-center">
+                  {/* Өнгөт тэмдэг: static үед харагдана; хөдөлгөөнтэй үед утсан дээр цэгэн капсулын байр (хоосон) */}
+                  <span
+                    aria-hidden
+                    data-swatch
+                    className="invisible h-12 w-9 shrink-0 rounded-full group-data-[mode=static]:visible group-data-[mode=static]:h-4 motion-reduce:visible motion-reduce:h-4 md:hidden md:group-data-[mode=static]:block md:motion-reduce:block"
+                    style={{ background: h.color }}
+                  />
+                  <span className="flex flex-col gap-0.5">
+                    <span className={`font-semibold text-ink ${i === 0 ? "text-[19px] md:text-[22px]" : "text-[17px] md:text-[19px]"}`}>
+                      {h.name}
+                    </span>
+                    <span className="text-[14px] leading-snug text-ink-2 md:mx-auto md:max-w-[15rem] md:text-[15px]">{h.line}</span>
+                  </span>
                 </div>
-              </div>
-            </div>
-            {/* Нээгдэх үеийн тоосонцор (25; утсан дээр эхний 10 нь л хөдөлнө) */}
-            <div aria-hidden className="absolute top-1/2 left-1/2">
-              {Array.from({ length: 25 }, (_, i) => (
-                <span
-                  key={i}
-                  data-dot
-                  className="invisible absolute -mt-1 -ml-1 size-2 rounded-full"
-                  style={{ background: DOT_COLORS[i % DOT_COLORS.length] }}
-                />
-              ))}
-            </div>
-          </div>
-
-          <ul id="sections" className="relative flex w-full flex-col gap-1 md:grid md:grid-cols-5 md:items-end md:gap-4">
-            {SECTIONS.map((s) => (
-              <li key={s.id} data-slot className={DESKTOP_ORDER[s.id]}>
-                <Pill s={s} big={s.id === "extension"} />
               </li>
             ))}
           </ul>
         </div>
 
-        <div data-scroll-hint className="flex items-center justify-between text-[15px] font-semibold text-ink-3">
+        <div
+          data-scroll-hint
+          className="relative z-10 flex items-center justify-between text-[15px] font-semibold text-ink-3 group-data-[mode=static]:hidden motion-reduce:hidden"
+        >
           <span>Гүйлгэх ↓</span>
-          <a href="#sections" onClick={skip} className="btn-quiet inline-flex min-h-11 items-center">
+          <a href="#habits" onClick={skip} className="btn-quiet inline-flex min-h-11 items-center">
             Алгасах →
           </a>
         </div>

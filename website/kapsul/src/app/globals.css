@@ -419,64 +419,15 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* ===== Нүүрний гүйлгээтэй түүх (components/landing) =====
-   Анхны төлөв = 0-р үе шат. JS ачаалахаас өмнө эцсийн дүр зураг гялсхийхгүйн тулд эмүүдийг нууна;
-   GSAP autoAlpha-аар inline visibility тавьж харуулна. Хөдөлгөөн багасгасан үед эцсийн төлөв шууд. */
+   Анхны төлөв = 0-р үе шат. JS ачаалахаас өмнө эцсийн дүр зураг гялсхийхгүйн тулд холбоос, төгсгөлийн
+   асуултыг нууна; GSAP autoAlpha-аар inline visibility тавьж харуулна.
+   Хөдөлгөөн багасгасан эсвэл WebGL байхгүй (data-mode="static") үед эцсийн төлөв шууд харагдана. */
 [data-landing] [data-caption]:not([data-caption="0"]) {
   visibility: hidden;
 }
 @media (prefers-reduced-motion: no-preference) {
-  [data-landing] [data-pill] {
+  [data-landing]:not([data-mode="static"]) [data-pill],
+  [data-landing]:not([data-mode="static"]) [data-final] {
     visibility: hidden;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-landing] [data-capsule],
-  [data-landing] [data-scroll-hint] {
-    display: none;
-  }
-}
-/* Капсул удаан хөвж, эргэлдэнэ (гүйлгээнээс үл хамааран) */
-.cap-idle {
-  animation: cap-idle 7s ease-in-out infinite;
-}
-@keyframes cap-idle {
-  0%,
-  100% {
-    transform: rotate(-16deg) translateY(0);
-  }
-  50% {
-    transform: rotate(-6deg) translateY(-12px);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cap-idle {
-    animation: none;
-  }
-}
-/* 1-р үе шат: «өвчтэй» капсул чичирнэ. Далайц --j (0…1)-ийг GSAP гүйлгээнд дагуулж өөрчилнө.
-   @property-оор бүртгэсэн тул хувьсагч өөрчлөгдөхөд keyframe шууд шинэчлэгдэнэ. */
-@property --j {
-  syntax: "<number>";
-  inherits: false;
-  initial-value: 0;
-}
-.cap-jitter {
-  animation: cap-jitter 0.16s linear infinite;
-}
-@keyframes cap-jitter {
-  0%,
-  100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  25% {
-    transform: translate(calc(var(--j) * -3px), calc(var(--j) * 2px)) rotate(calc(var(--j) * -1.5deg));
-  }
-  75% {
-    transform: translate(calc(var(--j) * 3px), calc(var(--j) * -1.5px)) rotate(calc(var(--j) * 1.5deg));
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cap-jitter {
-    animation: none;
   }
 }
