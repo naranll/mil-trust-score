@@ -11,6 +11,7 @@ import {
   House,
   Menu,
   Pencil,
+  ScanSearch,
   Users,
   X,
   type LucideIcon,
@@ -21,6 +22,7 @@ import { NAV } from "@/data/nav";
 
 const ICONS: Record<string, LucideIcon> = {
   "/": House,
+  "/extension": ScanSearch,
   "/game": Copy,
   "/data": ChartColumn,
   "/blog": Pencil,

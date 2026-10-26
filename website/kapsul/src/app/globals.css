@@ -50,6 +50,13 @@
   --chart-cat-4: #d99bc0;
   --chart-cat-5: #56b4e9;
 
+  /* Сайтын 5 хэсгийн accent = нүүрний 5 эм (src/data/sections.ts-тэй ижил). Okabe-Ito. */
+  --sec-extension: #d55e00;
+  --sec-data: #0072b2;
+  --sec-game: #e69f00;
+  --sec-blog: #009e73;
+  --sec-about: #cc79a7;
+
   /* Сүүдэр (харанхуйд хүрээ голлоно), хөдөлгөөн */
   --shadow-1: 0 0 0 1px var(--rule);
   --shadow-2: 0 0 0 1px var(--rule), 0 12px 40px rgba(0, 0, 0, 0.45);
@@ -94,6 +101,11 @@
   --color-cat-3: var(--chart-cat-3);
   --color-cat-4: var(--chart-cat-4);
   --color-cat-5: var(--chart-cat-5);
+  --color-sec-extension: var(--sec-extension);
+  --color-sec-data: var(--sec-data);
+  --color-sec-game: var(--sec-game);
+  --color-sec-blog: var(--sec-blog);
+  --color-sec-about: var(--sec-about);
   --font-display: "Golos Text Variable", "Golos Text", system-ui, sans-serif;
   --font-sans: "Golos Text Variable", "Golos Text", system-ui, sans-serif;
   --shadow-1: var(--shadow-1);

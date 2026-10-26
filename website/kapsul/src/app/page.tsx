@@ -1,4 +1,4 @@
-import { HeroExplorer } from "@/components/home/HeroExplorer";
+import { LandingScroll } from "@/components/landing/LandingScroll";
 import { PillLink, SourceLink } from "@/components/ui/Pill";
 import { getStats, pick } from "@/lib/stats";
 
@@ -7,7 +7,6 @@ export default async function Home() {
   const fb = pick(stats, "fb_pop_share");
   const online = pick(stats, "fraud_online_2025");
   const concern = pick(stats, "dnr_concern");
-  const loss = pick(stats, "fraud_loss_2025");
 
   // Гурван тоо: нэг хэмжүүр тул нэг өнгө (cat-1), шууд шошготой
   const facts = [
@@ -18,7 +17,7 @@ export default async function Home() {
 
   return (
     <>
-      <HeroExplorer loss={loss.value} lossUrl={loss.source.url} />
+      <LandingScroll />
 
       <section aria-labelledby="why-title" className="mx-auto mt-20 max-w-6xl px-5">
         <figure className="glass p-6 md:p-10">
