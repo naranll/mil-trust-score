@@ -22,6 +22,9 @@ function validateTool(t) {
   if (!t || typeof t !== "object") return e;
   need(/^[a-z0-9-]+$/.test(t.id || ""), "id must be kebab-case");
   for (const k of ["name", "description", "limits"]) need(str(t[k]), `${k} is required`);
+  need(str(t.icon) && [...t.icon].length <= 4, "icon: one emoji");
+  need(!/[\u{1F916}\u{1F9E0}\u{2728}\u{274C}\u{1F489}\u{1F1E6}-\u{1F1FF}]/u.test(t.icon || ""), "icon: no robot, brain, sparkles, red cross, syringe or flag emoji");
+  need(str(t.short) && t.short.length <= 16, "short: one or two words, max 16 characters");
   need(t.limits && t.limits.length >= 20, "limits must say, in words, what the tool cannot tell you");
   need(Array.isArray(t.categories) && t.categories.length && t.categories.every((c) => ENUMS.categories.includes(c)), "bad categories");
   need(Array.isArray(t.audiences) && t.audiences.length && t.audiences.every((c) => ENUMS.audiences.includes(c)), "bad audiences");

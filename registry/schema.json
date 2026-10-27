@@ -6,10 +6,12 @@
   "type": "array",
   "items": {
     "type": "object",
-    "required": ["id", "name", "description", "categories", "audiences", "input", "cost", "needsLogin", "limits", "open", "status", "lastVerified", "sourceUrl"],
+    "required": ["id", "icon", "short", "name", "description", "categories", "audiences", "input", "cost", "needsLogin", "limits", "open", "status", "lastVerified", "sourceUrl"],
     "additionalProperties": false,
     "properties": {
       "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+      "icon": { "type": "string", "minLength": 1, "maxLength": 8, "description": "One emoji for compact tiles. Never robots, brains, sparkles, red crosses, syringes; no flag emoji (Windows shows letters)." },
+      "short": { "type": "string", "minLength": 1, "maxLength": 16, "description": "One or two words under the icon (usually the engine name)." },
       "name": { "type": "string", "description": "Task-first, e.g. 'Where else has this photo appeared?'" },
       "subtitle": { "type": "string" },
       "description": { "type": "string" },

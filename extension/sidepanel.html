@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
   <title>Итгэлцлийн оноо</title>
   <link rel="stylesheet" href="fonts/golos.css">
   <link rel="stylesheet" href="sidepanel.css">
@@ -17,10 +18,10 @@
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 5.6a2.4 2.4 0 1 0 0 4.8a2.4 2.4 0 1 0 0-4.8z"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg>
     </button>
   </header>
-  <nav id="tabs" class="pn-tabs" role="tablist" aria-label="Самбар">
-    <button class="pn-tab" role="tab" type="button" data-tab="main" aria-selected="true">Шалгах</button>
-    <button class="pn-tab" role="tab" type="button" data-tab="tools" aria-selected="false">Хэрэгсэл</button>
-  </nav>
+  <nav id="tabs" class="pn-tabs" role="tablist" aria-label="Самбар"><div class="pn-tabs-track">
+      <button class="pn-tab" role="tab" type="button" data-tab="main" aria-selected="true">🔍 Шалгах</button>
+      <button class="pn-tab" role="tab" type="button" data-tab="tools" aria-selected="false">🧰 Хэрэгсэл</button>
+    </div></nav>
   <main id="app" aria-live="polite"></main>
   <script src="i18n.js"></script>
   <script src="registry/buildLink.js"></script>

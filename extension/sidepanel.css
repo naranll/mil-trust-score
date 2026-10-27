@@ -1,40 +1,68 @@
-/* Итгэлцлийн оноо — хажуугийн самбар. Вэбсайттай (website/kapsul) нэг дизайн систем:
-   шөнийн хөх дэвсгэр + одтой тоос, Golos Text, Okabe-Ito дүгнэлтийн өнгө, accent #6f86ff, pill товч,
-   цэгэн хөдөлгөөн (оноо = 50 цэг, хоосон төлөвт цэгэн капсул). Өнгө дангаараа утга илэрхийлэхгүй: замын тэмдгийн хэлбэр (● ▲ ⬣ ▭).
-   Хөдөлгөөн бүр opacity/transform (GPU) бөгөөд нэг удаа тоглоно; «хөдөлгөөн багасгах» үед унтарна. */
+/* Итгэлцлийн оноо — хажуугийн самбар. Hackmil 2026 · Design system v3 (style/*.png):
+   Golos Text, Okabe-Ito дүгнэлтийн өнгө, accent #0072B2 (харанхуй: #56B4E9), pill товч 44px, радиус 8/16, 4px зай.
+   Гэрэл/харанхуй нь хөтчийн тохиргоог дагана. Өнгө дангаараа утга илэрхийлэхгүй: замын тэмдгийн хэлбэр (● ▲ ⬣ ▭) + үг.
+   Хөдөлгөөн: 150/250/400ms, нэг удаа тоглоно; «хөдөлгөөн багасгах» үед унтарна. */
 
 :root {
-  color-scheme: dark;
-  /* Суурь (globals.css-тэй ижил) */
-  --bg: #0a1024;
-  --surface: #111a36;
-  --subtle: #1a2446;
-  --ink: #e9edf7;
-  --ink-2: #9aa2ba;
-  --ink-3: #7d86a3;
-  --control: #6b7596;
-  --rule: rgba(165, 182, 225, 0.16);
-  --accent: #6f86ff;
-  --accent-strong: #97a8ff;
-  --accent-tint: #1c2756;
-  --on-accent: #0a1024;
-  /* Дүгнэлт (Okabe Ito, dark) */
-  --true: #56b4e9;
-  --mislead: #e69f00;
-  --false: #f08a4b;
-  --info: #d99bc0;
-  --unchecked: #80868f;
-  /* Хэмжээ, хөдөлгөөн */
-  --text-caption: 0.8125rem;
-  --text-small: 0.9375rem;
+  color-scheme: light dark;
+  /* Суурь (light) */
+  --bg: #F6F7F9;
+  --surface: #FFFFFF;
+  --subtle: #ECEEF2;
+  --ink: #1B1D21;
+  --ink-2: #4F5560;
+  --ink-3: #6A707A;
+  --control: #80868F;
+  --rule: rgba(27, 29, 33, 0.12);
+  --accent: #0072B2;
+  --accent-strong: #005B8F;
+  --accent-tint: #E6F1F8;
+  --on-accent: #FFFFFF;
+  --highlight: #F0E442;          /* системийн хамгийн гэрэлтэй өнгө: хэрэгслийн табын дээд хэсэг */
+  --on-highlight: #1B1D21;
+  /* Дүгнэлт (Okabe Ito) */
+  --true: #0072B2;
+  --mislead: #E69F00;
+  --false: #D55E00;
+  --info: #CC79A7;
+  --unchecked: #6A707A;
+  --on-fill: #FFFFFF;            /* дүүрэн дүрсийн дотор зурах өнгө */
+  --shadow-1: 0 1px 2px rgba(18, 20, 23, 0.08), 0 1px 3px rgba(18, 20, 23, 0.06);
+  --shadow-2: 0 4px 12px rgba(18, 20, 23, 0.14), 0 2px 4px rgba(18, 20, 23, 0.08);
+  /* Хэмжээ (ratio 1.25, base 16px), хөдөлгөөн */
+  --text-caption: 0.8rem;
+  --text-small: 1rem;
   --text-h3: 1.25rem;
   --ease-out-expo: cubic-bezier(0.2, 0, 0, 1);
   --dur-fast: 150ms;
   --dur-base: 250ms;
   --dur-slow: 400ms;
 }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121417;
+    --surface: #1B1E23;
+    --subtle: #262A31;
+    --ink: #ECEEF1;
+    --ink-2: #A9AFB8;
+    --ink-3: #8A919B;
+    --control: #737A84;
+    --rule: rgba(236, 238, 241, 0.14);
+    --accent: #56B4E9;
+    --accent-strong: #8CCBF2;
+    --accent-tint: #17354A;
+    --on-accent: #121417;
+    --true: #56B4E9;
+    --false: #F08A4B;
+    --info: #D99BC0;
+    --unchecked: #80868F;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-2: 0 6px 16px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.4);
+    --on-fill: #121417;
+  }
+}
 .t-ok   { --c: var(--true); }
-.t-warn { --c: var(--mislead); }
+.t-warn { --c: var(--mislead); --on-fill: #1B1D21; }
 .t-stop { --c: var(--false); }
 .t-ad   { --c: var(--info); }
 .t-mute { --c: var(--unchecked); }
@@ -45,17 +73,8 @@ body {
   min-width: 300px;
   min-height: 100vh;
   background-color: var(--bg);
-  /* Вэбсайтын .stardust */
-  background-image:
-    radial-gradient(1px 1px at 12% 18%, rgba(201, 212, 242, 0.35), transparent 60%),
-    radial-gradient(1px 1px at 72% 9%, rgba(201, 212, 242, 0.25), transparent 60%),
-    radial-gradient(1.2px 1.2px at 38% 62%, rgba(201, 212, 242, 0.22), transparent 60%),
-    radial-gradient(1px 1px at 88% 44%, rgba(201, 212, 242, 0.3), transparent 60%),
-    radial-gradient(1px 1px at 22% 86%, rgba(201, 212, 242, 0.2), transparent 60%),
-    radial-gradient(1px 1px at 94% 78%, rgba(201, 212, 242, 0.22), transparent 60%);
-  background-size: 420px 420px;
   color: var(--ink);
-  font: 400 var(--text-small)/1.55 "Golos Text", system-ui, sans-serif;
+  font: 400 var(--text-small)/1.5 "Golos Text", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 ::selection { background: var(--accent-tint); color: var(--ink); }
@@ -98,7 +117,7 @@ h1, h2, p { margin: 0; }
 /* ---- Тэмдгийн хэлбэр ---- */
 .shape { width: 18px; height: 18px; flex: none; }
 .shape .f { fill: var(--c); }
-.shape .s { fill: none; stroke: var(--bg); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.shape .s { fill: none; stroke: var(--on-fill); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 /* ---- Сонгосон пост ---- */
 .post { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 16px;
@@ -217,3 +236,7 @@ code { display: block; padding: 10px 12px; border-radius: 12px; background: var(
   #app > *, .meter i.on, .capsule svg, .t-mute.status::before { animation: none; }
   .tool, .tool svg:last-child, details.fold summary::before, .btn, .icon-btn { transition: none; }
 }
+
+/* Design system v3: elevation for cards */
+.post, .server, .tool, .callout { box-shadow: 0 0 0 1px var(--rule), var(--shadow-1); }
+.tool:hover { box-shadow: 0 0 0 1.5px var(--control), var(--shadow-2); }

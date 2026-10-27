@@ -1,6 +1,8 @@
 [
   {
     "id": "google-lens",
+    "icon": "🔍",
+    "short": "Lens",
     "name": "Where else has this photo appeared?",
     "subtitle": "Google Lens",
     "description": "Reverse image search: finds pages that show the same or a similar picture.",
@@ -33,6 +35,8 @@
   },
   {
     "id": "yandex-images",
+    "icon": "🔎",
+    "short": "Yandex",
     "name": "Search the photo in another engine",
     "subtitle": "Yandex Images",
     "description": "Reverse image search with a different index; often strong on faces and places.",
@@ -64,6 +68,8 @@
   },
   {
     "id": "tineye",
+    "icon": "👁️",
+    "short": "TinEye",
     "name": "When did this photo first appear?",
     "subtitle": "TinEye",
     "description": "Reverse image search that can sort copies by date to find the oldest one.",
@@ -95,6 +101,8 @@
   },
   {
     "id": "baidu-images",
+    "icon": "🌏",
+    "short": "Baidu",
     "name": "Search the photo on Chinese-language sites",
     "subtitle": "Baidu Images",
     "description": "Reverse image search with strong coverage of Chinese websites.",
@@ -125,6 +133,8 @@
   },
   {
     "id": "saucenao",
+    "icon": "🎨",
+    "short": "SauceNAO",
     "name": "Find the artist of a drawing or illustration",
     "subtitle": "SauceNAO",
     "description": "Reverse search for illustrations, anime and artwork. Paste the image link on its page.",
@@ -155,6 +165,8 @@
   },
   {
     "id": "wayback",
+    "icon": "🕰️",
+    "short": "Wayback",
     "name": "Was this page archived, and when first?",
     "subtitle": "Internet Archive Wayback Machine",
     "description": "Shows the first and latest archived copies of a web page.",
@@ -187,6 +199,8 @@
   },
   {
     "id": "factcheck-explorer",
+    "icon": "🧾",
+    "short": "Fact Check",
     "name": "Has a fact-checker already checked this claim?",
     "subtitle": "Google Fact Check Explorer",
     "description": "Searches published fact-checks from many countries. Copy the claim, then search on its page.",
@@ -218,6 +232,8 @@
   },
   {
     "id": "mfcc-search",
+    "icon": "🏔️",
+    "short": "MFCC",
     "name": "Search Mongolian fact-checks",
     "subtitle": "MFCC (mfcc.mn)",
     "description": "Searches the Mongolian Fact-Checking Center's published checks.",
@@ -250,6 +266,8 @@
   },
   {
     "id": "google-search",
+    "icon": "🌐",
+    "short": "Google",
     "name": "Who else is reporting this?",
     "subtitle": "Google Search",
     "description": "Look for independent outlets that reported the same thing themselves.",
@@ -283,6 +301,8 @@
   },
   {
     "id": "checker",
+    "icon": "📝",
+    "short": "Checker",
     "name": "What in this post is worth checking?",
     "subtitle": "Our checker (rules + trained model)",
     "description": "Points at wording often used to manipulate: urgency, 100% promises, unnamed sources, scam requests.",
@@ -314,6 +334,8 @@
   },
   {
     "id": "rdap",
+    "icon": "📅",
+    "short": "RDAP",
     "name": "When was this website registered?",
     "subtitle": "RDAP domain lookup",
     "description": "Registrar and registration date of a domain, from the official registration data.",
@@ -344,6 +366,8 @@
   },
   {
     "id": "whois",
+    "icon": "📇",
+    "short": "WHOIS",
     "name": "Look up the domain's WHOIS record",
     "subtitle": "whois.com",
     "description": "Registration record for a domain, including many .mn domains.",
@@ -375,6 +399,8 @@
   },
   {
     "id": "meta-ad-library",
+    "icon": "📢",
+    "short": "Ad Library",
     "name": "What ads is this page running?",
     "subtitle": "Meta Ad Library",
     "description": "Search ads shown on Facebook and Instagram in Mongolia by page name or keyword.",
@@ -407,6 +433,8 @@
   },
   {
     "id": "suncalc",
+    "icon": "☀️",
+    "short": "SunCalc",
     "name": "Does the shadow match the claimed time?",
     "subtitle": "SunCalc",
     "description": "Sun position and shadow direction for any place and date.",
@@ -437,6 +465,8 @@
   },
   {
     "id": "google-earth",
+    "icon": "🌍",
+    "short": "Earth",
     "name": "Does the place match the claim?",
     "subtitle": "Google Earth",
     "description": "Satellite and 3D views to compare roads, buildings and landscape with a photo.",
@@ -467,6 +497,8 @@
   },
   {
     "id": "openstreetmap",
+    "icon": "🗺️",
+    "short": "OSM",
     "name": "Find the location on an open map",
     "subtitle": "OpenStreetMap",
     "description": "Community map with street and place names to match signs and landmarks.",
@@ -497,6 +529,8 @@
   },
   {
     "id": "fotoforensics",
+    "icon": "🔬",
+    "short": "Forensics",
     "name": "What does the image file reveal?",
     "subtitle": "FotoForensics",
     "description": "Metadata and error-level analysis of an uploaded image.",
@@ -528,6 +562,8 @@
   },
   {
     "id": "exif-viewer",
+    "icon": "📷",
+    "short": "EXIF",
     "name": "Read the camera data of an original file",
     "subtitle": "Jeffrey's Image Metadata Viewer",
     "description": "Shows camera model, date and GPS stored in an image file, when they survive.",
@@ -559,6 +595,8 @@
   },
   {
     "id": "invid",
+    "icon": "🎞️",
+    "short": "InVID",
     "name": "Check a video frame by frame",
     "subtitle": "InVID-WeVerify plugin",
     "description": "A separate free extension: cuts a video into keyframes you can reverse-search.",
@@ -590,6 +628,8 @@
   },
   {
     "id": "content-credentials",
+    "icon": "🪪",
+    "short": "C2PA",
     "name": "Does this file carry Content Credentials?",
     "subtitle": "Content Credentials Verify (C2PA)",
     "description": "Reads the signed record of who made a file and which edits they declared.",
@@ -622,6 +662,8 @@
   },
   {
     "id": "synthid",
+    "icon": "💧",
+    "short": "SynthID",
     "name": "Was this made with Google's AI tools?",
     "subtitle": "SynthID Detector (Google)",
     "description": "Checks a file for Google's SynthID watermark.",
@@ -653,6 +695,8 @@
   },
   {
     "id": "deepfake-o-meter",
+    "icon": "🎭",
+    "short": "Deepfake",
     "name": "Run research deepfake detectors on a file",
     "subtitle": "DeepFake-o-Meter (University at Buffalo)",
     "description": "Research platform that runs several open-source detectors on an upload.",
@@ -684,6 +728,8 @@
   },
   {
     "id": "sift",
+    "icon": "🧭",
+    "short": "SIFT",
     "name": "Four moves before you share",
     "subtitle": "SIFT, by Mike Caulfield (CC BY 4.0)",
     "description": "Stop, Investigate the source, Find better coverage, Trace to the original.",
@@ -715,6 +761,8 @@
   },
   {
     "id": "ifcn-checklist",
+    "icon": "📋",
+    "short": "IFCN",
     "name": "What makes a fact-checker trustworthy?",
     "subtitle": "IFCN Code of Principles: five commitments",
     "description": "Five public commitments signatory fact-checkers make, as a checklist.",
@@ -746,6 +794,8 @@
   },
   {
     "id": "mongolia-sources",
+    "icon": "🐎",
+    "short": "Mongolia",
     "name": "Mongolian sources: fact-checkers, press bodies, laws",
     "subtitle": "Starting list",
     "description": "Who checks claims in Mongolia, where to complain about media, where laws and statistics live.",

@@ -28,14 +28,20 @@ The model, reference lists and feedback handling are **not** here: see [`model/`
 
 ## Side panel tabs
 
-- **Шалгах** (main): the selected post's score, reasons, checking links and questions. Opens when you click a badge.
-- **Хэрэгсэл**: one box with three sub-tabs. *Хэрэгсэл*: task-first tool list from the shared registry (role and category
-  filters, search, every tool states what it cannot tell you; links are prefilled from what you paste, the selected post
-  or the current page). *Монгол*: Mongolian fact-checkers, press bodies, laws. *Дадал*: SIFT, "spot the tactic", IFCN
-  checklist. «Хайж үзэх» sends only the link you chose, through our server, to the Internet Archive and the domain
-  registry (`/api/wayback`, `/api/rdap`); nothing is sent by just opening the tab. MN/EN switch is inside the box.
+- **🔍 Шалгах** (tab 1): the teammate's post panel: score 0–100, reasons, checking links, questions. Opens when you click a badge on a post.
+- **🧰 Хэрэгсэл** (tab 2, yellow = the design system's brightest colour): icons first, almost no text.
+  Yellow top band with one input (link, image link or claim) and a «Хайх» button → role row → ⚡ row of tools already
+  prefilled with your input (one tap opens them) → 12 tiles (Зураг, Видео, Мэдэгдэл, Сурвалж, Архив, Шошго, Газар, Файл,
+  Дадал, Монгол, Сүүлд, Бүгд). Press a tile to see its tools, press a tool to see what it can't tell you and one big
+  «Нээх» button. Wayback/RDAP tools show their answer as a one-line card. Habits = SIFT letters, IFCN 1–5, a 3-card
+  practice deck. MN/EN switch in the band. Opening the tab sends nothing; «Хайх» or opening Wayback/RDAP sends only that
+  link through our server (`/api/wayback`, `/api/rdap`).
 
-Edit tools in `../registry/tools.json`, then run `node registry/sync.mjs` from the repo root and reload the extension.
+Edit tools (icon, one-word `short`, limits…) in `../registry/tools.json`, then run `node registry/sync.mjs` from the repo root
+and reload the extension.
+
+Style: Hackmil 2026 design system v3 (`style/*.png`): Golos Text, Okabe-Ito verdict colours with shapes, pill buttons 44px,
+light/dark follow the browser (the in-feed badge follows Facebook's own dark mode).
 
 ## 1. Start the backend (5 min)
 

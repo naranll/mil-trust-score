@@ -23,3 +23,7 @@ come from the local network. Templates without `{U}` open the homepage and the U
 Do not guess URL parameter formats.
 
 The website should import `tools.json` + `buildLink.js` at build time (same files) rather than copy entries.
+
+## Compact UI fields
+
+`icon` (one emoji) and `short` (one or two words, max 16 characters) feed the extension's tiles. Rules (enforced by `validate.js`): no robots, brains, sparkles, red crosses, syringes or flag emoji (Windows shows flags as letters). Mongolia items carry the same two fields (`short` is `{mn, en}`).
