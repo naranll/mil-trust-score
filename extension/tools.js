@@ -175,12 +175,8 @@
   }
 
   function homeView(ctx) {
-    const count = (id) => TB.reg.tools.filter((x) => x.categories.includes(id) && roleOk(x)).length;
-    const tiles = TILES.map(([id, e]) => {
-      const n = ["images", "video", "claims", "sources", "archives", "ai-signals", "geolocation", "documents"].includes(id) ? count(id) : 0;
-      return `<button class="tb-tile" type="button" data-tb="nav" data-v="${id}"><span class="tb-ico" aria-hidden="true">${e}</span>
-        <span class="tb-lab">${esc(T(`tile_${id}`))}</span>${n ? `<span class="tb-count" aria-hidden="true">${n}</span>` : ""}</button>`;
-    }).join("");
+    const tiles = TILES.map(([id, e]) => `<button class="tb-tile" type="button" data-tb="nav" data-v="${id}"><span class="tb-ico" aria-hidden="true">${e}</span>
+        <span class="tb-lab">${esc(T(`tile_${id}`))}</span></button>`).join("");
     return `${roleRow()}${nowRow(ctx)}<div class="tb-grid tb-grid4">${tiles}</div>`;
   }
 
@@ -263,13 +259,12 @@
   }
 
   function heroHtml() {
-    return `<header class="tb-hero">
-      <div class="tb-hero-row"><h2><span aria-hidden="true">🧰</span> ${esc(T("tab_tools"))}</h2>
-        <button class="tb-lang" type="button" data-tb="lang" aria-label="${esc(T("lang_switch_aria"))}">${esc(T("lang_switch"))}</button></div>
+    return `<header class="tb-top">
       <div class="tb-find"><label class="tb-find-box"><span id="tb-kind" aria-hidden="true">${kindIcon()}</span>
         <input id="tb-inp" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="${esc(T("find_ph"))}" aria-label="${esc(T("input_label"))}" value="${esc(TB.input)}"></label>
-        <button class="tb-go" type="button" data-tb="go">${I.search}${esc(T("go"))}</button></div>
-      <ol class="tb-how" aria-hidden="true"><li><b>1</b>🔗 ${esc(T("how_1"))}</li><li><b>2</b>👆 ${esc(T("how_2"))}</li><li><b>3</b>↗ ${esc(T("how_3"))}</li></ol>
+        <button class="tb-go" type="button" data-tb="go">${I.search}${esc(T("go"))}</button>
+        <button class="tb-lang" type="button" data-tb="lang" aria-label="${esc(T("lang_switch_aria"))}">${esc(T("lang_switch"))}</button></div>
+      <p class="tb-how" aria-hidden="true"><span>1 🔗 ${esc(T("how_1"))}</span><span>2 👆 ${esc(T("how_2"))}</span><span>3 ↗ ${esc(T("how_3"))}</span></p>
     </header>`;
   }
 

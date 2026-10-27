@@ -10,17 +10,12 @@
   <link rel="stylesheet" href="tools.css">
 </head>
 <body>
-  <header class="bar">
-    <!-- Todruulii тэмдэг (вэбсайтын лого): бүдэг цэгүүд тодорч нэг цэг болно -->
-    <svg class="mark" viewBox="0 0 28 16" aria-hidden="true"><circle cx="2.4" cy="8" r="1.4" fill="currentColor" opacity=".3"/><circle cx="7.6" cy="8" r="2.1" fill="currentColor" opacity=".5"/><circle cx="14.2" cy="8" r="3" fill="currentColor" opacity=".75"/><circle cx="22.6" cy="8" r="4.6" fill="currentColor"/></svg>
-    <span class="bar-title"><b>Итгэлцлийн оноо</b><span>Todruulii</span></span>
-    <button id="gear" class="icon-btn" type="button" aria-label="Серверийн тохиргоо" aria-expanded="false">
-      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 5.6a2.4 2.4 0 1 0 0 4.8a2.4 2.4 0 1 0 0-4.8z"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg>
-    </button>
-  </header>
   <nav id="tabs" class="pn-tabs" role="tablist" aria-label="Самбар"><div class="pn-tabs-track">
       <button class="pn-tab" role="tab" type="button" data-tab="main" aria-selected="true">🔍 Шалгах</button>
       <button class="pn-tab" role="tab" type="button" data-tab="tools" aria-selected="false">🧰 Хэрэгсэл</button>
+      <button id="gear" class="icon-btn pn-gear" type="button" aria-label="Серверийн тохиргоо" aria-expanded="false">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 5.6a2.4 2.4 0 1 0 0 4.8a2.4 2.4 0 1 0 0-4.8z"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg>
+      </button>
     </div></nav>
   <main id="app" aria-live="polite"></main>
   <script src="i18n.js"></script>

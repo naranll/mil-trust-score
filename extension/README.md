@@ -28,16 +28,16 @@ The model, reference lists and feedback handling are **not** here: see [`model/`
 
 ## Side panel tabs
 
-Tabs are folder tabs: the active tab shares its colour with the page below it (tab 2 is yellow and flows into its yellow band).
+Tabs are folder tabs at the very top (no header above them; the server-settings gear sits at the end of the strip). The active tab shares its colour with the page below it; the tools tab carries a thin yellow cap.
 Every scored post badge shows the trust number (`22/100`) next to its label; the panel shows the same number with reasons.
 
 - **🔍 Шалгах** (tab 1): the teammate's post panel: score 0–100, reasons, checking links, questions. Opens when you click a badge on a post.
-- **🧰 Хэрэгсэл** (tab 2, yellow = the design system's brightest colour): icons first, almost no text.
-  Yellow top band with one input (link, image link or claim) and a «Хайх» button → role row → ⚡ row of tools already
+- **🧰 Хэрэгсэл** (tab 2): icons first, almost no text, same neutral look as tab 1.
+  One input (link, image link or claim) with a «Хайх» button and an MN/EN switch → role row → ⚡ row of tools already
   prefilled with your input (one tap opens them) → 12 tiles (Зураг, Видео, Мэдэгдэл, Сурвалж, Архив, Шошго, Газар, Файл,
   Дадал, Монгол, Сүүлд, Бүгд). Press a tile to see its tools, press a tool to see what it can't tell you and one big
   «Нээх» button. Wayback/RDAP tools show their answer as a one-line card. Habits = SIFT letters, IFCN 1–5, a 3-card
-  practice deck. MN/EN switch in the band. Opening the tab sends nothing; «Хайх» or opening Wayback/RDAP sends only that
+  practice deck. Opening the tab sends nothing; «Хайх» or opening Wayback/RDAP sends only that
   link through our server (`/api/wayback`, `/api/rdap`).
 
 Edit tools (icon, one-word `short`, limits…) in `../registry/tools.json`, then run `node registry/sync.mjs` from the repo root
