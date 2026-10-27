@@ -297,13 +297,15 @@
     const key = ok ? r.zone : (m.aiLabel ? "media_ai" : "media");
     const b = BADGE[key] || BADGE.media;
     const reason = key === "green" ? "" : (ok ? oneReason(r, isAd) : "Бичвэргүй тул оноо өгөөгүй. Зураг, видеог өөрөө шалгаж болно.");
+    // Итгэлцлийн оноо (сургасан загварын 0–100) пост дээр шууд харагдана; зарын дүгнэлтэд тоо байхгүй
+    const num = ok && typeof r.trust === "number" ? Math.max(0, Math.min(100, Math.round(r.trust))) : null;
 
     const box = document.createElement("div");
     box.className = `hm-badge hm-tone-${b.tone}${b.compact ? " hm-compact" : ""}${selectedId === p.post.dataset.hmId ? " hm-selected" : ""}`;
     box.dataset.theme = isDark() ? "dark" : "light";
     box.innerHTML = `
-      <button class="hm-pill" type="button" title="${esc(b.label)}" aria-label="Итгэлцлийн оноо: ${esc(b.label)}. Хажуугийн самбарт шалгах">
-        <span class="hm-shape">${SHAPE[b.shape]}</span><span class="hm-label">${esc(b.label)}</span><span class="hm-go">Шалгах${CHEVRON}</span>
+      <button class="hm-pill" type="button" title="${esc(b.label)}" aria-label="Итгэлцлийн оноо: ${esc(b.label)}${num !== null ? `, ${num} / 100` : ""}. Хажуугийн самбарт шалгах">
+        <span class="hm-shape">${SHAPE[b.shape]}</span><span class="hm-label">${esc(b.label)}</span>${num !== null ? `<span class="hm-score" aria-hidden="true"><b>${num}</b><small>/100</small></span>` : ""}<span class="hm-go">Шалгах${CHEVRON}</span>
       </button>
       ${reason ? `<p class="hm-reason">${esc(reason)}</p>` : ""}`;
     box.addEventListener("click", (e) => e.stopPropagation());   // Facebook пост руу шилжихээс сэргийлнэ

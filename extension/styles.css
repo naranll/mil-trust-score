@@ -96,6 +96,12 @@
   transition: background-color 150ms var(--hm-ease);
 }
 .hm-pill:hover .hm-go { background: var(--hm-accent-strong); }
+
+/* Итгэлцлийн оноо: пост дээрх тоо */
+.hm-score { display: inline-flex; align-items: baseline; gap: 2px; padding-left: 10px; border-left: 1px solid var(--hm-rule); font-variant-numeric: tabular-nums; }
+.hm-score b { font-size: 17px; font-weight: 700; line-height: 1; color: var(--hm-ink); }
+.hm-score small { font-size: 11px; font-weight: 600; color: var(--hm-ink-2); }
+.hm-compact .hm-score { padding-left: 0; border-left: 0; }
 .hm-go svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
              transition: transform 250ms var(--hm-ease); }
 .hm-pill:hover .hm-go svg { transform: translateX(2px); }
@@ -106,7 +112,8 @@
 .hm-selected .hm-pill { box-shadow: inset 0 0 0 1.5px var(--hm-accent), 0 0 0 3px color-mix(in srgb, var(--hm-accent) 30%, transparent); }
 
 /* «Асуудалгүй» = анхаарал татахгүй: зөвхөн дүрс, шошго нь хулгана аваачихад */
-.hm-compact .hm-pill { width: 44px; min-height: 44px; height: 44px; padding: 0; justify-content: center; gap: 0;
+/* Анхааруулгагүй пост: шошго нуугдана, оноо харагдсан хэвээр */
+.hm-compact .hm-pill { min-width: 44px; min-height: 44px; height: 44px; padding: 0 12px 0 10px; justify-content: center; gap: 8px;
                        background: var(--hm-surface); box-shadow: inset 0 0 0 1px var(--hm-rule); }
 .hm-compact .hm-label, .hm-compact .hm-go { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .hm-compact .hm-pill:hover { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hm-c) 55%, transparent); }

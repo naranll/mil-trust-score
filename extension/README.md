@@ -28,6 +28,9 @@ The model, reference lists and feedback handling are **not** here: see [`model/`
 
 ## Side panel tabs
 
+Tabs are folder tabs: the active tab shares its colour with the page below it (tab 2 is yellow and flows into its yellow band).
+Every scored post badge shows the trust number (`22/100`) next to its label; the panel shows the same number with reasons.
+
 - **🔍 Шалгах** (tab 1): the teammate's post panel: score 0–100, reasons, checking links, questions. Opens when you click a badge on a post.
 - **🧰 Хэрэгсэл** (tab 2, yellow = the design system's brightest colour): icons first, almost no text.
   Yellow top band with one input (link, image link or claim) and a «Хайх» button → role row → ⚡ row of tools already

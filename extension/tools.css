@@ -2,20 +2,23 @@
    Okabe-Ito accents, light and dark follow the browser. The top band of the tools tab uses the system's brightest
    colour (--highlight, #F0E442) with --text-primary on it (12.8:1). Everything lives under .tb / .pn-*. */
 
-/* ---- Tab strip: segmented control, 44px segments on a 52px track ---- */
-.pn-tabs { position: sticky; top: 56px; z-index: 1; padding: 8px 16px; background: color-mix(in srgb, var(--surface) 85%, transparent);
-           backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--rule); }
-.pn-tabs-track { display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: var(--subtle); }
-.pn-tab { flex: 1; min-height: 44px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--ink-2);
-          font: inherit; font-size: var(--text-caption); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-          transition: background-color var(--dur-fast) var(--ease-out-expo), color var(--dur-fast) var(--ease-out-expo), box-shadow var(--dur-fast) var(--ease-out-expo); }
+/* ---- Folder tabs: the active tab shares its colour with the page below it, so tab and page read as one folder.
+   Tab 1 joins the page background; tab 2 is yellow and flows into the yellow top band of the tools tab. ---- */
+.pn-tabs { position: sticky; top: 56px; z-index: 1; background: var(--subtle); }
+.pn-tabs-track { display: flex; align-items: flex-end; gap: 16px; padding: 8px 16px 0; }
+.pn-tab { --tab-bg: var(--bg); position: relative; flex: 1; min-height: 44px; padding: 0 12px; border: 0; border-radius: 16px 16px 0 0;
+          background: color-mix(in srgb, var(--ink) 7%, var(--subtle)); color: var(--ink-2); font: inherit; font-size: var(--text-caption); font-weight: 600;
+          cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+          transition: background-color var(--dur-fast) var(--ease-out-expo), color var(--dur-fast) var(--ease-out-expo), min-height var(--dur-fast) var(--ease-out-expo); }
+.pn-tab[data-tab="tools"] { --tab-bg: var(--highlight); background: color-mix(in srgb, var(--highlight) 38%, var(--subtle)); }
 .pn-tab:hover { color: var(--ink); }
-.pn-tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-1); }
-/* tab 2 wears the brightest colour so people find it */
-.pn-tab[data-tab="tools"]::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--highlight); box-shadow: 0 0 0 1.5px var(--on-highlight); }
-.pn-tab[data-tab="tools"][aria-selected="true"] { background: var(--highlight); color: var(--on-highlight); }
-.pn-tab[data-tab="tools"][aria-selected="true"]::before { background: var(--on-highlight); box-shadow: none; }
-.pn-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pn-tab[aria-selected="true"] { min-height: 50px; background: var(--tab-bg); color: var(--ink); font-weight: 700; z-index: 1; }
+.pn-tab[data-tab="tools"][aria-selected="true"] { color: var(--on-highlight); }
+/* flared base: inverted corners that blend the tab into the page */
+.pn-tab[aria-selected="true"]::before, .pn-tab[aria-selected="true"]::after { content: ""; position: absolute; bottom: 0; width: 16px; height: 16px; pointer-events: none; }
+.pn-tab[aria-selected="true"]::before { left: -16px; border-bottom-right-radius: 16px; box-shadow: 8px 8px 0 8px var(--tab-bg); }
+.pn-tab[aria-selected="true"]::after { right: -16px; border-bottom-left-radius: 16px; box-shadow: -8px 8px 0 8px var(--tab-bg); }
+.pn-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
 
 /* ---- Tools tab: full-bleed (cancels #app padding) so the yellow band touches the tab strip ---- */
 .tb { margin: -18px -16px -36px; display: flex; flex-direction: column; }
