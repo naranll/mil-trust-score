@@ -13,7 +13,35 @@ async function getApi() {
   return api || DEFAULT_API;
 }
 
+// --- Tools tab: archive history and domain registration through our server ---------------------------
+// Falls back to the bundled demo cache (labelled "cached" in the panel) when the server does not answer.
+let demoCache = null;                      // only a re-loadable copy of a bundled file, never state
+async function demo() {
+  if (!demoCache) {
+    try { demoCache = await (await fetch(chrome.runtime.getURL("demo-cache.json"))).json(); } catch { demoCache = {}; }
+  }
+  return demoCache;
+}
+
+async function lookupContext(kind, value) {
+  const path = { wayback: "/api/wayback?url=", rdap: "/api/rdap?domain=" }[kind];
+  if (!path) return { ok: false, reason: "bad_kind" };
+  let body = null;
+  try {
+    const res = await fetch(`${await getApi()}${path}${encodeURIComponent(value)}`, { signal: AbortSignal.timeout(8000) });
+    body = await res.json();
+    if (body.ok) return { ...body, cached: false };
+  } catch { /* fall through to the demo cache */ }
+  const hit = (await demo())[kind]?.[String(value).trim().toLowerCase()];
+  if (hit) return { ...hit, cached: true };
+  return body || { ok: false, reason: "offline" };
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.type === "context") {
+    lookupContext(msg.kind, msg.value).then(sendResponse);
+    return true;
+  }
   if (msg.type === "score") {
     (async () => {
       try {

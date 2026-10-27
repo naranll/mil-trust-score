@@ -70,6 +70,18 @@ added by `kb.enrich` (explanations, "how to check" links) from `data/reference/k
 - `POST /feedback/posts` `{text, image_text?, url?, user_label: true|false|not_claim|unsure|wrong_type, trust?,
   zone?, post_type?}` → `{"ok": true, "count": n}`. Extra fields (e.g. author) are ignored and not stored.
 
+## Tools tab proxy (extension «Хэрэгсэл» tab)
+
+Called by the extension's service worker only when the user presses «Хайж үзэх». Every answer is JSON with `ok`;
+on failure it carries `reason` and `fallback_url` (a plain link), never an error wall. Responses carry `X-Cache: HIT|MISS`.
+Rate limit by anonymous `X-Install-Id` (not IP). URLs must be http/https and must not point at private addresses.
+
+| Endpoint | Upstream | Cache | Notes |
+|---|---|---|---|
+| `GET /api/wayback?url=` | Internet Archive availability API | 1 h | first and latest snapshot; after a 429 it backs off 1, 2, 4 … 16 min |
+| `GET /api/rdap?domain=` | rdap.org | 24 h | registrar, registered, expires; `.mn` usually has no RDAP (`reason: no_rdap_for_tld`, link to WHOIS) |
+| `GET /api/registry` | `registry/*.json` | none | tools, Mongolia sources, lessons as data |
+
 ## Other
 
 - `GET /health` → `{"ok": true, "model": "scorecard v4" | "unavailable", "model_error": null | "…"}`

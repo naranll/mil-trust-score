@@ -1,0 +1,32 @@
+{
+  "_about": "Cached answers for the Tools tab's archive and domain cards (labelled 'cached' in the panel).",
+  "wayback": {
+    "https://ikon.mn/": {
+      "ok": true,
+      "url": "https://ikon.mn/",
+      "archived": true,
+      "first": null,
+      "latest": {
+        "timestamp": "20261026053447",
+        "date": "2026-10-26",
+        "url": "http://web.archive.org/web/20261026053447/https://ikon.mn/"
+      },
+      "history_url": "https://web.archive.org/web/*/https://ikon.mn/",
+      "recorded": "2026-10-26"
+    }
+  },
+  "rdap": {
+    "ik0n.mn": {
+      "ok": false,
+      "reason": "no_rdap_for_tld",
+      "fallback_url": "https://www.whois.com/whois/ik0n.mn",
+      "domain": "ik0n.mn"
+    },
+    "ikon.mn": {
+      "ok": false,
+      "reason": "no_rdap_for_tld",
+      "fallback_url": "https://www.whois.com/whois/ikon.mn",
+      "domain": "ikon.mn"
+    }
+  }
+}

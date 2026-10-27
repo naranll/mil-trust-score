@@ -18,6 +18,10 @@ never decides what is true.
 Zones: green ≥ 70, yellow 40–69, red < 40. A zone is never shown by color alone: always with a text label and an
 icon (✓ / ! / ✕ · «Найдвартай / Болгоомжил / Эрсдэлтэй»), in every client and chart.
 
+Tools tab: the extension's second side-panel tab is a self-contained box (`extension/tools.js`) that renders the shared
+registry (`registry/`, copied into `extension/registry/` by `node registry/sync.mjs`) and calls the proxy routes
+`/api/wayback`, `/api/rdap` (`extension/backend/app/proxy.py`). The website can import the same registry.
+
 ## Who owns what
 
 | Folder | Owner | Contains | Others should |

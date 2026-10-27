@@ -4,7 +4,7 @@
   "version": "0.2.0",
   "description": "Facebook постын манипуляцийн дохиог илрүүлж, хажуугийн самбарт алхам алхмаар шалгахад туслана (HACKMIL 2026).",
   "minimum_chrome_version": "116",
-  "permissions": ["storage", "sidePanel"],
+  "permissions": ["storage", "sidePanel", "activeTab"],
   "host_permissions": ["http://127.0.0.1:8000/*", "http://localhost:8000/*"],
   "background": { "service_worker": "background.js" },
   "side_panel": { "default_path": "sidepanel.html" },

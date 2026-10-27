@@ -1,0 +1,828 @@
+[
+  {
+    "id": "google-lens",
+    "icon": "🔍",
+    "short": "Lens",
+    "name": "Where else has this photo appeared?",
+    "subtitle": "Google Lens",
+    "description": "Reverse image search: finds pages that show the same or a similar picture.",
+    "categories": [
+      "images"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher",
+      "office"
+    ],
+    "input": "image_url",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Finds copies the engine has indexed. No match does not mean the image is new or real.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://lens.google.com/uploadbyurl?url={U}",
+      "fallbackUrl": "https://lens.google.com/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://lens.google/",
+    "mn": {
+      "name": "Энэ зураг өөр хаана гарсан бэ?",
+      "description": "Урвуу хайлт: ижил эсвэл төстэй зурагтай хуудсуудыг олно.",
+      "limits": "Хайлтын системд бүртгэгдсэн хуулбарыг л олно. Олдохгүй байх нь зураг шинэ эсвэл жинхэнэ гэсэн үг биш."
+    }
+  },
+  {
+    "id": "yandex-images",
+    "icon": "🔎",
+    "short": "Yandex",
+    "name": "Search the photo in another engine",
+    "subtitle": "Yandex Images",
+    "description": "Reverse image search with a different index; often strong on faces and places.",
+    "categories": [
+      "images"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher"
+    ],
+    "input": "image_url",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Results differ by region and change over time. No match does not mean the image is new.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://yandex.com/images/search?rpt=imageview&url={U}",
+      "fallbackUrl": "https://yandex.com/images/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://yandex.com/images/",
+    "mn": {
+      "name": "Зургийг өөр хайлтын системээр хайх",
+      "description": "Өөр индекстэй урвуу хайлт; нүүр царай, газар орныг сайн олдог.",
+      "limits": "Үр дүн бүс нутаг, цаг хугацаанаас хамаарч өөрчлөгдөнө. Олдохгүй байх нь зураг шинэ гэсэн үг биш."
+    }
+  },
+  {
+    "id": "tineye",
+    "icon": "👁️",
+    "short": "TinEye",
+    "name": "When did this photo first appear?",
+    "subtitle": "TinEye",
+    "description": "Reverse image search that can sort copies by date to find the oldest one.",
+    "categories": [
+      "images"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher"
+    ],
+    "input": "image_url",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Smaller index than Google. The oldest copy it knows is not always the original.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://tineye.com/search?url={U}",
+      "fallbackUrl": "https://tineye.com/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://tineye.com/",
+    "mn": {
+      "name": "Энэ зураг анх хэзээ гарсан бэ?",
+      "description": "Хуулбаруудыг огноогоор эрэмбэлж хамгийн эртнийхийг олох урвуу хайлт.",
+      "limits": "Google-ээс жижиг индекстэй. Түүний мэдэх хамгийн эртний хуулбар заавал эх хувь биш."
+    }
+  },
+  {
+    "id": "baidu-images",
+    "icon": "🌏",
+    "short": "Baidu",
+    "name": "Search the photo on Chinese-language sites",
+    "subtitle": "Baidu Images",
+    "description": "Reverse image search with strong coverage of Chinese websites.",
+    "categories": [
+      "images"
+    ],
+    "audiences": [
+      "journalist",
+      "researcher"
+    ],
+    "input": "image_url",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Interface is in Chinese. Weak on Mongolian and Western sites.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://image.baidu.com/n/pc_search?queryImageUrl={U}",
+      "fallbackUrl": "https://image.baidu.com/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://image.baidu.com/",
+    "mn": {
+      "name": "Зургийг хятад хэлтэй сайтуудаас хайх",
+      "description": "Хятад сайтуудыг сайн хамардаг урвуу хайлт.",
+      "limits": "Хятад хэлтэй интерфэйс. Монгол, барууны сайтуудыг сул хамардаг."
+    }
+  },
+  {
+    "id": "saucenao",
+    "icon": "🎨",
+    "short": "SauceNAO",
+    "name": "Find the artist of a drawing or illustration",
+    "subtitle": "SauceNAO",
+    "description": "Reverse search for illustrations, anime and artwork. Paste the image link on its page.",
+    "categories": [
+      "images"
+    ],
+    "audiences": [
+      "researcher",
+      "office"
+    ],
+    "input": "image_url",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Built for art and anime; poor for news photos. No match does not mean the drawing is original.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://saucenao.com/",
+      "fallbackUrl": "https://saucenao.com/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://saucenao.com/",
+    "mn": {
+      "name": "Зураг, чимэглэлийн зохиогчийг олох",
+      "description": "Чимэглэл, аниме, урлагийн бүтээлийн урвуу хайлт. Зургийн линкийг тэр хуудсанд буулгана.",
+      "limits": "Урлагийн бүтээлд зориулсан; мэдээний зурагт тохиромжгүй. Олдохгүй байх нь зураг эх бүтээл гэсэн үг биш."
+    }
+  },
+  {
+    "id": "wayback",
+    "icon": "🕰️",
+    "short": "Wayback",
+    "name": "Was this page archived, and when first?",
+    "subtitle": "Internet Archive Wayback Machine",
+    "description": "Shows the first and latest archived copies of a web page.",
+    "categories": [
+      "archives",
+      "sources"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher",
+      "office"
+    ],
+    "input": "url",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Shows when the archive captured the page, not when it was published. Many pages, including most Facebook posts, are never archived.",
+    "open": {
+      "mode": "api",
+      "adapter": "wayback"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://archive.org/help/wayback_api.php",
+    "mn": {
+      "name": "Энэ хуудсыг архивласан уу, анх хэзээ?",
+      "description": "Вэб хуудасны архивт хадгалагдсан анхны болон сүүлийн хуулбарыг харуулна.",
+      "limits": "Архив хуудсыг хэзээ хадгалсныг харуулна, хэзээ нийтлэгдсэнийг биш. Олон хуудас, ялангуяа Facebook постууд, огт архивлагддаггүй."
+    }
+  },
+  {
+    "id": "factcheck-explorer",
+    "icon": "🧾",
+    "short": "Fact Check",
+    "name": "Has a fact-checker already checked this claim?",
+    "subtitle": "Google Fact Check Explorer",
+    "description": "Searches published fact-checks from many countries. Copy the claim, then search on its page.",
+    "categories": [
+      "claims"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher"
+    ],
+    "input": "claim",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Only finds fact-checks publishers marked up for Google; few Mongolian ones are in it. No result means none was found, not that the claim is true.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://toolbox.google.com/factcheck/explorer",
+      "fallbackUrl": "https://toolbox.google.com/factcheck/explorer"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://toolbox.google.com/factcheck/explorer",
+    "mn": {
+      "name": "Энэ мэдэгдлийг баримт шалгагч өмнө нь шалгасан уу?",
+      "description": "Олон орны нийтлэгдсэн баримт шалгалтаас хайна. Мэдэгдлийг хуулаад тэр хуудсанд хайна.",
+      "limits": "Google-д тэмдэглэгээ хийсэн шалгалтыг л олно; монгол шалгалт цөөн. Олдохгүй бол олдсонгүй л гэсэн үг, мэдэгдэл үнэн гэсэн үг биш."
+    }
+  },
+  {
+    "id": "mfcc-search",
+    "icon": "🏔️",
+    "short": "MFCC",
+    "name": "Search Mongolian fact-checks",
+    "subtitle": "MFCC (mfcc.mn)",
+    "description": "Searches the Mongolian Fact-Checking Center's published checks.",
+    "categories": [
+      "claims"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher",
+      "office"
+    ],
+    "input": "claim",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Covers only what MFCC has checked; most claims have never been checked. Search 2-4 key words, not the whole post.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://mfcc.mn/?s={U}",
+      "fallbackUrl": "https://mfcc.mn/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://mfcc.mn/",
+    "mn": {
+      "name": "Монгол баримт шалгалтаас хайх",
+      "description": "Монголын Баримт Шалгах Төвийн (MFCC) нийтэлсэн шалгалтуудаас хайна.",
+      "limits": "Зөвхөн MFCC-ийн шалгасан зүйлийг хамарна; ихэнх мэдэгдлийг хэн ч шалгаагүй байдаг. Бүтэн постоор биш, 2-4 гол үгээр хайгаарай."
+    }
+  },
+  {
+    "id": "google-search",
+    "icon": "🌐",
+    "short": "Google",
+    "name": "Who else is reporting this?",
+    "subtitle": "Google Search",
+    "description": "Look for independent outlets that reported the same thing themselves.",
+    "categories": [
+      "claims",
+      "sources"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher",
+      "office"
+    ],
+    "input": "claim",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Ranking reflects popularity and search optimisation, not accuracy. Many copies of one post are still one source.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://www.google.com/search?q={U}",
+      "fallbackUrl": "https://www.google.com/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://www.google.com/",
+    "mn": {
+      "name": "Өөр хэн үүнийг мэдээлж байна вэ?",
+      "description": "Үүнийг өөрсдөө сурвалжилж мэдээлсэн бие даасан хэвлэлүүдийг хайна.",
+      "limits": "Эрэмбэ нь алдартай байдлыг харуулна, үнэн зөвийг биш. Нэг постын олон хуулбар бол нэг л эх сурвалж."
+    }
+  },
+  {
+    "id": "checker",
+    "icon": "📝",
+    "short": "Checker",
+    "name": "What in this post is worth checking?",
+    "subtitle": "Our checker (rules + trained model)",
+    "description": "Points at wording often used to manipulate: urgency, 100% promises, unnamed sources, scam requests.",
+    "categories": [
+      "claims"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher",
+      "office"
+    ],
+    "input": "text",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Reads wording only and cannot tell whether a claim is true. Measured on news articles, not Facebook posts. Mongolian only.",
+    "open": {
+      "mode": "api",
+      "adapter": "checker"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://github.com/naranll/mil-trust-score",
+    "mn": {
+      "name": "Энэ постонд юуг шалгах вэ?",
+      "description": "Манипуляцид түгээмэл хэрэглэдэг хэллэгийг зааж өгнө: яаруулах, 100% амлалт, нэргүй эх сурвалж, луйврын хүсэлт.",
+      "limits": "Зөвхөн үг хэллэгийг уншина, мэдэгдэл үнэн эсэхийг хэлж чадахгүй. Facebook пост дээр биш, мэдээний нийтлэл дээр хэмжсэн. Зөвхөн монгол хэл."
+    }
+  },
+  {
+    "id": "rdap",
+    "icon": "📅",
+    "short": "RDAP",
+    "name": "When was this website registered?",
+    "subtitle": "RDAP domain lookup",
+    "description": "Registrar and registration date of a domain, from the official registration data.",
+    "categories": [
+      "sources"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher"
+    ],
+    "input": "domain",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Owner names are usually hidden. A young domain is a reason to look closer, not proof. Many .mn domains have no RDAP record; try WHOIS.",
+    "open": {
+      "mode": "api",
+      "adapter": "rdap"
+    },
+    "status": "unverified",
+    "lastVerified": "",
+    "sourceUrl": "https://about.rdap.org/",
+    "mn": {
+      "name": "Энэ сайтыг хэзээ бүртгүүлсэн бэ?",
+      "description": "Домэйны бүртгэгч, бүртгүүлсэн огноог албан ёсны бүртгэлээс харуулна.",
+      "limits": "Эзэмшигчийн нэр ихэвчлэн нууцлагдсан байдаг. Шинэ домэйн бол анхаарах шалтгаан, нотолгоо биш. Олон .mn домэйнд RDAP бичлэг байдаггүй; WHOIS-оор шалгаарай."
+    }
+  },
+  {
+    "id": "whois",
+    "icon": "📇",
+    "short": "WHOIS",
+    "name": "Look up the domain's WHOIS record",
+    "subtitle": "whois.com",
+    "description": "Registration record for a domain, including many .mn domains.",
+    "categories": [
+      "sources"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher"
+    ],
+    "input": "domain",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Data quality varies by registry, and privacy services hide owners.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://www.whois.com/whois/{U}",
+      "fallbackUrl": "https://www.whois.com/whois/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://www.whois.com/",
+    "mn": {
+      "name": "Домэйны WHOIS бүртгэлийг харах",
+      "description": "Домэйны бүртгэлийн мэдээлэл, олон .mn домэйн ч орно.",
+      "limits": "Мэдээллийн чанар бүртгэгчээс хамаарна; нууцлалын үйлчилгээ эзэмшигчийг нуудаг."
+    }
+  },
+  {
+    "id": "meta-ad-library",
+    "icon": "📢",
+    "short": "Ad Library",
+    "name": "What ads is this page running?",
+    "subtitle": "Meta Ad Library",
+    "description": "Search ads shown on Facebook and Instagram in Mongolia by page name or keyword.",
+    "categories": [
+      "sources"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher",
+      "office"
+    ],
+    "input": "text",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Search is by name, so similarly named pages are mixed in. It does not show who paid for most non-political ads.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://www.facebook.com/ads/library/?active_status=all&ad_type=all&country=MN&search_type=keyword_unordered&q={U}",
+      "fallbackUrl": "https://www.facebook.com/ads/library/"
+    },
+    "status": "unverified",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://www.facebook.com/ads/library/",
+    "mn": {
+      "name": "Энэ пэйж ямар зар явуулж байна вэ?",
+      "description": "Монголд Facebook, Instagram-д гарсан зарыг пэйжийн нэр эсвэл түлхүүр үгээр хайна.",
+      "limits": "Нэрээр хайдаг тул ижил нэртэй пэйжүүд холилдоно. Улс төрийн бус ихэнх зарын хувьд хэн төлснийг харуулдаггүй."
+    }
+  },
+  {
+    "id": "suncalc",
+    "icon": "☀️",
+    "short": "SunCalc",
+    "name": "Does the shadow match the claimed time?",
+    "subtitle": "SunCalc",
+    "description": "Sun position and shadow direction for any place and date.",
+    "categories": [
+      "geolocation"
+    ],
+    "audiences": [
+      "journalist",
+      "researcher"
+    ],
+    "input": "none",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Needs a known place, date and a clear shadow. Gives the sun's position, not proof of when a photo was taken.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://www.suncalc.org/",
+      "fallbackUrl": "https://www.suncalc.org/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://www.suncalc.org/",
+    "mn": {
+      "name": "Сүүдэр нь хэлж буй цагтай таарч байна уу?",
+      "description": "Дурын газар, огноонд нарны байрлал, сүүдрийн чиглэлийг харуулна.",
+      "limits": "Газар, огноо, тод сүүдэр мэдэгдэж байх ёстой. Нарны байрлалыг өгнө, зургийг хэзээ авсныг нотлохгүй."
+    }
+  },
+  {
+    "id": "google-earth",
+    "icon": "🌍",
+    "short": "Earth",
+    "name": "Does the place match the claim?",
+    "subtitle": "Google Earth",
+    "description": "Satellite and 3D views to compare roads, buildings and landscape with a photo.",
+    "categories": [
+      "geolocation"
+    ],
+    "audiences": [
+      "journalist",
+      "researcher"
+    ],
+    "input": "none",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Imagery can be years old. Compare fixed features such as roads and mountains, not cars or people.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://earth.google.com/web/",
+      "fallbackUrl": "https://earth.google.com/web/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://earth.google.com/",
+    "mn": {
+      "name": "Газар нь хэлж буйтай таарч байна уу?",
+      "description": "Зам, барилга, газрын байдлыг зурагтай харьцуулах хиймэл дагуулын, 3D зураг.",
+      "limits": "Зураг хэдэн жилийн өмнөх байж болно. Машин, хүн биш, зам, уул зэрэг тогтмол зүйлийг харьцуул."
+    }
+  },
+  {
+    "id": "openstreetmap",
+    "icon": "🗺️",
+    "short": "OSM",
+    "name": "Find the location on an open map",
+    "subtitle": "OpenStreetMap",
+    "description": "Community map with street and place names to match signs and landmarks.",
+    "categories": [
+      "geolocation"
+    ],
+    "audiences": [
+      "journalist",
+      "researcher"
+    ],
+    "input": "none",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Made by volunteers; rural Mongolia is mapped unevenly.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://www.openstreetmap.org/",
+      "fallbackUrl": "https://www.openstreetmap.org/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://www.openstreetmap.org/",
+    "mn": {
+      "name": "Байршлыг нээлттэй газрын зургаас олох",
+      "description": "Гудамж, газрын нэртэй олон нийтийн газрын зураг: хаяг, тэмдэгтэй тулгана.",
+      "limits": "Сайн дурынхан хийдэг; Монголын хөдөө орон нутаг жигд бус зурагдсан."
+    }
+  },
+  {
+    "id": "fotoforensics",
+    "icon": "🔬",
+    "short": "Forensics",
+    "name": "What does the image file reveal?",
+    "subtitle": "FotoForensics",
+    "description": "Metadata and error-level analysis of an uploaded image.",
+    "categories": [
+      "documents",
+      "images"
+    ],
+    "audiences": [
+      "journalist",
+      "researcher"
+    ],
+    "input": "none",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Social networks strip most metadata, so a Facebook image usually shows nothing. Error-level analysis is easy to over-read; it does not prove editing.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://fotoforensics.com/",
+      "fallbackUrl": "https://fotoforensics.com/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://fotoforensics.com/",
+    "mn": {
+      "name": "Зургийн файл юу хэлж байна вэ?",
+      "description": "Оруулсан зургийн мета өгөгдөл, алдааны түвшний шинжилгээ.",
+      "limits": "Сошиал сүлжээ мета өгөгдлийг ихэвчлэн устгадаг тул Facebook-ийн зурагт юу ч гарахгүй. Алдааны түвшний шинжилгээг буруу тайлбарлах амархан; засварласныг нотлохгүй."
+    }
+  },
+  {
+    "id": "exif-viewer",
+    "icon": "📷",
+    "short": "EXIF",
+    "name": "Read the camera data of an original file",
+    "subtitle": "Jeffrey's Image Metadata Viewer",
+    "description": "Shows camera model, date and GPS stored in an image file, when they survive.",
+    "categories": [
+      "documents",
+      "images"
+    ],
+    "audiences": [
+      "journalist",
+      "researcher"
+    ],
+    "input": "none",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Only useful on the original file. Screenshots and re-uploads lose this data, and it can be edited.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://exif.regex.info/exif.cgi",
+      "fallbackUrl": "https://exif.regex.info/exif.cgi"
+    },
+    "status": "unverified",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://exif.regex.info/exif.cgi",
+    "mn": {
+      "name": "Эх файлын камерын мэдээллийг унших",
+      "description": "Зургийн файлд хадгалагдсан камер, огноо, GPS-ийг (үлдсэн бол) харуулна.",
+      "limits": "Зөвхөн эх файлд хэрэгтэй. Дэлгэцийн зураг, дахин байршуулсан зурагт энэ мэдээлэл алга болдог, мөн засварлаж болно."
+    }
+  },
+  {
+    "id": "invid",
+    "icon": "🎞️",
+    "short": "InVID",
+    "name": "Check a video frame by frame",
+    "subtitle": "InVID-WeVerify plugin",
+    "description": "A separate free extension: cuts a video into keyframes you can reverse-search.",
+    "categories": [
+      "video"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher"
+    ],
+    "input": "none",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Needs its own install. It helps you trace a video; it does not tell you whether a video is real.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://chromewebstore.google.com/detail/fake-news-debunker-by-inv/mhccpoafgdgbhnjfhkcmgknndkeenfhe",
+      "fallbackUrl": "https://www.invid-project.eu/tools-and-services/invid-verification-plugin/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://www.invid-project.eu/tools-and-services/invid-verification-plugin/",
+    "mn": {
+      "name": "Видеог кадр кадраар шалгах",
+      "description": "Тусдаа үнэгүй extension: видеог гол кадр болгон хувааж урвуу хайлт хийх боломж олгоно.",
+      "limits": "Тусад нь суулгах шаардлагатай. Видеоны гарал үүслийг мөшгихөд тусална; жинхэнэ эсэхийг хэлэхгүй."
+    }
+  },
+  {
+    "id": "content-credentials",
+    "icon": "🪪",
+    "short": "C2PA",
+    "name": "Does this file carry Content Credentials?",
+    "subtitle": "Content Credentials Verify (C2PA)",
+    "description": "Reads the signed record of who made a file and which edits they declared.",
+    "categories": [
+      "ai-signals",
+      "images"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher"
+    ],
+    "input": "none",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Shows who signed a file and declared edits. Most web images lose credentials when platforms re-encode, so 'none found' tells you nothing.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://contentcredentials.org/verify",
+      "fallbackUrl": "https://contentcredentials.org/verify"
+    },
+    "status": "unverified",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://contentcredentials.org/",
+    "mn": {
+      "name": "Энэ файлд Content Credentials байна уу?",
+      "description": "Файлыг хэн хийж, ямар засвар хийснээ зарласан гарын үсэгтэй бичлэгийг уншина.",
+      "limits": "Хэн гарын үсэг зурж, ямар засвар зарласныг харуулна. Платформууд дахин шахахад ихэнх вэб зураг энэ мэдээллээ алддаг тул «олдсонгүй» гэдэг нь юу ч хэлэхгүй."
+    }
+  },
+  {
+    "id": "synthid",
+    "icon": "💧",
+    "short": "SynthID",
+    "name": "Was this made with Google's AI tools?",
+    "subtitle": "SynthID Detector (Google)",
+    "description": "Checks a file for Google's SynthID watermark.",
+    "categories": [
+      "ai-signals"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher"
+    ],
+    "input": "none",
+    "cost": "unknown",
+    "needsLogin": false,
+    "limits": "Only detects Google's own watermark. 'Not found' says nothing about other AI tools or about real photos. Access terms not verified by us.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://synthid.com/",
+      "fallbackUrl": "https://synthid.com/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://synthid.com/",
+    "mn": {
+      "name": "Үүнийг Google-ийн AI хэрэгслээр хийсэн үү?",
+      "description": "Файлд Google-ийн SynthID усан тэмдэг байгаа эсэхийг шалгана.",
+      "limits": "Зөвхөн Google-ийн өөрийн усан тэмдгийг илрүүлнэ. «Олдсонгүй» гэдэг нь бусад AI хэрэгсэл, бодит зургийн талаар юу ч хэлэхгүй. Ашиглах нөхцөлийг бид шалгаагүй."
+    }
+  },
+  {
+    "id": "deepfake-o-meter",
+    "icon": "🎭",
+    "short": "Deepfake",
+    "name": "Run research deepfake detectors on a file",
+    "subtitle": "DeepFake-o-Meter (University at Buffalo)",
+    "description": "Research platform that runs several open-source detectors on an upload.",
+    "categories": [
+      "ai-signals",
+      "video"
+    ],
+    "audiences": [
+      "journalist",
+      "researcher"
+    ],
+    "input": "none",
+    "cost": "free-with-signup",
+    "needsLogin": true,
+    "limits": "Detectors have documented false positives, especially on compressed social-media video. Treat any output as a reason to ask questions, never as proof.",
+    "open": {
+      "mode": "deeplink",
+      "template": "https://zinc.cse.buffalo.edu/ubmdfl/deep-o-meter/",
+      "fallbackUrl": "https://zinc.cse.buffalo.edu/ubmdfl/deep-o-meter/"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://zinc.cse.buffalo.edu/ubmdfl/deep-o-meter/",
+    "mn": {
+      "name": "Судалгааны deepfake илрүүлэгчээр шалгах",
+      "description": "Хэд хэдэн нээлттэй эхийн илрүүлэгчийг файл дээр ажиллуулдаг судалгааны платформ.",
+      "limits": "Илрүүлэгчид бодит видеог ч андуурдаг нь батлагдсан, ялангуяа шахагдсан сошиал видеог. Гарсан үр дүнг асуулт тавих шалтгаан гэж үз, хэзээ ч нотолгоо биш."
+    }
+  },
+  {
+    "id": "sift",
+    "icon": "🧭",
+    "short": "SIFT",
+    "name": "Four moves before you share",
+    "subtitle": "SIFT, by Mike Caulfield (CC BY 4.0)",
+    "description": "Stop, Investigate the source, Find better coverage, Trace to the original.",
+    "categories": [
+      "habits"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher",
+      "office"
+    ],
+    "input": "none",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "A habit, not a tool: it slows you down on purpose. It cannot check anything for you.",
+    "open": {
+      "mode": "internal",
+      "route": "habits/sift"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://hapgood.us/2019/06/19/sift-the-four-moves/",
+    "mn": {
+      "name": "Хуваалцахаасаа өмнөх дөрвөн алхам",
+      "description": "Зогс, Эх сурвалжийг судал, Илүү сайн мэдээлэл ол, Эх үүсвэрийг мөрд.",
+      "limits": "Хэрэгсэл биш, дадал: таныг санаатайгаар удаашруулна. Таны оронд юу ч шалгаж чадахгүй."
+    }
+  },
+  {
+    "id": "ifcn-checklist",
+    "icon": "📋",
+    "short": "IFCN",
+    "name": "What makes a fact-checker trustworthy?",
+    "subtitle": "IFCN Code of Principles: five commitments",
+    "description": "Five public commitments signatory fact-checkers make, as a checklist.",
+    "categories": [
+      "habits",
+      "sources"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher"
+    ],
+    "input": "none",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "Describes standards. Signing the code does not make every article right.",
+    "open": {
+      "mode": "internal",
+      "route": "habits/ifcn"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://ifcncodeofprinciples.poynter.org/the-commitments",
+    "mn": {
+      "name": "Баримт шалгагчид юугаар итгэх вэ?",
+      "description": "IFCN кодод нэгдсэн баримт шалгагчдын олон нийтэд өгдөг таван амлалт, шалгах жагсаалт хэлбэрээр.",
+      "limits": "Стандартыг тайлбарлана. Кодод нэгдсэн нь нийтлэл бүр зөв гэсэн үг биш."
+    }
+  },
+  {
+    "id": "mongolia-sources",
+    "icon": "🐎",
+    "short": "Mongolia",
+    "name": "Mongolian sources: fact-checkers, press bodies, laws",
+    "subtitle": "Starting list",
+    "description": "Who checks claims in Mongolia, where to complain about media, where laws and statistics live.",
+    "categories": [
+      "sources"
+    ],
+    "audiences": [
+      "journalist",
+      "editor",
+      "researcher",
+      "office"
+    ],
+    "input": "none",
+    "cost": "free",
+    "needsLogin": false,
+    "limits": "A short starting list, not a rating of anyone. Some data is old (ownership: 2016).",
+    "open": {
+      "mode": "internal",
+      "route": "mongolia"
+    },
+    "status": "ok",
+    "lastVerified": "2026-10-26",
+    "sourceUrl": "https://github.com/naranll/mil-trust-score",
+    "mn": {
+      "name": "Монгол эх сурвалж: баримт шалгагч, хэвлэлийн байгууллага, хууль",
+      "description": "Монголд хэн мэдэгдэл шалгадаг, хэвлэл мэдээллийн талаар хаана гомдол гаргах, хууль, статистик хаана байдаг.",
+      "limits": "Эхлэх богино жагсаалт, хэнийг ч үнэлээгүй. Зарим мэдээлэл хуучин (өмчлөл: 2016)."
+    }
+  }
+]

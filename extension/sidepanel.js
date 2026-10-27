@@ -4,6 +4,7 @@
 const app = document.getElementById("app");
 const gear = document.getElementById("gear");
 let tabId = null, winId = null, post = null, online = null, showServer = false, lastKey = null;
+let tab = "main", toolsPost = null;      // tab: main (the post panel) | tools (the tools box, tools.js)
 
 // Замын тэмдгийн хэлбэр (content.js-тэй ижил): f = дүүргэлт, s = доторх зураас
 const SHAPE = {
@@ -240,7 +241,20 @@ async function serverView() {
     <span class="status ${st[0]}">${st[1]}</span></div>`;
 }
 
+function setTab(k) {
+  tab = k;
+  document.querySelectorAll("#tabs [data-tab]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === k)));
+  render();
+  window.scrollTo(0, 0);
+}
+
 async function render() {
+  document.querySelectorAll("#tabs [data-tab]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
+  if (tab === "tools") {
+    lastKey = null;                 // coming back to the main tab replays its entrance once
+    if (!app.querySelector(".tb") || toolsPost !== post) { toolsPost = post; HMTools.mount(app, { post, onGoMain: () => setTab("main") }); }
+    return;
+  }
   const parts = [];
   if (online === false) parts.push(offlineView());
   if (showServer) parts.push(await serverView());
@@ -276,10 +290,12 @@ app.addEventListener("click", async (e) => {
     online = null; render(); check();
   }
 });
-gear.addEventListener("click", () => { showServer = !showServer; render(); });
+gear.addEventListener("click", () => { showServer = !showServer; if (tab === "tools") setTab("main"); else render(); });
+document.getElementById("tabs").addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b) setTab(b.dataset.tab); });
+HMTools.attach(app);
 
 chrome.storage.onChanged.addListener((ch, area) => {
-  if (area === "session" && ch[`sel:${tabId}`]) { post = ch[`sel:${tabId}`].newValue || null; render(); app.scrollTop = 0; window.scrollTo(0, 0); }
+  if (area === "session" && ch[`sel:${tabId}`]) { post = ch[`sel:${tabId}`].newValue || null; if (post) tab = "main"; render(); app.scrollTop = 0; window.scrollTo(0, 0); }
 });
 chrome.tabs.onActivated.addListener(({ tabId: t, windowId: w }) => { if (w === winId) { tabId = t; load(); } });
 

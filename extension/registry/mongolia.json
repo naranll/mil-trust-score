@@ -1,0 +1,225 @@
+{
+  "_about": "Mongolia card (CLAUDE.md 5.2). Facts with attribution, never a rating of an outlet. Items marked verified:false still need a teammate to open the link and confirm the wording.",
+  "groups": [
+    {
+      "id": "factcheck",
+      "title": {
+        "en": "Who checks claims",
+        "mn": "Мэдэгдлийг хэн шалгадаг вэ"
+      },
+      "items": [
+        {
+          "id": "mfcc",
+          "icon": "🔎",
+          "short": {
+            "mn": "MFCC",
+            "en": "MFCC"
+          },
+          "name": {
+            "en": "MFCC: Mongolian Fact-Checking Center",
+            "mn": "MFCC: Монголын Баримт Шалгах Төв"
+          },
+          "url": "https://mfcc.mn/",
+          "text": {
+            "en": "Fact-checks of Mongolian claims, run by Nest Center. 'Asuu' tipline on Messenger (Meedan Check, launched 2024-05-17): send them a claim to check.",
+            "mn": "Монгол мэдэгдлийн баримт шалгалт, Nest Center ажиллуулдаг. Messenger дээрх «Асуу» шугам (Meedan Check, 2024-05-17-нд нээсэн): шалгуулах мэдэгдлээ илгээж болно."
+          },
+          "label": {
+            "en": "IFCN-assessed",
+            "mn": "IFCN-ээр үнэлэгдсэн"
+          },
+          "label_url": "https://ifcncodeofprinciples.poynter.org/signatories",
+          "note": {
+            "en": "Current IFCN status could not be confirmed on 2026-10-26 (the list page loads by script). Check the live list before saying more.",
+            "mn": "IFCN-ийн одоогийн статусыг 2026-10-26-нд баталж чадаагүй (жагсаалт скриптээр ачаалагддаг). Үүнээс илүүг хэлэхээсээ өмнө жагсаалтыг шалгаарай."
+          },
+          "verified": true
+        },
+        {
+          "id": "factcheck-mn",
+          "icon": "🧾",
+          "short": {
+            "mn": "factcheck.mn",
+            "en": "factcheck.mn"
+          },
+          "name": {
+            "en": "factcheck.mn",
+            "mn": "factcheck.mn"
+          },
+          "url": "https://factcheck.mn/",
+          "text": {
+            "en": "Mongolian fact-checks; part of the archive our checker compares posts against.",
+            "mn": "Монгол баримт шалгалт; манай шалгагчийн постыг тулгадаг архивын нэг хэсэг."
+          },
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "press",
+      "title": {
+        "en": "Press bodies",
+        "mn": "Хэвлэлийн байгууллагууд"
+      },
+      "items": [
+        {
+          "id": "pim",
+          "icon": "📰",
+          "short": {
+            "mn": "PIM",
+            "en": "PIM"
+          },
+          "name": {
+            "en": "Press Institute of Mongolia",
+            "mn": "Монголын Хэвлэлийн Хүрээлэн"
+          },
+          "url": "https://www.pressinst.org.mn/",
+          "text": {
+            "en": "Media monitoring, journalist training and media statistics.",
+            "mn": "Хэвлэл мэдээллийн мониторинг, сэтгүүлчдийн сургалт, статистик."
+          },
+          "verified": false
+        },
+        {
+          "id": "media-council",
+          "icon": "⚖️",
+          "short": {
+            "mn": "Зөвлөл",
+            "en": "Council"
+          },
+          "name": {
+            "en": "Media Council of Mongolia",
+            "mn": "Монголын Хэвлэл Мэдээллийн Зөвлөл"
+          },
+          "url": "https://mediacouncil.mn/",
+          "text": {
+            "en": "Self-regulation body. Takes public complaints about news content.",
+            "mn": "Өөрийн зохицуулалтын байгууллага. Мэдээний агуулгын талаарх иргэдийн гомдлыг хүлээн авдаг."
+          },
+          "verified": false
+        },
+        {
+          "id": "mil-network",
+          "icon": "🎓",
+          "short": {
+            "mn": "МИМ",
+            "en": "MIL"
+          },
+          "name": {
+            "en": "National MIL network (Press Institute + UNESCO Mongolian committee)",
+            "mn": "МИБ-ийн үндэсний сүлжээ (Хэвлэлийн Хүрээлэн + ЮНЕСКО-гийн Монголын үндэсний комисс)"
+          },
+          "url": null,
+          "text": {
+            "en": "Curriculum and tutorials exist; we could not find direct public links.",
+            "mn": "Сургалтын хөтөлбөр, заавар байдаг; шууд нийтийн линк олдсонгүй."
+          },
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "ownership",
+      "title": {
+        "en": "Who owns the media",
+        "mn": "Хэвлэл мэдээллийг хэн эзэмшдэг вэ"
+      },
+      "items": [
+        {
+          "id": "mom",
+          "icon": "🏢",
+          "short": {
+            "mn": "Өмчлөл",
+            "en": "Ownership"
+          },
+          "name": {
+            "en": "Media Ownership Monitor Mongolia (RSF)",
+            "mn": "Хэвлэл мэдээллийн өмчлөлийн монитор (RSF)"
+          },
+          "url": "https://www.mom-gmr.org/",
+          "text": {
+            "en": "2016 data: about 89% of 39 outlets studied were not transparent about their owners; 74% had political affiliations. Old data: for a current owner, look up the company registry or beneficial-ownership filings.",
+            "mn": "2016 оны мэдээлэл: судалсан 39 хэвлэлийн 89 орчим хувь нь эзэмшигчээ ил тод болгоогүй, 74% нь улс төрийн холбоотой байсан. Хуучин мэдээлэл: одоогийн эзэмшигчийг компанийн бүртгэл, эцсийн өмчлөгчийн мэдүүлгээс хараарай."
+          },
+          "label": {
+            "en": "2016 data",
+            "mn": "2016 оны мэдээлэл"
+          },
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "primary",
+      "title": {
+        "en": "Primary data (go to the source)",
+        "mn": "Анхдагч мэдээлэл (эх сурвалж руу нь оч)"
+      },
+      "items": [
+        {
+          "id": "legalinfo",
+          "icon": "📜",
+          "short": {
+            "mn": "Хууль",
+            "en": "Laws"
+          },
+          "name": {
+            "en": "legalinfo.mn: Mongolian legislation",
+            "mn": "legalinfo.mn: Монгол улсын хууль тогтоомж"
+          },
+          "url": "https://legalinfo.mn/",
+          "text": {
+            "en": "Official texts of laws and resolutions. Check whether a law quoted in a post exists and is in force.",
+            "mn": "Хууль, тогтоолын албан ёсны эх. Постонд иш татсан хууль байгаа, хүчин төгөлдөр эсэхийг шалга."
+          },
+          "verified": true
+        },
+        {
+          "id": "nso",
+          "icon": "📊",
+          "short": {
+            "mn": "Статистик",
+            "en": "Stats"
+          },
+          "name": {
+            "en": "National Statistics Office open data",
+            "mn": "Үндэсний Статистикийн Хорооны нээлттэй өгөгдөл"
+          },
+          "url": "https://opendata.1212.mn/",
+          "text": {
+            "en": "Official statistics. Compare numbers in a post with the source table.",
+            "mn": "Албан ёсны статистик. Постын тоог эх хүснэгттэй нь харьцуул."
+          },
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "environment",
+      "title": {
+        "en": "Press freedom environment",
+        "mn": "Хэвлэлийн эрх чөлөөний орчин"
+      },
+      "items": [
+        {
+          "id": "rsf-index",
+          "icon": "🕊️",
+          "short": {
+            "mn": "RSF",
+            "en": "RSF"
+          },
+          "name": {
+            "en": "RSF World Press Freedom Index: Mongolia",
+            "mn": "RSF Хэвлэлийн эрх чөлөөний индекс: Монгол"
+          },
+          "url": "https://rsf.org/en/country/mongolia",
+          "text": {
+            "en": "A rating of the country's press-freedom environment, never of an outlet. We do not copy the score here because we have not verified the current figure; read it on RSF's page.",
+            "mn": "Энэ нь улсын хэвлэлийн эрх чөлөөний орчны үнэлгээ, ямар нэг хэвлэлийн үнэлгээ биш. Одоогийн тоог бид шалгаагүй тул энд хуулаагүй; RSF-ийн хуудаснаас уншаарай."
+          },
+          "verified": true
+        }
+      ]
+    }
+  ]
+}

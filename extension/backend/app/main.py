@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from . import posts
+from . import posts, proxy
 from . import llm_score, model_adapter
 from .config import EXTENSION_DIR, feedback_dir
 from .schemas import FeedbackRequest, ScoreRequest, ScoreResponse
@@ -24,10 +24,12 @@ app.add_middleware(
     allow_origins=_extra,
     allow_origin_regex=r"chrome-extension://.*|http://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type", "X-Install-Id"],
+    expose_headers=["X-Cache"],
 )
 
 app.include_router(posts.router)
+app.include_router(proxy.router)   # /api/wayback, /api/rdap, /api/registry: used by the Tools tab
 
 
 @app.get("/health")
